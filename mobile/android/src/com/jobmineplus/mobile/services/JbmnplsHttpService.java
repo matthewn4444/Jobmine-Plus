@@ -46,6 +46,7 @@ public final class JbmnplsHttpService {
 	private static final int BUFFER_READER_SIZE = 1024/2;				//512 Characters/line
 	private static final String LOGIN_UNIQUE_STRING = "document.login.userid.focus";
 	
+	private static HttpClient client = new DefaultHttpClient();
 	private static JbmnplsHttpService instance = null;
 	private static Object lock = new Object();
 	
@@ -71,7 +72,7 @@ public final class JbmnplsHttpService {
 		return loginTimeStamp != 0 && (timeNow - loginTimeStamp) < AUTO_LOGOUT_TIME;
 	}
 	
-	public Boolean syncLogin(String username, String password) {
+	public Boolean login(String username, String password) {
 		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("httpPort", ""));
         nameValuePairs.add(new BasicNameValuePair("submit", "Submit"));
@@ -81,6 +82,7 @@ public final class JbmnplsHttpService {
         
         Boolean loggedIn = false;
         synchronized (lock) {
+        	loginTimeStamp = 0;
 	        try {
 	        	HttpResponse response = post(nameValuePairs, JbmnplsHttpService.POST_LINKS.LOGIN);
 	        	if (response.getStatusLine().getStatusCode() != 200) {
@@ -89,20 +91,23 @@ public final class JbmnplsHttpService {
 	        	loggedIn = !isTextOnLineOfHttpResponse(response, LOGIN_UNIQUE_STRING);
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
-				//return false;
+				return false;
 			} catch (UnknownHostException e) {
 				System.out.println("Cannot find host!");
 				e.printStackTrace();
+				return false;
 			} catch (IOException e) {
 				e.printStackTrace();
 				return false;
 			}
+	        if (loggedIn) {
+	        	updateTimestamp();
+	        }
         }
-        updateTimestamp();
 		return loggedIn;
 	}
 	
-	public boolean syncLogout() {
+	public boolean logout() {
 		Boolean loggedIn = false;
 			synchronized (lock) {
 		 	try {
@@ -129,7 +134,6 @@ public final class JbmnplsHttpService {
     	Boolean found = false;
     	String line = null; 
     	while((line = reader.readLine()) != null) {
-    		System.out.println(line);
     		if(line.contains(word)) {
     			found = true;
     			break;
@@ -139,8 +143,7 @@ public final class JbmnplsHttpService {
     	return found;
 	}
 	
-	public HttpResponse post(List<NameValuePair> postData, String url) throws ClientProtocolException, IOException {
-		HttpClient client = new DefaultHttpClient();
+	public synchronized HttpResponse post(List<NameValuePair> postData, String url) throws ClientProtocolException, IOException {
 		HttpPost postRequest = new HttpPost(url);
 		postRequest.setEntity(new UrlEncodedFormEntity(postData));
 		HttpResponse response = client.execute(postRequest);
@@ -148,8 +151,7 @@ public final class JbmnplsHttpService {
 		return response;
 	}
 	
-	public HttpResponse get(String url) throws ClientProtocolException, IOException {
-		HttpClient client = new DefaultHttpClient();
+	public synchronized HttpResponse get(String url) throws ClientProtocolException, IOException {
 		HttpGet getRequest = new HttpGet(url);
         return client.execute(getRequest);
 	}

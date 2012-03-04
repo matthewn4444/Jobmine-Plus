@@ -24,11 +24,4 @@
         android:id="@+id/login_button"
         android:text="@+string/login_button"
         />
-    <TextView
-        android:layout_width="fill_parent" 
-        android:layout_height="fill_parent"
-        android:id="@+id/output"
-        android:scrollbars = "vertical"
-        />
-
 </LinearLayout>

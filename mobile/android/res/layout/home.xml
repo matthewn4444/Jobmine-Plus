@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:padding="20dp"
     android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/output"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:scrollbars="vertical"
-        android:text="Logged in!" />
+    <Button
+        android:id="@+id/apps_button"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:text="@+string/applications_title"
+        />
 
 </LinearLayout>

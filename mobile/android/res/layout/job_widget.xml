@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	android:orientation="vertical">
+     <TextView
+          android:id="@+id/job_title"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:ellipsize="end"
+          android:singleLine="true"
+          android:textStyle="bold"
+          android:text="Software Engineer" />
+     <TextView
+          android:id="@+id/job_employer"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:text="AMD" />
+      <TextView
+        android:id="@+id/job_status"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:text="Not Selected" 
+        />
+      <TextView
+       android:id="@+id/job_apps"
+       android:layout_width="fill_parent"
+       android:layout_height="wrap_content"
+       android:text="Total Applications: 42" />
+      <TextView
+          android:id="@+id/job_last_day"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:layout_gravity="right"
+          android:singleLine="true"
+          android:text="Last Day: Jan 1, 2012" />
+</LinearLayout>
+    <!-- 
+    <TextView
+        android:id="@+id/job_employer"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:text="AMD"
+        />
+    
+    
+ -->
+
+    
