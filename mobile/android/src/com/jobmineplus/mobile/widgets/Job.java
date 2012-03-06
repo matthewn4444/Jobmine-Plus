@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
@@ -59,6 +60,7 @@ public class Job {
 	}
 
 	static public enum STATUS{
+		APPLY		("Apply", 3),
 		APPLIED		("Applied", 3),
 		CANNOT_APPLY("Not Authorized to Apply", 8),
 		NOT_SELECTED("Not Selected", 10),
@@ -116,6 +118,7 @@ public class Job {
 	}
 	
 	static public final String DESCR_URL_PREFIX = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_JOBDTLS?UW_CO_JOB_ID=";
+	private final short NUM_DIGITS_ID = 8;
 	
 	protected JbmnplsHttpService service;
 	
@@ -124,7 +127,7 @@ public class Job {
 	//===========================
 
 	// Definitely write once; cannot change
-	protected String id;
+	protected int id;
 	protected String title;
 	protected String employer;
 	protected String term;
@@ -145,6 +148,7 @@ public class Job {
 	protected String hiringSupport;
 	protected String workSupport;
 	protected String description;
+	protected String warning;
 
 	//Cannot set this
 	protected String url = null;
@@ -172,7 +176,7 @@ public class Job {
 	 * @param jLastDate
 	 * @param jNumApps
 	 */
-	public Job(String jId, String jTitle, String jEmployer, String jTerm, 
+	public Job(int jId, String jTitle, String jEmployer, String jTerm, 
 			STATE jState, STATUS jStatus, Date jLastDate, int jNumApps){
 		setId(jId);
 		title = jTitle;
@@ -201,7 +205,7 @@ public class Job {
 	 * @param jLastDate
 	 * @param jNumApps
 	 */
-	public Job(String jId, String jTitle, String jEmployer, String jLocation,
+	public Job(int jId, String jTitle, String jEmployer, String jLocation,
 			STATUS jStatus, Date jLastDate, int jNumApps){
 		setId(jId);
 		title = jTitle;
@@ -227,7 +231,7 @@ public class Job {
 	 * @param jLastDate
 	 * @param jNumApps
 	 */
-	public Job(String jId, String jTitle, String jEmployer, String jLocation,
+	public Job(int jId, String jTitle, String jEmployer, String jLocation,
 			int jOpenings, Date jLastDate, int jNumApps){
 		setId(jId);
 		title = jTitle;
@@ -321,6 +325,10 @@ public class Job {
 		description = text;
 	}
 	
+	public void setDescriptionWarning(String text) {
+		warning = text;		
+	}
+	
 	//	Protected
 	protected void setTitle(String jTitle) {
 		title = jTitle;
@@ -334,18 +342,22 @@ public class Job {
 		term = jTerm;
 	}
 	
-	protected void setId(String jId) throws IllegalArgumentException{
-		if (Integer.parseInt(jId) <= 0) {
+	protected void setId(int jId) throws IllegalArgumentException{
+		if (jId <= 0) {
 			throw new IllegalArgumentException("You cannot set an id that is negative or equal to 0.");
 		}
 		id = jId;
-		url = Job.DESCR_URL_PREFIX + id;
+		String str_id = String.valueOf(jId);
+		while (str_id.length() < NUM_DIGITS_ID) {
+			str_id = "0" + str_id;
+		}
+		url = Job.DESCR_URL_PREFIX + str_id;
 	}
 	
 	//=============
 	//	Getters
 	//=============
-	public String getId() {
+	public int getId() {
 		return id;
 	}
 	
@@ -417,6 +429,10 @@ public class Job {
 		return status.getPriority() > state.getPriority() ? status.toString() : state.toString();
 	}
 	
+	public String getDescriptionWarning() {
+		return warning;
+	}
+	
 	//===========
 	//	Methods
 	//===========
@@ -432,6 +448,15 @@ public class Job {
 			e.printStackTrace();
 			return false;
 		}
+		
+		Elements divs = doc.getElementsByTag("div");
+		int count = divs.size();
+		for(int i = 0; i < count; i++) {
+			switch(i) {
+			//TODO finish this
+			}
+		}
+		
 		//TODO do the parsing here
 		return true;
 	}

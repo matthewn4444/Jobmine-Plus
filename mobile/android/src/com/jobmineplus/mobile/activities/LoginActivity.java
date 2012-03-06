@@ -43,7 +43,16 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
         defindUiAndAttachEvents();
     }
     
-    private void defindUiAndAttachEvents() {
+  
+//    @Override
+//	protected void onStart() {	//Skip login :D
+//		super.onStart();
+//		Intent myIntent = new Intent(this, HomeActivity.class);
+//		startActivity(myIntent);
+//	}
+
+
+	private void defindUiAndAttachEvents() {
     	loginBtn = (Button) findViewById(R.id.login_button);
     	usernameEdtbl = (EditText) findViewById(R.id.username_field);
     	passwordEdtbl = (EditText) findViewById(R.id.password_field);
@@ -77,7 +86,7 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     	}
     	
     	new AsyncLoginTask(this).execute(username, password);
-   // 	new AsyncLoginTask(this).execute(a, b);
+//    	new AsyncLoginTask(this).execute(a, b);
     }
    
     public void print(Object text) {
@@ -118,8 +127,8 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
 				startActivity(myIntent);
 			} else {
 				Toast.makeText(activity, activity.getString(R.string.login_fail_message), Toast.LENGTH_SHORT).show();
-				Intent myIntent = new Intent(activity, HomeActivity.class);
-				startActivity(myIntent);
+//				Intent myIntent = new Intent(activity, HomeActivity.class);
+//				startActivity(myIntent);
 			}
 		}
     }

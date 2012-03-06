@@ -37,6 +37,10 @@ public final class JbmnplsHttpService {
 		public static final String DESCRIP_PRE 	= "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_JOBDTLS?UW_CO_JOB_ID=";
 	}
 	
+	static public final class GET_FAKE_LINKS {
+		public static final String APPLICATIONS = "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
+	}
+	
 	static public final class POST_LINKS {
 		public static final String LOGIN = "https://jobmine.ccol.uwaterloo.ca/psp/SS/?cmd=login&languageCd=ENG&sessionId=";
 		public static final String LOGOUT = "https://jobmine.ccol.uwaterloo.ca/psp/SS/?cmd=login&languageCd=ENG&";

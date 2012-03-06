@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -19,6 +20,7 @@ import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoginActivity;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.services.JobService;
 import com.jobmineplus.mobile.widgets.Job;
 
 import android.app.Activity;
@@ -36,13 +38,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public abstract class JbmnplsActivityBase extends Activity {
+	private static final NameValuePair[] BasicNameValuePair = null;
+
 	//=================
 	// 	Declarations
 	//=================
-	protected int layout = -1;				//Specify a layout eg. R.layout.login
-	protected String dataUrl = null; 		//Use JbmnPlsHttpService.GET_LINKS.<url>
+	private String dataUrl = null; 		//Use JbmnPlsHttpService.GET_LINKS.<url>
 
 	private JbmnplsHttpService service;
+	protected JobService jobService;
 	
 	//====================
 	// 	Override Methods
@@ -50,8 +54,9 @@ public abstract class JbmnplsActivityBase extends Activity {
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(layout);
         service = JbmnplsHttpService.getInstance();
+        jobService = JobService.getInstance();
+        dataUrl = setUp(savedInstanceState);
         verifyLogin();
         requestData();
     }
@@ -59,6 +64,27 @@ public abstract class JbmnplsActivityBase extends Activity {
 	//====================
 	//	Abstract Methods
 	//====================
+	
+	/**
+	 * Running setUp() you need to specify the "layout" and
+	 * "dataUrl".
+	 * For example:
+	 * 	protected void setUp() {
+	 * 		setContentView(layout);
+	 *		String url = JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+	 *		return url;
+	 * 	}
+	 * @param savedInstanceState
+	 * @return dataUrl (String) that gets the data that will be parsed
+	 */
+	protected abstract String setUp(Bundle savedInstanceState);
+	
+	/**
+	 * Here you are given the document of the dataUrl page
+	 * specified in setUp(). Also render the layout with the 
+	 * data here.
+	 * @param doc
+	 */
 	protected abstract void parseWebpage(Document doc);
 	
 	//=================================
@@ -118,6 +144,20 @@ public abstract class JbmnplsActivityBase extends Activity {
 		return anchor.attr("href");
 	}
 	
+	protected void startActivity(Class<?> goToClass) {
+		NameValuePair[] empty = null;
+		startActivity(goToClass, empty);
+	}
+	
+	protected void startActivity(Class<?> goToClass, NameValuePair ...args) {
+		Intent in = new Intent(this, goToClass);
+		if (args != null) {
+			for (NameValuePair arg: args) {
+				in.putExtra(arg.getName(), arg.getValue().toString());
+			}
+		}
+		startActivity(in);
+	}
 	
 	protected void log(Object txt) {
 		System.out.println(txt);
@@ -171,10 +211,10 @@ public abstract class JbmnplsActivityBase extends Activity {
 		
 		@Override
 		protected void onPostExecute(String html){
+			activity.parseWebpage(Jsoup.parse(html));
 			if (progress.isShowing()) {
 				progress.dismiss();
 			}
-			activity.parseWebpage(Jsoup.parse(html));
 		}
 	}
 	
@@ -182,14 +222,14 @@ public abstract class JbmnplsActivityBase extends Activity {
 	//	JobListAdapter
 	//==================
 	
-	protected class JobListAdapter extends ArrayAdapter<Job>{
-    	private ArrayList<Job> entries;
+	protected class JobListAdapter extends ArrayAdapter<Integer>{
+    	private ArrayList<Integer> entries;
     	private Activity activity;
     	private final SimpleDateFormat format = new SimpleDateFormat("MMM d, yyyy");
     	
-    	public JobListAdapter(Activity a, int textViewResourceId, ArrayList<Job> list) {
-    		super(a, textViewResourceId, list);
-    		entries = list;
+    	public JobListAdapter(Activity a, int textViewResourceId, ArrayList<Integer> listOfIds) {
+    		super(a, textViewResourceId, listOfIds);
+    		entries = listOfIds;
     		activity = a;
     	}
     	
@@ -219,7 +259,8 @@ public abstract class JbmnplsActivityBase extends Activity {
     			elements = (JobListElements) item.getTag();
     		}
     		
-    		final Job entry = entries.get(position);
+    		final int id = entries.get(position);
+    		final Job entry = jobService.getJobById(id);
     		if (entry != null) {
     			elements.job_title.setText(entry.getTitle());
     			elements.job_employer.setText(entry.getEmployer());

@@ -28,6 +28,9 @@
         <activity 
             android:name=".activities.jbmnpls.Applications"
             android:label="@string/app_name" />
+        <activity 
+            android:name=".activities.jbmnpls.Description"
+            android:label="@string/app_name" />
     </application>
 
 </manifest>

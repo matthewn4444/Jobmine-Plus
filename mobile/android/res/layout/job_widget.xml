@@ -36,15 +36,3 @@
           android:singleLine="true"
           android:text="Last Day: Jan 1, 2012" />
 </LinearLayout>
-    <!-- 
-    <TextView
-        android:id="@+id/job_employer"
-        android:layout_height="wrap_content"
-        android:layout_width="fill_parent"
-        android:text="AMD"
-        />
-    
-    
- -->
-
-    
