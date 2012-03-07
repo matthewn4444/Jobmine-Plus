@@ -45,7 +45,7 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     
   
 //    @Override
-//	protected void onStart() {	//Skip login :D
+//	protected void onStart() {
 //		super.onStart();
 //		Intent myIntent = new Intent(this, HomeActivity.class);
 //		startActivity(myIntent);
@@ -57,7 +57,7 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     	usernameEdtbl = (EditText) findViewById(R.id.username_field);
     	passwordEdtbl = (EditText) findViewById(R.id.password_field);
     	loginBtn.setOnClickListener(this);
-//    	loginBtn.setEnabled(false);
+    	loginBtn.setEnabled(false);
     	
     	usernameEdtbl.addTextChangedListener(this);
     	passwordEdtbl.addTextChangedListener(this);
@@ -86,7 +86,6 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     	}
     	
     	new AsyncLoginTask(this).execute(username, password);
-//    	new AsyncLoginTask(this).execute(a, b);
     }
    
     public void print(Object text) {

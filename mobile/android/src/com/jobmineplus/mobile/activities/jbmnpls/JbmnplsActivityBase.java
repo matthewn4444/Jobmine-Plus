@@ -38,7 +38,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public abstract class JbmnplsActivityBase extends Activity {
-	private static final NameValuePair[] BasicNameValuePair = null;
 
 	//=================
 	// 	Declarations
@@ -47,6 +46,7 @@ public abstract class JbmnplsActivityBase extends Activity {
 
 	private JbmnplsHttpService service;
 	protected JobService jobService;
+	private ProgressDialog progress;
 	
 	//====================
 	// 	Override Methods
@@ -58,6 +58,7 @@ public abstract class JbmnplsActivityBase extends Activity {
         jobService = JobService.getInstance();
         dataUrl = setUp(savedInstanceState);
         verifyLogin();
+        defineUI();
         requestData();
     }
 	
@@ -80,6 +81,13 @@ public abstract class JbmnplsActivityBase extends Activity {
 	protected abstract String setUp(Bundle savedInstanceState);
 	
 	/**
+	 * This allows the user to define all their UI object variables here.
+	 * is necessary but does not always need it. Please specify layout in
+	 * setUp();
+	 */
+	protected abstract void defineUI();
+	
+	/**
 	 * Here you are given the document of the dataUrl page
 	 * specified in setUp(). Also render the layout with the 
 	 * data here.
@@ -98,6 +106,26 @@ public abstract class JbmnplsActivityBase extends Activity {
 		}
 		task.execute(dataUrl);
 	}
+	
+	/**
+	 * You can override this function if you need to fetch
+	 * something else besides the default url.
+	 * Return null if it failed and this class will throw 
+	 * a dialog saying it failed otherwise return the html
+	 * @param url
+	 * @return null if failed or String that is the html
+	 */
+	protected String onRequestData(String url) {
+		try {
+			return service.getHtmlFromHttpResponse(service.get(url));
+		} catch (ClientProtocolException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
 	
 	protected boolean logout() {
 		if (service.isLoggedIn()) {
@@ -153,10 +181,18 @@ public abstract class JbmnplsActivityBase extends Activity {
 		Intent in = new Intent(this, goToClass);
 		if (args != null) {
 			for (NameValuePair arg: args) {
-				in.putExtra(arg.getName(), arg.getValue().toString());
+				in.putExtra(arg.getName(), arg.getValue());
 			}
 		}
 		startActivity(in);
+	}
+	
+	protected Element parseTableById(Document doc, String id) throws JbmnplsParsingException {
+		try{
+			return doc.getElementById(id).select("tr:eq(1) table table").first();
+		} catch(Exception e) {
+			throw new JbmnplsParsingException("Problem parsing table.");
+		}
 	}
 	
 	protected void log(Object txt) {
@@ -181,9 +217,17 @@ public abstract class JbmnplsActivityBase extends Activity {
 	//	Tasks Classes
 	//=================
 	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		if (progress != null && progress.isShowing()) {
+			progress.dismiss();
+		}
+		super.onPause();
+	}
+
 	private class GetHtmlTask extends AsyncTask<String, Void, String> {
 		private JbmnplsActivityBase activity;
-		private ProgressDialog progress;
 		
 		public GetHtmlTask (JbmnplsActivityBase a) {
 			activity = a;
@@ -198,22 +242,18 @@ public abstract class JbmnplsActivityBase extends Activity {
 		
 		@Override
 		protected String doInBackground(String... params) {
-			String url = params[0];
-			try {
-				return service.getHtmlFromHttpResponse(service.get(url));
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			return null;
+			return activity.onRequestData(params[0]);
 		}
 		
 		@Override
 		protected void onPostExecute(String html){
-			activity.parseWebpage(Jsoup.parse(html));
 			if (progress.isShowing()) {
 				progress.dismiss();
+			}
+			if (html == null) {
+				//TODO handle with message
+			} else {
+				activity.parseWebpage(Jsoup.parse(html));
 			}
 		}
 	}

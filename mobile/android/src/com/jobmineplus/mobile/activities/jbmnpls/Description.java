@@ -3,6 +3,7 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import org.jsoup.nodes.Document;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
@@ -12,9 +13,8 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.services.JobService;
 import com.jobmineplus.mobile.widgets.Job;
 
-public class Description extends JbmnplsActivityBase{
+public class Description extends JbmnplsTabActivityBase{
 	
-	protected JobService jobServ;
 	protected Job job;
 	
 	//===============
@@ -41,48 +41,65 @@ public class Description extends JbmnplsActivityBase{
 	@Override
 	protected String setUp(Bundle savedInstanceState) throws JbmnplsParsingException{
 		setContentView(R.layout.job_description);
-		jobServ = JobService.getInstance();
-		int id = getIntent().getIntExtra("jobId", 0);
+		int id = Integer.parseInt(getIntent().getStringExtra("jobId"));
 		if (id == 0) {
 			throw new JbmnplsParsingException("Did not receive an id going here.");
 		}
-		job = jobServ.getJobById(id);
+		job = jobService.getJobById(id);
 		if (job == null) {
 			throw new JbmnplsParsingException("This id does not have a job object");
 		}
-		System.out.print(id+" "+job.getUrl());
-		setUpUI();
-		return job.getUrl();
+		return "";		//Can be anything because we override onRequestData()
 	}
 	
 	@Override
-	protected void requestData() {
+	protected void defineUI() {
+		employer = 			(TextView) findViewById(R.id.employer);
+//		title = 			(TextView) findViewById(R.id.title);
+//		location = 			(TextView) findViewById(R.id.location);
+//		openings = 			(TextView) findViewById(R.id.openings);
+//		levels = 			(TextView) findViewById(R.id.levels);
+//		grades = 			(TextView) findViewById(R.id.grades);
+//		warning = 			(TextView) findViewById(R.id.warning);
+//		openDate = 			(TextView) findViewById(R.id.open_date);
+//		closedDate = 		(TextView) findViewById(R.id.last_day);
+//		hiringSupport = 	(TextView) findViewById(R.id.hiring_support);
+//		worktermSupport = 	(TextView) findViewById(R.id.work_term);
+//		disciplines = 		(TextView) findViewById(R.id.discplines);
+//		description = 		(TextView) findViewById(R.id.description);
+//		
+		createTab("description", "Description");
+		createTab("employer", "Employer Info");
+		
+		super.defineUI();
+	}
+
+	@Override
+	public View onTabSwitched(String tag) {
+		// TODO Auto-generated method stub
+		return employer;
+	}
+	
+	@Override
+	protected String onRequestData(String url) {
+		return job.grabDescriptionData();
 	}
 	
 	//Not needed because overriding requestData()
 	@Override
-	protected void parseWebpage(Document doc) {}	
+	protected void parseWebpage(Document doc) {
+		System.out.println("Workes?");
+	}	
 	
 	//=====================
 	// 	Protected Methods
 	//=====================
 	
-	protected void setUpUI() {
-		employer = 			(TextView) findViewById(R.id.employer);
-		title = 			(TextView) findViewById(R.id.title);
-		location = 			(TextView) findViewById(R.id.location);
-		openings = 			(TextView) findViewById(R.id.openings);
-		levels = 			(TextView) findViewById(R.id.levels);
-		grades = 			(TextView) findViewById(R.id.grades);
-		warning = 			(TextView) findViewById(R.id.warning);
-		openDate = 			(TextView) findViewById(R.id.open_date);
-		closedDate = 		(TextView) findViewById(R.id.last_day);
-		hiringSupport = 	(TextView) findViewById(R.id.hiring_support);
-		worktermSupport = 	(TextView) findViewById(R.id.work_term);
-		disciplines = 		(TextView) findViewById(R.id.discplines);
-		description = 		(TextView) findViewById(R.id.description);
-	}
 	
+
+	
+
+
 	
 	
 	

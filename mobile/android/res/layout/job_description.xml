@@ -1,85 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/tabhost"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:layout_height="fill_parent" >
 
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/employer"
-       android:text="Employer"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/title"
-       android:text="Title"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/location"
-       android:text="Location"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/openings"
-       android:text="Openings: 9"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/levels"
-       android:text="Junior"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/grades"
-       android:text="Grades Required"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/warning"
-       android:text="Warning: This will be a warning"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/open_date"
-       android:text="Jan 1, 2012"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/last_day"
-       android:text="Jan 2, 2012"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/hiring_support"
-       android:text="Matthew Ng"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/work_term"
-       android:text="matthew Ng"
-       />
-   <TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/discplines"
-       android:text="Engineering"
-       />
-	<TextView
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:id="@+id/description"
-       android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec arcu sed turpis adipiscing euismod sed ac dui. Etiam sapien erat, euismod vitae sagittis ut, molestie sit amet mauris. Aliquam sapien velit, porttitor at luctus quis, eleifend eget lectus. Donec iaculis dignissim leo eget tempor. Nam malesuada adipiscing enim eget venenatis. Vestibulum aliquet fermentum ultrices. Phasellus dapibus lacus vitae erat cursus sagittis. Duis ipsum nunc, rhoncus a gravida quis, luctus sit amet elit. Donec sed nunc sed tortor euismod volutpat. Fusce facilisis, arcu eget imperdiet dignissim, risus lorem dignissim mi, ac egestas enim diam eu eros. In egestas velit sit amet tortor suscipit euismod. Aliquam viverra sodales purus, ac mattis felis tincidunt id. Mauris quis tortor ut lacus euismod cursus. Aenean dignissim, erat vitae egestas ornare, nulla elit faucibus risus, non mattis felis lorem et nisi. Curabitur feugiat, dui nec facilisis consequat, nisi massa condimentum nulla, eget interdum lorem nisl ac urna. Nulla facilisi. Vivamus gravida, erat at fringilla pharetra, turpis nisl elementum metus, a sodales nisi metus et erat. Nam diam orci, lobortis nec dictum in, tempus sit amet elit. Sed pulvinar felis in nunc rhoncus ac dictum mi molestie. Suspendisse ac ipsum odio. Maecenas sed urna feugiat elit molestie convallis id ut ipsum. Morbi quis tempor metus. Quisque venenatis massa et augue porttitor sodales."
-       />
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical" >
+
+        <TabWidget
+            android:id="@android:id/tabs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <FrameLayout
+            android:id="@android:id/tabcontent"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:padding="5dp" >
+            
+            <TextView
+                    android:id="@+id/employer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Employer" />
+            <!-- 
+            <LinearLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:orientation="vertical" >
+
+                
+
+                <TextView
+                    android:id="@+id/title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Title" />
+
+                <TextView
+                    android:id="@+id/location"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Location" />
+
+                <TextView
+                    android:id="@+id/openings"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Openings: 9" />
+
+                <TextView
+                    android:id="@+id/levels"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Junior" />
+
+                <TextView
+                    android:id="@+id/grades"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Grades Required" />
+
+                <TextView
+                    android:id="@+id/warning"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Warning: This will be a warning" />
+
+                <TextView
+                    android:id="@+id/open_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jan 1, 2012" />
+
+                <TextView
+                    android:id="@+id/last_day"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Jan 2, 2012" />
+
+                <TextView
+                    android:id="@+id/hiring_support"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Matthew Ng" />
+
+                <TextView
+                    android:id="@+id/work_term"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="matthew Ng" />
+
+                <TextView
+                    android:id="@+id/discplines"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Engineering" />
+
+                <TextView
+                    android:id="@+id/description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec arcu sed turpis adipiscing euismod sed ac dui. Etiam sapien erat, euismod vitae sagittis ut, molestie sit amet mauris. Aliquam sapien velit, porttitor at luctus quis, eleifend eget lectus. Donec iaculis dignissim leo eget tempor. Nam malesuada adipiscing enim eget venenatis. Vestibulum aliquet fermentum ultrices. Phasellus dapibus lacus vitae erat cursus sagittis. Duis ipsum nunc, rhoncus a gravida quis, luctus sit amet elit. Donec sed nunc sed tortor euismod volutpat. Fusce facilisis, arcu eget imperdiet dignissim, risus lorem dignissim mi, ac egestas enim diam eu eros. In egestas velit sit amet tortor suscipit euismod. Aliquam viverra sodales purus, ac mattis felis tincidunt id. Mauris quis tortor ut lacus euismod cursus. Aenean dignissim, erat vitae egestas ornare, nulla elit faucibus risus, non mattis felis lorem et nisi. Curabitur feugiat, dui nec facilisis consequat, nisi massa condimentum nulla, eget interdum lorem nisl ac urna. Nulla facilisi. Vivamus gravida, erat at fringilla pharetra, turpis nisl elementum metus, a sodales nisi metus et erat. Nam diam orci, lobortis nec dictum in, tempus sit amet elit. Sed pulvinar felis in nunc rhoncus ac dictum mi molestie. Suspendisse ac ipsum odio. Maecenas sed urna feugiat elit molestie convallis id ut ipsum. Morbi quis tempor metus. Quisque venenatis massa et augue porttitor sodales." />
+            </LinearLayout>
+             -->
+        </FrameLayout>
+    </LinearLayout>
+
+</TabHost>

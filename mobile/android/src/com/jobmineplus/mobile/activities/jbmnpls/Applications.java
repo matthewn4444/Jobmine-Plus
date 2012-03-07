@@ -19,6 +19,7 @@ import com.jobmineplus.mobile.widgets.Job;
 
 import android.app.LocalActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
@@ -33,25 +34,20 @@ import android.widget.AdapterView.OnItemClickListener;
 
 import org.apache.http.message.BasicNameValuePair;
 
-
-public class Applications extends JbmnplsActivityBase implements OnItemClickListener, TabHost.TabContentFactory, TabHost.OnTabChangeListener{
+public class Applications extends JbmnplsTabListActivityBase{
 	
+	//======================
+	// 	Declaration Objects
+	//======================
 	protected final String[] TABLE_ID = {"UW_CO_STU_APPSV$scroll$0", "UW_CO_APPS_VW2$scrolli$0"};
-	protected final short[] TABLE_NUM_COLS = {10, 12};				  
+	protected final short[] TABLE_NUM_COLS = {10, 12};
 	
+	private static class LISTS {
+		public static String ALL_JOBS = "all";
+		public static String ACTIVE_JOBS = "active";
+		public static String REJECTED_JOBS = "rejected";
+	}
 	
-	protected HashMap<Integer, Job> jobs;
-	
-	protected ArrayList<Integer> activeJobs;
-	protected ArrayList<Integer> rejectedJobs;
-	protected ArrayList<Integer> allJobs;
-	protected JobListAdapter adapter;
-	protected LocalActivityManager lcActMan;
-	
-	protected TabHost tabHost;
-	protected FrameLayout content;
-	ListView list;
-
 	//====================
 	// 	Override Methods
 	//====================
@@ -59,95 +55,29 @@ public class Applications extends JbmnplsActivityBase implements OnItemClickList
 	@Override
 	protected String setUp(Bundle savedInstanceState) {
 		setContentView(R.layout.applications);
-		
-    	list = (ListView) findViewById(R.id.job_list);
-		content = (FrameLayout) findViewById(android.R.id.content);
-		
-    	list.setOnItemClickListener(this);
-    	jobs = new HashMap<Integer, Job>();
-    	
-    	tabHost = (TabHost) findViewById(R.id.tabhost);
-    	
-		lcActMan = new LocalActivityManager(this, false);
-		lcActMan.dispatchCreate(savedInstanceState);
-		tabHost.setup(lcActMan);
-
-		
-		/*
-		 * TODO fix up this mess, break it out maybe make an implementation?
-		 * Fix how we should list items, should we make 3 list views instead
-		 * of replacing just one?
-		 */
-		tabHost.setOnTabChangedListener(this);
-		tabHost.addTab(tabHost.newTabSpec("all").setIndicator("All")
-				.setContent(this));
-		tabHost.addTab(tabHost.newTabSpec("active").setIndicator("Active")
-				.setContent(this));
-		tabHost.addTab(tabHost.newTabSpec("rejected").setIndicator("Rejected")
-				.setContent(this));
-    	
-//    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
+    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+//    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
 	}
 	
 	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		super.onPause();
-		lcActMan.dispatchPause(isFinishing());
-	}
-
-	@Override
-	protected void onResume() {
-		// TODO Auto-generated method stub
-		super.onResume();
-		lcActMan.dispatchResume();
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
-	}
-	
-
-	@Override
-	public void onTabChanged(String tag) {
-		if (allJobs != null) {
-			if (tag == "all") {
-				updateList(allJobs);
-			} else if (tag == "active") {
-				updateList(activeJobs);
-			} else {
-				updateList(rejectedJobs);
-			}
-		}
-	}
-
-	@Override
-	public View createTabContent(String tag) {
-		//If null, then the job lists arent downloaded yet :(
-		if (allJobs != null) {
-			if (tag == "all") {
-				updateList(allJobs);
-			} else if (tag == "active") {
-				updateList(activeJobs);
-			} else {
-				updateList(rejectedJobs);
-			}
-		}
-		return list;
+	protected void defineUI() {
+    	createTab(LISTS.ALL_JOBS, "All");
+    	createTab(LISTS.ACTIVE_JOBS, "Active");
+    	createTab(LISTS.REJECTED_JOBS, "Rejected");
+		super.defineUI();
 	}
 
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		//TODO get the real list of whatever is displayed
-		int jobId = allJobs.get(arg2);
+		int jobId = getListByTabId(getCurrentTab()).get(arg2);
 		BasicNameValuePair pass = new BasicNameValuePair("jobId", Integer.toString(jobId));
-		//startActivity(Description.class, pass);
+		startActivity(Description.class, pass);
 	}
 	
 	@Override
 	protected void parseWebpage(Document doc) throws HiddenColumnsException, JbmnplsParsingException{
-		Element activeApps = parseAppsTable(doc, TABLE_ID[0]);
-		Element allApps = parseAppsTable(doc, TABLE_ID[1]);
+		Element activeApps = parseTableById(doc, TABLE_ID[0]);
+		Element allApps = parseTableById(doc, TABLE_ID[1]);
 		
 		if (activeApps == null) {
 			throw new JbmnplsParsingException("Cannot parse '" + TABLE_ID[0] + "' in Applications.");
@@ -161,9 +91,9 @@ public class Applications extends JbmnplsActivityBase implements OnItemClickList
 		int allNumRows = allRows.size();
 		
 		//Parse active apps
+		clearListByTabId(LISTS.ACTIVE_JOBS);
 		Element header = activeRows.get(0);
-		Job job;
-		activeJobs = new ArrayList<Integer>(allNumRows);
+		Job job = null;
 		if (header.getElementsByTag("th").size() != TABLE_NUM_COLS[0]) {
 			throw new HiddenColumnsException();
 		}
@@ -185,15 +115,13 @@ public class Applications extends JbmnplsActivityBase implements OnItemClickList
 			Date lastDate 		= getDateFromElement(tds.get(8));
 			int numApps 		= getIntFromElement	(tds.get(9));
 			job = new Job(id, title, employer, term, state, status, lastDate, numApps);
-			activeJobs.add(id);
-			jobs.put(id, job);
-			jobService.addJob(job);
+			addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
 		}
 		
 		//	Parse All apps
 		header = allRows.get(0);
-		allJobs = new ArrayList<Integer>(allNumRows);
-		rejectedJobs = new ArrayList<Integer>(allNumRows);
+		clearListByTabId(LISTS.ALL_JOBS);
+		clearListByTabId(LISTS.REJECTED_JOBS);
 		if (header.getElementsByTag("th").size() != TABLE_NUM_COLS[1]) {
 			throw new HiddenColumnsException();
 		}
@@ -207,9 +135,8 @@ public class Applications extends JbmnplsActivityBase implements OnItemClickList
 				break;
 			}
 			int id 				= Integer.parseInt(str_id);
-			
 			//If it is not contained, then parse and throw job id in rejectedJobs
-			if (activeJobs.isEmpty() || !activeJobs.contains(id)) {
+			if (isListEmpty(LISTS.ACTIVE_JOBS) || !listContainsId(LISTS.ACTIVE_JOBS, id)) {
 				String title		= getTextFromElement(tds.get(1));
 				String employer 	= getTextFromElement(tds.get(2));
 				String term 		= getTextFromElement(tds.get(4));
@@ -221,33 +148,15 @@ public class Applications extends JbmnplsActivityBase implements OnItemClickList
 				jobService.addJob(job);
 				
 				if (status == Job.STATUS.EMPLOYED) {
-					activeJobs.add(id);
+					addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
 				} else {
-					rejectedJobs.add(id);
+					addJobToListByTabId(LISTS.REJECTED_JOBS, job);
 				}
-				jobs.put(id, job);
 			}
-			allJobs.add(id);
+			addJobToService(job);
+			addJobToListByTabId(LISTS.ALL_JOBS, job);
 		}
-		updateList(allJobs);
+		updateList(LISTS.ALL_JOBS);
 	}
-
-	//=================================
-	//	Class Public/Protected Methods
-	//=================================
-	protected Element parseAppsTable(Document doc, String id) throws JbmnplsParsingException {
-		try{
-			return doc.getElementById(id).select("tr:eq(1) table table").first();
-		} catch(Exception e) {
-			throw new JbmnplsParsingException("Problem parsing Applications table.");
-		}
-	}
-	
-	protected void updateList(ArrayList<Integer> displayList) {
-		adapter = new JobListAdapter(this, R.id.job_list, displayList);
-		adapter.notifyDataSetChanged();
-		list.setAdapter(adapter);
-	}
-	
 }
 

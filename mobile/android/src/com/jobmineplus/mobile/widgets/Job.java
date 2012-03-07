@@ -1,12 +1,16 @@
 package com.jobmineplus.mobile.widgets;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -107,6 +111,17 @@ public class Job {
 		MASTERS("Masters"),
 		PHD("Ph.D.");
 		
+		public static LEVEL getLevelfromString(String text) throws JbmnplsParsingException {
+			if (text != null) {
+				for (LEVEL b : LEVEL.values()) {
+					if (text.equalsIgnoreCase(b.toString())) {
+						return b;
+					}
+				}
+			}
+			throw new JbmnplsParsingException("State: Cannot match value '" + text + "'");
+		}
+		
 		@Override
 		public String toString() {
 			return state;
@@ -119,6 +134,7 @@ public class Job {
 	
 	static public final String DESCR_URL_PREFIX = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_JOBDTLS?UW_CO_JOB_ID=";
 	private final short NUM_DIGITS_ID = 8;
+	private final String REQUIRED_TEXT = "Required";
 	
 	protected JbmnplsHttpService service;
 	
@@ -309,6 +325,10 @@ public class Job {
 		location = loc;
 	}
 	
+	public void setLevels(LEVEL[] levelsArr) {
+		levels = levelsArr;
+	}
+	
 	public void setDisciplines(String[] disc) {
 		disciplines = disc;
 	}
@@ -436,40 +456,121 @@ public class Job {
 	//===========
 	//	Methods
 	//===========
-	public boolean grabDescriptionData() {
+	public String grabDescriptionData() {
 		Document doc;
+		String html;
 		try {
-			HttpResponse response = service.get(url);
-			doc = Jsoup.parse(service.getHtmlFromHttpResponse(response));
+			HttpResponse response = service.get(
+				url
+//				"http://eatthis.iblogger.org/jobmineplusmobile/00162402.html"
+				);
+			html = service.getHtmlFromHttpResponse(response);
+			doc = Jsoup.parse(html);
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		} catch (IOException e) {
 			e.printStackTrace();
-			return false;
+			return null;
 		}
 		
 		Elements divs = doc.getElementsByTag("div");
 		int count = divs.size();
+		String disciplines = "";
+		Element div;
 		for(int i = 0; i < count; i++) {
-			switch(i) {
-			//TODO finish this
+			div = divs.get(i);
+			
+			//TODO this switch is entirely broken, please look at real site
+			System.out.println(i + ": " + getTextFromElement(div));
+			switch (i) {
+			case 3:
+				setOpeningDateToApply(getDateFromElement(div));
+				break;
+			case 4:
+				setLastDateToApply(getDateFromElement(div));
+				break;
+			case 10:
+				setEmployer(getTextFromElement(div));
+				break;
+			case 12:
+				setTitle(getTextFromElement(div));
+				break;
+			case 14:
+				setGradesRequired(getTextFromElement(div) == REQUIRED_TEXT);
+				break;
+			case 16:
+				setLocation(getTextFromElement(div));
+				break;
+			case 18:
+				setNumberOfOpenings(getIntFromElement(div));
+				break;
+			case 20:
+				disciplines = getTextFromElement(div);
+				break;
+			case 21:
+				String temp = getTextFromElement(div);
+				if (temp.length() != 0) {
+					disciplines += "," + temp;
+				}
+				setDisciplines(disciplines.split(","));
+				break;
+			case 23:
+				String[] thing = getTextFromElement(div).split(",");
+				LEVEL[] l = new LEVEL[thing.length];
+				for (int j = 0; j < thing.length; j++) {
+					if (thing[j].length() > 0) {
+						l[j] = LEVEL.getLevelfromString(thing[j]);
+					}
+				}
+				setLevels(l);
+				break;
+			case 27:
+				setWorkSupport(getTextFromElement(div));
+				break;
+			case 26:
+				setHiringSupport(getTextFromElement(div));
+				break;
+			case 29:
+				setDescriptionWarning(getTextFromElement(div));
+				break;
+			case 31:
+				setDescription(getTextFromElement(div));
+				break;
 			}
 		}
 		
 		//TODO do the parsing here
-		return true;
+		return html;
+	}
+	
+	protected String getTextFromElement(Element e) {
+		return e.text().replaceAll("\\s+", " ").trim();
+	}
+	
+	protected Date getDateFromElement(Element e) {
+		String text = getTextFromElement(e);
+		try {
+			return new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse(text);
+		} catch (ParseException error) {
+			error.printStackTrace();
+			return new Date();
+		}
+	}
+	
+	protected int getIntFromElement(Element e) {
+		String text = getTextFromElement(e);
+		if (text.length() == 0) {
+			return 0;
+		}
+		return Integer.parseInt(text);
+	}
+	
+	protected double getDoubleFromTD(Element e) {
+		String text = getTextFromElement(e);
+		return Double.parseDouble(text);
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	
