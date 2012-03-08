@@ -462,8 +462,8 @@ public class Job {
 		Elements spans = null;
 		try {
 			HttpResponse response = service.get(
-//				url
-				"http://eatthis.iblogger.org/jobmineplusmobile/00162402.html"
+				url
+//				"http://eatthis.iblogger.org/jobmineplusmobile/00162402.html"
 				);
 			html = service.getHtmlFromHttpResponse(response);
 			doc = Jsoup.parse(html);

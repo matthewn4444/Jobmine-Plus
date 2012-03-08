@@ -55,7 +55,13 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityBase
 	
 	@Override
 	public View createTabContent(String tag) throws NullPointerException{
-		View v = onTabSwitched(tag);
+		View v = null;
+		try {
+			v = onTabSwitched(tag);
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new NullPointerException("There was a null object in your tab creation, probably a UI object has not been initalized, please wait for it.");
+		}
 		if (v == null) {
 			throw new NullPointerException("Cannot create new tabs when you return a null view object.");
 		}

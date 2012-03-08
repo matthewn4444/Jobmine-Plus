@@ -118,7 +118,8 @@ public abstract class JbmnplsActivityBase extends Activity {
 	 * @param url
 	 * @return null if failed or String that is the html
 	 */
-	protected String onRequestData(String url) {
+	protected String onRequestData(String[] args) {
+		String url = args[0];
 		try {
 			return service.getHtmlFromHttpResponse(service.get(url));
 		} catch (ClientProtocolException e) {
@@ -249,7 +250,7 @@ public abstract class JbmnplsActivityBase extends Activity {
 		
 		@Override
 		protected String doInBackground(String... params) {
-			return activity.onRequestData(params[0]);
+			return activity.onRequestData(params);
 		}
 		
 		@Override

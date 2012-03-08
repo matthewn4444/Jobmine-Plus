@@ -55,8 +55,8 @@ public class Applications extends JbmnplsTabListActivityBase{
 	@Override
 	protected String setUp(Bundle savedInstanceState) {
 		setContentView(R.layout.applications);
-//    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
+    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+//    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
 	}
 	
 	@Override

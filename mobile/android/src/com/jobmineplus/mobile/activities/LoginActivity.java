@@ -35,7 +35,6 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
 	protected Button loginBtn;
 	EditText usernameEdtbl, passwordEdtbl;
 	private ProgressDialog progress;
-	TextView output;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -45,13 +44,13 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     }
     
   
-    @Override
-	protected void onStart() {
-		super.onStart();
-		Intent myIntent = new Intent(this, HomeActivity.class);
-		startActivity(myIntent);
+//    @Override
+//	protected void onStart() {
+//		super.onStart();
+//		Intent myIntent = new Intent(this, HomeActivity.class);
+//		startActivity(myIntent);
 //		new AsyncLoginTask(this).execute(a, b);
-	}
+//	}
     
     @Override
 	protected void onPause() {
@@ -72,9 +71,6 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     	
     	usernameEdtbl.addTextChangedListener(this);
     	passwordEdtbl.addTextChangedListener(this);
-    	
-    	//output = (TextView) findViewById(R.id.output);
-    	//output.setMovementMethod(new ScrollingMovementMethod());
     }
     
     public void afterTextChanged(Editable arg0) {

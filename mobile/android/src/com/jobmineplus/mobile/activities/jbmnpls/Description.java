@@ -2,8 +2,10 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import org.jsoup.nodes.Document;
 
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -44,6 +46,9 @@ public class Description extends JbmnplsTabActivityBase{
 	TextView description;
 	
 	ScrollView descriptionLayout;
+	ScrollView detailsLayout;
+	
+	FrameLayout container;
 	
 	//====================
 	// 	Override Methods
@@ -65,22 +70,31 @@ public class Description extends JbmnplsTabActivityBase{
 	
 	@Override
 	protected void defineUI() {
+		container = (FrameLayout) findViewById(android.R.id.tabcontent);
+		
+		// Description Tab
 		employer = 			(TextView) findViewById(R.id.employer);
 		title = 			(TextView) findViewById(R.id.title);
 		location = 			(TextView) findViewById(R.id.location);
 		openings = 			(TextView) findViewById(R.id.openings);
-		levels = 			(TextView) findViewById(R.id.levels);
 		grades = 			(TextView) findViewById(R.id.grades);
 		warning = 			(TextView) findViewById(R.id.warning);
+		description = 		(TextView) findViewById(R.id.description);
+		descriptionLayout = (ScrollView) findViewById(R.id.description_layout);
+		
+		// Details Tab
+		levels = 			(TextView) findViewById(R.id.levels);
 		openDate = 			(TextView) findViewById(R.id.open_date);
 		closedDate = 		(TextView) findViewById(R.id.last_day);
 		hiringSupport = 	(TextView) findViewById(R.id.hiring_support);
 		worktermSupport = 	(TextView) findViewById(R.id.work_term);
 		disciplines = 		(TextView) findViewById(R.id.discplines);
-		description = 		(TextView) findViewById(R.id.description);
+		detailsLayout = (ScrollView) findViewById(R.id.details_layout);
+
+		// Employer Info
+		//TODO
 		
-		descriptionLayout = (ScrollView) findViewById(R.id.description_layout);
-		
+		// Make tabs
 		createTab(LISTS.DESCRIPTION, "Description");
 		createTab(LISTS.DETAILS, "Details");
 		createTab(LISTS.EMPLOYER, "Employer Info");
@@ -90,45 +104,49 @@ public class Description extends JbmnplsTabActivityBase{
 
 	@Override
 	public View onTabSwitched(String tag) {
-		fillInDescription();
-		return descriptionLayout;
+		if (tag == LISTS.DESCRIPTION) {
+			return descriptionLayout;
+		} else if (tag == LISTS.DETAILS) {
+			return detailsLayout;
+		} else {
+			return descriptionLayout;
+		}
 	}
 	
 	@Override
-	protected String onRequestData(String url) {
+	protected String onRequestData(String[] args) {
+		container.setVisibility(View.INVISIBLE);
 		return job.grabDescriptionData();
 	}
 	
 	//Not needed because overriding requestData()
 	@Override
 	protected void parseWebpage(Document doc) {
-		System.out.println("Workes?");
 		fillInDescription();
+		container.setVisibility(View.VISIBLE);
 	}	
 	
 	//=====================
 	// 	Protected Methods
 	//=====================
 	protected void fillInDescription() {
-		if (!isLoading() && job.hasDescriptionData()) {
-			employer.setText(job.getEmployer());
-			title.setText(job.getTitle());
-			location.setText(job.getLocation());
-			int opennings = job.getNumberOfOpenings();
-			openings.setText(opennings == 0 ? "0" : Integer.toString(opennings));
-			grades.setText(job.areGradesRequired() ? "Required" : "[none]");
-			
-			System.out.println(DISPLAY_DATE_FORMAT);
-			System.out.println(job.getOpenDateToApply());
-			openDate.setText(DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply()));
-			closedDate.setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
-			hiringSupport.setText(job.getHiringSupportName());
-			worktermSupport.setText(job.getWorkSupportName());
-			warning.setText(job.getDescriptionWarning());
-			description.setText(job.getDescription());
-			levels.setText(arrayJoin(job.getLevels(), ", "));
-			disciplines.setText(arrayJoin(job.getDisciplines(), ", "));
-		}
+		// Description Tab
+		employer.setText(job.getEmployer());
+		title.setText(job.getTitle());
+		location.setText(job.getLocation());
+		int opennings = job.getNumberOfOpenings();
+		openings.setText("Opennings: " + (opennings == 0 ? "0" : Integer.toString(opennings)));
+		grades.setText(job.areGradesRequired() ? "Required" : "[none]");
+		warning.setText(job.getDescriptionWarning());
+		description.setText(job.getDescription());
+		
+		// Details Tab
+		openDate.setText(DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply()));
+		closedDate.setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
+		hiringSupport.setText(job.getHiringSupportName());
+		worktermSupport.setText(job.getWorkSupportName());
+		levels.setText(arrayJoin(job.getLevels(), ", "));
+		disciplines.setText(arrayJoin(job.getDisciplines(), ", "));
 	}
 	
 	private String arrayJoin(Object[] array, String delimiter) {
