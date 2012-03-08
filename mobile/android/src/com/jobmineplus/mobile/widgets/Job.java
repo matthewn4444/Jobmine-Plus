@@ -459,10 +459,11 @@ public class Job {
 	public String grabDescriptionData() {
 		Document doc;
 		String html;
+		Elements spans = null;
 		try {
 			HttpResponse response = service.get(
-				url
-//				"http://eatthis.iblogger.org/jobmineplusmobile/00162402.html"
+//				url
+				"http://eatthis.iblogger.org/jobmineplusmobile/00162402.html"
 				);
 			html = service.getHtmlFromHttpResponse(response);
 			doc = Jsoup.parse(html);
@@ -474,73 +475,79 @@ public class Job {
 			return null;
 		}
 		
-		Elements divs = doc.getElementsByTag("div");
-		int count = divs.size();
+		try {
+			spans = doc.getElementById("ACE_width").getElementsByTag("span");
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			throw new JbmnplsParsingException("Cannot parse description, the div's have changed.");
+		}
+		int count = spans.size();
 		String disciplines = "";
-		Element div;
+		Element span;
 		for(int i = 0; i < count; i++) {
-			div = divs.get(i);
+			span = spans.get(i);
 			
-			//TODO this switch is entirely broken, please look at real site
-			System.out.println(i + ": " + getTextFromElement(div));
+			System.out.println(i + ": " + getTextFromElement(span));
 			switch (i) {
 			case 3:
-				setOpeningDateToApply(getDateFromElement(div));
+				System.out.println(getDateFromElement(span));
+				setOpeningDateToApply(getDateFromElement(span));
 				break;
 			case 4:
-				setLastDateToApply(getDateFromElement(div));
+				System.out.println(getDateFromElement(span));
+				setLastDateToApply(getDateFromElement(span));
 				break;
 			case 10:
-				setEmployer(getTextFromElement(div));
+				setEmployer(getTextFromElement(span));
 				break;
 			case 12:
-				setTitle(getTextFromElement(div));
+				setTitle(getTextFromElement(span));
 				break;
 			case 14:
-				setGradesRequired(getTextFromElement(div) == REQUIRED_TEXT);
+				setGradesRequired((getTextFromElement(span).equals(REQUIRED_TEXT)));
 				break;
 			case 16:
-				setLocation(getTextFromElement(div));
+				setLocation(getTextFromElement(span));
 				break;
 			case 18:
-				setNumberOfOpenings(getIntFromElement(div));
+				setNumberOfOpenings(getIntFromElement(span));
 				break;
 			case 20:
-				disciplines = getTextFromElement(div);
+				disciplines = getTextFromElement(span);
 				break;
 			case 21:
-				String temp = getTextFromElement(div);
+				String temp = getTextFromElement(span);
 				if (temp.length() != 0) {
 					disciplines += "," + temp;
 				}
 				setDisciplines(disciplines.split(","));
 				break;
 			case 23:
-				String[] thing = getTextFromElement(div).split(",");
+				String[] thing = getTextFromElement(span).split(",");
 				LEVEL[] l = new LEVEL[thing.length];
 				for (int j = 0; j < thing.length; j++) {
-					if (thing[j].length() > 0) {
-						l[j] = LEVEL.getLevelfromString(thing[j]);
+					String tempStr = thing[j].trim();
+					if (tempStr.length() != 0) {
+						l[j] = LEVEL.getLevelfromString(tempStr);
 					}
 				}
 				setLevels(l);
 				break;
 			case 27:
-				setWorkSupport(getTextFromElement(div));
+				setWorkSupport(getTextFromElement(span));
 				break;
 			case 26:
-				setHiringSupport(getTextFromElement(div));
+				setHiringSupport(getTextFromElement(span));
 				break;
 			case 29:
-				setDescriptionWarning(getTextFromElement(div));
+				setDescriptionWarning(getTextFromElement(span));
 				break;
 			case 31:
-				setDescription(getTextFromElement(div));
+				setDescription(getTextFromElement(span));
 				break;
 			}
 		}
-		
-		//TODO do the parsing here
+		hasRead = true;
 		return html;
 	}
 	
@@ -551,7 +558,7 @@ public class Job {
 	protected Date getDateFromElement(Element e) {
 		String text = getTextFromElement(e);
 		try {
-			return new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse(text);
+			return new SimpleDateFormat("d MMM yyyy", Locale.ENGLISH).parse(text);
 		} catch (ParseException error) {
 			error.printStackTrace();
 			return new Date();

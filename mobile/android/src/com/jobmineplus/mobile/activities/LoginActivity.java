@@ -34,6 +34,7 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
 	//UI objects
 	protected Button loginBtn;
 	EditText usernameEdtbl, passwordEdtbl;
+	private ProgressDialog progress;
 	TextView output;
 	
     @Override
@@ -44,12 +45,22 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     }
     
   
-//    @Override
-//	protected void onStart() {
-//		super.onStart();
-//		Intent myIntent = new Intent(this, HomeActivity.class);
-//		startActivity(myIntent);
-//	}
+    @Override
+	protected void onStart() {
+		super.onStart();
+		Intent myIntent = new Intent(this, HomeActivity.class);
+		startActivity(myIntent);
+//		new AsyncLoginTask(this).execute(a, b);
+	}
+    
+    @Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		if (progress != null && progress.isShowing()) {
+			progress.dismiss();
+		}
+		super.onPause();
+	}
 
 
 	private void defindUiAndAttachEvents() {
@@ -94,7 +105,6 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
     
     private class AsyncLoginTask extends AsyncTask<String, Void, Boolean> {
     	private Activity activity;
-    	private ProgressDialog progress;
     	protected JbmnplsHttpService service;
     	
     	public AsyncLoginTask(Activity activity) {

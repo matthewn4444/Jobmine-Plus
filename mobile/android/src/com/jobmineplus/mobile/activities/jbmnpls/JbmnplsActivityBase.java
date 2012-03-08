@@ -42,6 +42,9 @@ public abstract class JbmnplsActivityBase extends Activity {
 	//=================
 	// 	Declarations
 	//=================
+	protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
+	
+	
 	private String dataUrl = null; 		//Use JbmnPlsHttpService.GET_LINKS.<url>
 
 	private JbmnplsHttpService service;
@@ -164,6 +167,10 @@ public abstract class JbmnplsActivityBase extends Activity {
 		return Double.parseDouble(text);
 	}
 	
+	protected boolean isLoading() {
+		return progress != null && progress.isShowing();
+	}
+	
 	protected String getUrlFromElement(Element e) {
 		Element anchor = e.select("a").first();
 		if (anchor == null) {
@@ -265,7 +272,6 @@ public abstract class JbmnplsActivityBase extends Activity {
 	protected class JobListAdapter extends ArrayAdapter<Integer>{
     	private ArrayList<Integer> entries;
     	private Activity activity;
-    	private final SimpleDateFormat format = new SimpleDateFormat("MMM d, yyyy");
     	
     	public JobListAdapter(Activity a, int textViewResourceId, ArrayList<Integer> listOfIds) {
     		super(a, textViewResourceId, listOfIds);
@@ -305,7 +311,7 @@ public abstract class JbmnplsActivityBase extends Activity {
     			elements.job_title.setText(entry.getTitle());
     			elements.job_employer.setText(entry.getEmployer());
     			elements.job_status.setText(entry.getDisplayStatus());
-    			elements.last_date.setText(format.format(entry.getLastDateToApply()));
+    			elements.last_date.setText(DISPLAY_DATE_FORMAT.format(entry.getLastDateToApply()));
     			elements.numApps.setText(Integer.toString(entry.getNumberOfApplications()));
     		}
     		return item;
