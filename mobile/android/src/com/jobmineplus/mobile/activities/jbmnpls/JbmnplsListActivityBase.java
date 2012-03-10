@@ -1,26 +1,11 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import org.apache.http.message.BasicNameValuePair;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
-import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.activities.jbmnpls.JbmnplsActivityBase.JobListAdapter;
-import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.Job;
-
-import android.app.Activity;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+
+import com.jobmineplus.mobile.widgets.Job;
 
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
 	
@@ -30,12 +15,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 	private ListView list;
 	protected JobListAdapter adapter;
 	protected ArrayList<Integer> allJobs;
-	
-	//====================
-	//	Abstract Methods
-	//====================
-//	@Override
-//	public abstract void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3);
 	
 	//====================
 	// 	Override Methods
@@ -67,7 +46,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 	
 	protected void addJob(Job job) {
 		int id = job.getId();
-		jobService.addJob(job);
+		app.addJob(job);
 		allJobs.add(id);
 	}
 }

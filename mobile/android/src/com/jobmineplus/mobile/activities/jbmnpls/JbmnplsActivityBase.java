@@ -1,69 +1,49 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
-import java.lang.reflect.UndeclaredThrowableException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
-import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.activities.HomeActivity;
-import com.jobmineplus.mobile.activities.LoginActivity;
-import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.services.JobService;
-import com.jobmineplus.mobile.widgets.Job;
-
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
-public abstract class JbmnplsActivityBase extends Activity {
+import com.jobmineplus.mobile.JbmnplsApplication;
+import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
+import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
+
+public abstract class JbmnplsActivityBase extends FragmentActivity {
 
 	//=================
 	// 	Declarations
 	//=================
 	protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 	
-	
 	private String dataUrl = null; 		//Use JbmnPlsHttpService.GET_LINKS.<url>
 
 	private JbmnplsHttpService service;
-	protected JobService jobService;
-	private ProgressDialog progress;
-	
-	//====================
-	// 	Override Methods
-	//====================
-	@Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        service = JbmnplsHttpService.getInstance();
-        jobService = JobService.getInstance();
-        dataUrl = setUp(savedInstanceState);
-        verifyLogin();
-        defineUI();
-        requestData();
-    }
+	protected JbmnplsApplication app;
+	protected GetHtmlTask task = null;
+	protected final String LOADING_MESSAGE = "Fetching data...";
 	
 	//====================
 	//	Abstract Methods
@@ -97,18 +77,35 @@ public abstract class JbmnplsActivityBase extends Activity {
 	 * @param doc
 	 */
 	protected abstract void parseWebpage(Document doc);
-	
-	//=================================
-	//	Class Public/Protected Methods
-	//=================================
+		
+	//====================
+	// 	Override Methods
+	//====================
+	@Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        app = (JbmnplsApplication) getApplication();
+        service = JbmnplsHttpService.getInstance();
+        dataUrl = setUp(savedInstanceState);
+        defineUI();
+		requestData();
+	}
 	
 	protected void requestData() throws RuntimeException {
-		GetHtmlTask task = new GetHtmlTask(this);
-		if (dataUrl == null) {
-			throw new RuntimeException("Class that extended JbmnPlsActivityBase without specifying a dataurl.");
+		verifyLogin();
+		
+		if (task == null) {
+			task = new GetHtmlTask(this, LOADING_MESSAGE);
+			if (dataUrl == null) {
+				throw new RuntimeException("Class that extended JbmnPlsActivityBase without specifying a dataurl.");
+			}
 		}
 		task.execute(dataUrl);
 	}
+
+	//=================================
+	//	Class Public/Protected Methods
+	//=================================
 	
 	/**
 	 * You can override this function if you need to fetch
@@ -169,7 +166,7 @@ public abstract class JbmnplsActivityBase extends Activity {
 	}
 	
 	protected boolean isLoading() {
-		return progress != null && progress.isShowing();
+		return task != null && task.isRunning();
 	}
 	
 	protected String getUrlFromElement(Element e) {
@@ -194,7 +191,7 @@ public abstract class JbmnplsActivityBase extends Activity {
 		}
 		startActivity(in);
 	}
-	
+
 	protected Element parseTableById(Document doc, String id) throws JbmnplsParsingException {
 		try{
 			return doc.getElementById(id).select("tr:eq(1) table table").first();
@@ -225,45 +222,27 @@ public abstract class JbmnplsActivityBase extends Activity {
 	//	Tasks Classes
 	//=================
 	
-	@Override
-	protected void onPause() {
-		// TODO Auto-generated method stub
-		if (progress != null && progress.isShowing()) {
-			progress.dismiss();
+	private class GetHtmlTask extends ProgressDialogAsyncTaskBase<String, Void, String>{
+		
+		public GetHtmlTask(Activity activity, String dialogueMessage) {
+			super(activity, dialogueMessage);
 		}
-		super.onPause();
-	}
 
-	private class GetHtmlTask extends AsyncTask<String, Void, String> {
-		private JbmnplsActivityBase activity;
-		
-		public GetHtmlTask (JbmnplsActivityBase a) {
-			activity = a;
-		}
-		
-		@Override
-		protected void onPreExecute(){ 
-    		super.onPreExecute();
-    		progress = ProgressDialog.show(activity, "", 
-					activity.getString(R.string.wait_post_message), true);
-		}
-		
 		@Override
 		protected String doInBackground(String... params) {
-			return activity.onRequestData(params);
-		}
+			return ((JbmnplsActivityBase) activity).onRequestData(params);
+		}//
 		
 		@Override
 		protected void onPostExecute(String html){
-			if (progress.isShowing()) {
-				progress.dismiss();
-			}
 			if (html == null) {
 				//TODO handle with message
 			} else {
-				activity.parseWebpage(Jsoup.parse(html));
+				((JbmnplsActivityBase) activity).parseWebpage(Jsoup.parse(html));
 			}
+			super.onPostExecute(html);
 		}
+
 	}
 	
 	//==================
@@ -307,7 +286,7 @@ public abstract class JbmnplsActivityBase extends Activity {
     		}
     		
     		final int id = entries.get(position);
-    		final Job entry = jobService.getJobById(id);
+    		final Job entry = app.getJob(id);
     		if (entry != null) {
     			elements.job_title.setText(entry.getTitle());
     			elements.job_employer.setText(entry.getEmployer());

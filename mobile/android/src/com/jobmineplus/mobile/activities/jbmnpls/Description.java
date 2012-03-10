@@ -2,21 +2,15 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import org.jsoup.nodes.Document;
 
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.services.JobService;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.Job.LEVEL;
 
 public class Description extends JbmnplsTabActivityBase{
 	
@@ -61,7 +55,7 @@ public class Description extends JbmnplsTabActivityBase{
 		if (id == 0) {
 			throw new JbmnplsParsingException("Did not receive an id going here.");
 		}
-		job = jobService.getJobById(id);
+		job = app.getJob(id);
 		if (job == null) {
 			throw new JbmnplsParsingException("This id does not have a job object");
 		}

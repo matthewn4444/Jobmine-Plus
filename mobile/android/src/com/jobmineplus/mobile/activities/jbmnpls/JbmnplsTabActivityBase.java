@@ -2,17 +2,13 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.util.ArrayList;
 
-import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.exceptions.JbmnplsException;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.services.JobService;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 
-import android.os.Bundle;
 import android.view.View;
 import android.widget.TabHost;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
+import com.jobmineplus.mobile.exceptions.JbmnplsException;
 
 public abstract class JbmnplsTabActivityBase extends JbmnplsActivityBase 
 						implements TabHost.TabContentFactory, TabHost.OnTabChangeListener{

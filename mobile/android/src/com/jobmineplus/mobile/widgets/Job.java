@@ -487,14 +487,12 @@ public class Job {
 		for(int i = 0; i < count; i++) {
 			span = spans.get(i);
 			
-			System.out.println(i + ": " + getTextFromElement(span));
+//			System.out.println(i + ": " + getTextFromElement(span));
 			switch (i) {
 			case 3:
-				System.out.println(getDateFromElement(span));
 				setOpeningDateToApply(getDateFromElement(span));
 				break;
 			case 4:
-				System.out.println(getDateFromElement(span));
 				setLastDateToApply(getDateFromElement(span));
 				break;
 			case 10:

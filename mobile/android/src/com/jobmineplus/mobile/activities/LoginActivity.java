@@ -1,33 +1,22 @@
 package com.jobmineplus.mobile.activities;
 
-import java.util.ArrayList;
-import java.util.Date;
-
-import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.widgets.Job;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.view.View.OnClickListener;
-import android.view.LayoutInflater;
-import android.view.ViewGroup;
-import android.view.Window;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.text.method.ScrollingMovementMethod;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.services.JbmnplsHttpService;
 
 public class LoginActivity extends Activity implements OnClickListener, TextWatcher{
 	
@@ -130,6 +119,7 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
 				Toast.makeText(activity, "You are logged in!", Toast.LENGTH_SHORT).show();
 				Intent myIntent = new Intent(activity, HomeActivity.class);
 				startActivity(myIntent);
+				finish();
 			} else {
 				Toast.makeText(activity, activity.getString(R.string.login_fail_message), Toast.LENGTH_SHORT).show();
 //				Intent myIntent = new Intent(activity, HomeActivity.class);

@@ -14,7 +14,6 @@ import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.services.JobService;
 import com.jobmineplus.mobile.widgets.Job;
 
 import android.app.LocalActivityManager;
@@ -55,15 +54,16 @@ public class Applications extends JbmnplsTabListActivityBase{
 	@Override
 	protected String setUp(Bundle savedInstanceState) {
 		setContentView(R.layout.applications);
-    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-//    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
-	}
+//    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
 	
+	}
 	@Override
 	protected void defineUI() {
     	createTab(LISTS.ALL_JOBS, "All");
     	createTab(LISTS.ACTIVE_JOBS, "Active");
     	createTab(LISTS.REJECTED_JOBS, "Rejected");
+    	
 		super.defineUI();
 	}
 
@@ -145,7 +145,7 @@ public class Applications extends JbmnplsTabListActivityBase{
 				Date lastDate 		= getDateFromElement(tds.get(8));
 				int numApps 		= getIntFromElement	(tds.get(9));
 				job = new Job(id, title, employer, term, state, status, lastDate, numApps);
-				jobService.addJob(job);
+				app.addJob(job);
 				
 				if (status == Job.STATUS.EMPLOYED) {
 					addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
