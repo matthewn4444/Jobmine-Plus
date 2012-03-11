@@ -68,16 +68,26 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
 	 * is necessary but does not always need it. Please specify layout in
 	 * setUp();
 	 */
-	protected abstract void defineUI();
+	protected abstract void defineUI(Bundle savedInstanceState);
 	
 	/**
 	 * Here you are given the document of the dataUrl page
 	 * specified in setUp(). Also render the layout with the 
 	 * data here.
+	 * 
 	 * @param doc
 	 */
-	protected abstract void parseWebpage(Document doc);
-		
+	protected abstract Object parseWebpage(Document doc);
+	
+	/**
+	 * Calling this when the parseWebpage is complete.
+	 * This is used when you need to update any visual element
+	 * that you cannot do in parseWebpage
+	 * 
+	 * @param doc
+	 */
+	protected abstract void onRequestComplete(Object arg);
+	
 	//====================
 	// 	Override Methods
 	//====================
@@ -87,7 +97,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         app = (JbmnplsApplication) getApplication();
         service = JbmnplsHttpService.getInstance();
         dataUrl = setUp(savedInstanceState);
-        defineUI();
+        defineUI(savedInstanceState);
 		requestData();
 	}
 	
@@ -222,27 +232,30 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
 	//	Tasks Classes
 	//=================
 	
-	private class GetHtmlTask extends ProgressDialogAsyncTaskBase<String, Void, String>{
+	private class GetHtmlTask extends ProgressDialogAsyncTaskBase<String, Void, Object>{
 		
 		public GetHtmlTask(Activity activity, String dialogueMessage) {
 			super(activity, dialogueMessage);
 		}
 
 		@Override
-		protected String doInBackground(String... params) {
-			return ((JbmnplsActivityBase) activity).onRequestData(params);
-		}//
-		
-		@Override
-		protected void onPostExecute(String html){
+		protected Object doInBackground(String... params) {
+			String html = ((JbmnplsActivityBase) activity).onRequestData(params);
+			Document doc = null;
 			if (html == null) {
 				//TODO handle with message
 			} else {
-				((JbmnplsActivityBase) activity).parseWebpage(Jsoup.parse(html));
+				doc = Jsoup.parse(html);
+				((JbmnplsActivityBase) activity).parseWebpage(doc);
 			}
-			super.onPostExecute(html);
+			return doc;
 		}
-
+		
+		@Override
+		protected void onPostExecute(Object result) {
+			super.onPostExecute(result);
+			onRequestComplete(result);
+		}
 	}
 	
 	//==================

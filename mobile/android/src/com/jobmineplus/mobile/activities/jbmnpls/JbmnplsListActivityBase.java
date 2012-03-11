@@ -2,6 +2,7 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.util.ArrayList;
 
+import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
@@ -20,7 +21,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 	// 	Override Methods
 	//====================
 	@Override
-	protected void defineUI() {
+	protected void defineUI(Bundle savedInstanceState) {
 		list = (ListView) findViewById(android.R.id.list);
 		list.setOnItemClickListener(this);
 		allJobs = new ArrayList<Integer>();

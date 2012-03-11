@@ -3,6 +3,7 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import android.os.Bundle;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -29,21 +30,19 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
 	//====================
 	
 	@Override 
-	protected void defineUI() {
+	protected void defineUI(Bundle savedInstanceState) {
 		list = (ListView) findViewById(android.R.id.list);
 		list.setOnItemClickListener(this);
-		super.defineUI();
+		lists = new HashMap<String, ArrayList<Integer>>();
+		super.defineUI(savedInstanceState);
 	}
 	
-	@Override 
-	protected void setUpTabs() {
-		lists = new HashMap<String, ArrayList<Integer>>(tabInfo.size());
-		for(NameValuePair pair: tabInfo) {
-			clearListByTabId(pair.getName());
-		}
-		super.setUpTabs();
-	}
-	
+	@Override
+	protected void setUpTab(TabInfo tab) {
+		clearListByTabId(tab.getTag());
+		super.setUpTab(tab);
+	};
+
 	@Override
 	public View onTabSwitched(String tag) {
 		updateList(tag);
@@ -93,7 +92,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
 		app.addJob(job);
 	}
 	
-	protected void clearListByTabId(String id) {
-		lists.put(id, new ArrayList<Integer>());
+	protected void clearListByTabId(String tag) {
+		lists.put(tag, new ArrayList<Integer>());
 	}
 }

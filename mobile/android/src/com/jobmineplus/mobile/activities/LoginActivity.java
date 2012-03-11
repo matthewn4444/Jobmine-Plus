@@ -38,7 +38,7 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
 //		super.onStart();
 //		Intent myIntent = new Intent(this, HomeActivity.class);
 //		startActivity(myIntent);
-//		new AsyncLoginTask(this).execute(a, b);
+//		new AsyncLoginTask(this).execute(getString(R.string.username), getString(R.string.password));
 //	}
     
     @Override
@@ -122,8 +122,6 @@ public class LoginActivity extends Activity implements OnClickListener, TextWatc
 				finish();
 			} else {
 				Toast.makeText(activity, activity.getString(R.string.login_fail_message), Toast.LENGTH_SHORT).show();
-//				Intent myIntent = new Intent(activity, HomeActivity.class);
-//				startActivity(myIntent);
 			}
 		}
     }

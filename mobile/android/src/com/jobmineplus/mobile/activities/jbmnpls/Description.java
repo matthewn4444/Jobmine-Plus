@@ -8,7 +8,9 @@ import android.widget.FrameLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import com.google.android.maps.MapView;
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.activities.tab.DescriptionTabMapActivity;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -17,7 +19,7 @@ public class Description extends JbmnplsTabActivityBase{
 	private static class LISTS {
 		public static String DESCRIPTION = "description";
 		public static String DETAILS = "details";
-		public static String EMPLOYER = "employer";
+		public static String MAP = "map";
 	}
 	
 	protected Job job;
@@ -44,6 +46,8 @@ public class Description extends JbmnplsTabActivityBase{
 	
 	FrameLayout container;
 	
+	MapView map;
+	
 	//====================
 	// 	Override Methods
 	//====================
@@ -63,7 +67,8 @@ public class Description extends JbmnplsTabActivityBase{
 	}
 	
 	@Override
-	protected void defineUI() {
+	protected void defineUI(Bundle savedInstanceState) {
+		super.defineUI(savedInstanceState);
 		container = (FrameLayout) findViewById(android.R.id.tabcontent);
 		
 		// Description Tab
@@ -83,17 +88,12 @@ public class Description extends JbmnplsTabActivityBase{
 		hiringSupport = 	(TextView) findViewById(R.id.hiring_support);
 		worktermSupport = 	(TextView) findViewById(R.id.work_term);
 		disciplines = 		(TextView) findViewById(R.id.discplines);
-		detailsLayout = (ScrollView) findViewById(R.id.details_layout);
+		detailsLayout = 	(ScrollView) findViewById(R.id.details_layout);
 
-		// Employer Info
-		//TODO
-		
 		// Make tabs
 		createTab(LISTS.DESCRIPTION, "Description");
 		createTab(LISTS.DETAILS, "Details");
-		createTab(LISTS.EMPLOYER, "Employer Info");
-		
-		super.defineUI();
+		createTab(LISTS.MAP, "Map", DescriptionTabMapActivity.class, false);
 	}
 
 	@Override
@@ -103,7 +103,7 @@ public class Description extends JbmnplsTabActivityBase{
 		} else if (tag == LISTS.DETAILS) {
 			return detailsLayout;
 		} else {
-			return descriptionLayout;
+			return null;
 		}
 	}
 	
@@ -113,12 +113,17 @@ public class Description extends JbmnplsTabActivityBase{
 		return job.grabDescriptionData();
 	}
 	
-	//Not needed because overriding requestData()
 	@Override
-	protected void parseWebpage(Document doc) {
+	protected Object parseWebpage(Document doc) {
+		// Not needed because it is all done in onRequestData
+		return null;
+	}	
+	
+	@Override
+	protected void onRequestComplete(Object arg) {
 		fillInDescription();
 		container.setVisibility(View.VISIBLE);
-	}	
+	}
 	
 	//=====================
 	// 	Protected Methods

@@ -1,37 +1,21 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.ListIterator;
 
+import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import android.os.Bundle;
+import android.view.View;
+import android.widget.AdapterView;
+
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
-import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
-
-import android.app.LocalActivityManager;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.method.ScrollingMovementMethod;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.FrameLayout;
-import android.widget.ListView;
-import android.widget.TabHost;
-import android.widget.TabHost.TabSpec;
-import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
-
-import org.apache.http.message.BasicNameValuePair;
 
 public class Applications extends JbmnplsTabListActivityBase{
 	
@@ -54,17 +38,17 @@ public class Applications extends JbmnplsTabListActivityBase{
 	@Override
 	protected String setUp(Bundle savedInstanceState) {
 		setContentView(R.layout.applications);
-//    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
+    	return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+//    	return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
 	
 	}
 	@Override
-	protected void defineUI() {
-    	createTab(LISTS.ALL_JOBS, "All");
+	protected void defineUI(Bundle savedInstanceState) {
+		super.defineUI(savedInstanceState);
+
+		createTab(LISTS.ALL_JOBS, "All");
     	createTab(LISTS.ACTIVE_JOBS, "Active");
     	createTab(LISTS.REJECTED_JOBS, "Rejected");
-    	
-		super.defineUI();
 	}
 
 	@Override
@@ -75,7 +59,7 @@ public class Applications extends JbmnplsTabListActivityBase{
 	}
 	
 	@Override
-	protected void parseWebpage(Document doc) throws HiddenColumnsException, JbmnplsParsingException{
+	protected Object parseWebpage(Document doc) throws HiddenColumnsException, JbmnplsParsingException{
 		Element activeApps = parseTableById(doc, TABLE_ID[0]);
 		Element allApps = parseTableById(doc, TABLE_ID[1]);
 		
@@ -156,6 +140,10 @@ public class Applications extends JbmnplsTabListActivityBase{
 			addJobToService(job);
 			addJobToListByTabId(LISTS.ALL_JOBS, job);
 		}
+		return null;
+	}
+	@Override
+	protected void onRequestComplete(Object arg) {
 		updateList(LISTS.ALL_JOBS);
 	}
 }

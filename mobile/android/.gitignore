@@ -22,3 +22,6 @@ local.properties
 #Ecplise
 .project
 .classpath
+
+#Ignored personal files
+hidden_strings.xml
