@@ -1,6 +1,5 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -8,7 +7,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -114,22 +112,22 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     //  Login/Logout Methods
     //========================
     protected boolean verifyLogin() {
-//        if (!service.isLoggedIn()) {
-//           for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-//               log("Trying to login");
-//               int result = service.login();
-//               log(result);
-//               if (result == JbmnplsHttpService.LOGIN) {
-//                   log("Logged in");
-//                   return true;
-//               } else if (result == JbmnplsHttpService.LOGGED_OFFLINE) {
-//                   log("Logged offine");
-//                   return false;
-//               }
-//           }
-//           log("Logged out");
-//           return false;
-//        }
+        if (!service.isLoggedIn()) {
+           for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
+               log("Trying to login");
+               int result = service.login();
+               log(result);
+               if (result == JbmnplsHttpService.LOGIN) {
+                   log("Logged in");
+                   return true;
+               } else if (result == JbmnplsHttpService.LOGGED_OFFLINE) {
+                   log("Logged offine");
+                   return false;
+               }
+           }
+           log("Logged out");
+           return false;
+        }
         return true;
     }
     

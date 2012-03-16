@@ -4,16 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
 
-import com.jobmineplus.mobile.activities.jbmnpls.JbmnplsActivityBase.JobListAdapter;
-import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
-import org.apache.http.NameValuePair;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 
 public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase implements OnItemClickListener{
     

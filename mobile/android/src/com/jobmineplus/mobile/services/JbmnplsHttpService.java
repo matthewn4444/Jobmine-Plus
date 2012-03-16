@@ -97,8 +97,8 @@ public final class JbmnplsHttpService {
     //  Login Data
     //==============
     public synchronized void setLoginCredentials(String username, String password) {
-        this.username = username;
-        this.password = password;
+        JbmnplsHttpService.username = username;
+        JbmnplsHttpService.password = password;
     }
     
     public synchronized String getUsername() {

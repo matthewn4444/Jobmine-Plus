@@ -44,10 +44,6 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name" />
         
-        <!-- These are activities in tabs -->
-        <activity 
-            android:name=".activities.tab.DescriptionTabMapActivity"
-            android:label="@string/app_name" />
     </application>
 
 </manifest>

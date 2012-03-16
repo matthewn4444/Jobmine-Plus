@@ -9,7 +9,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.activities.tab.DescriptionTabMapActivity;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -18,7 +17,6 @@ public class Description extends JbmnplsTabActivityBase {
     private static class LISTS {
         public static String DESCRIPTION = "description";
         public static String DETAILS = "details";
-//        public static String MAP = "map";
     }
 
     protected Job job;
@@ -94,9 +92,6 @@ public class Description extends JbmnplsTabActivityBase {
         createTab(LISTS.DETAILS, "Details", detailsLayout);
         
         container.setVisibility(View.INVISIBLE);
-//        Bundle jobBundle = new Bundle();
-//        jobBundle.putInt("jobId", job.getId());
-//        createTab(LISTS.MAP, "Map", DescriptionTabMapActivity.class, false, jobBundle);
     }
     
     @Override
