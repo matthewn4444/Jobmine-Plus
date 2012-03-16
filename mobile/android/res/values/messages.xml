@@ -1,0 +1,10 @@
+
+    <resources>
+        <string name="login_fail_message">Invalid username or password.</string>
+        <string name="login_message">Signing in...</string>
+        <string name="wait_post_message">Fetching data...</string>
+        <string name="login_not_available">Jobmine is not available at this time.</string>
+        <string name="jobmine_offline_message">Jobmine is offline.</string>
+        <string name="hidden_column_message">Jobmine Plus cannot display data because you have hidden columns. Please go to the Jobmine website and show all columns you have hid under customize.</string>
+        <string name="parsing_error_message">This page is incompatible with the current site. Please report it to jobmineplus@gmail.com.</string>
+    </resources>

@@ -5,9 +5,6 @@
     <string name="app_name">Jobmine Plus Mobile</string>
     <string name="password_hint">Password</string>
     <string name="login_button">Login</string>
-    <string name="login_message">Signing in...</string>
-    <string name="login_fail_message">Invalid username or password.</string>
     <string name="applications_title">Applications</string>
-    <string name="wait_post_message">Fetching data...</string>
 
 </resources>
