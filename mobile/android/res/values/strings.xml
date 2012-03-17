@@ -6,5 +6,6 @@
     <string name="password_hint">Password</string>
     <string name="login_button">Login</string>
     <string name="applications_title">Applications</string>
+    <string name="debug_title">Jobmine Plus Mobile [Debug]</string>
 
 </resources>

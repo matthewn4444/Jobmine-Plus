@@ -114,18 +114,13 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     protected boolean verifyLogin() {
         if (!service.isLoggedIn()) {
            for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-               log("Trying to login");
                int result = service.login();
-               log(result);
                if (result == JbmnplsHttpService.LOGIN) {
-                   log("Logged in");
                    return true;
                } else if (result == JbmnplsHttpService.LOGGED_OFFLINE) {
-                   log("Logged offine");
                    return false;
                }
            }
-           log("Logged out");
            return false;
         }
         return true;
@@ -136,14 +131,15 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     //======================
     
     protected void goToLoginActivity(String reasonMsg) {
-        Intent in = new Intent(this, LoginActivity.class);
-        in.putExtra("reason", reasonMsg);
-        startActivity(in);
-        finish();
+        startActivityWithMessage(LoginActivity.class, reasonMsg);
     }
     
     protected void goToHomeActivity(String reasonMsg) {
-        Intent in = new Intent(this, HomeActivity.class);
+        startActivityWithMessage(HomeActivity.class, reasonMsg);
+    }
+    
+    protected void startActivityWithMessage(Class<?> cls, String reasonMsg) {
+        Intent in = new Intent(this, cls);
         in.putExtra("reason", reasonMsg);
         startActivity(in);
         finish();
@@ -273,6 +269,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             Document doc = null;
             try {
                 String html = activity.onRequestData(params);
+                if (html == null) {
+                    return PARSING_ERROR;
+                }
                 doc = Jsoup.parse(html);
                 activity.parseWebpage(doc);
                 return NO_PROBLEM;

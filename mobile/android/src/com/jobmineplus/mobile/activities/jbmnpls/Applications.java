@@ -20,7 +20,7 @@ import com.jobmineplus.mobile.widgets.Job;
 public class Applications extends JbmnplsTabListActivityBase{
     
     //======================
-    //     Declaration Objects
+    //  Declaration Objects
     //======================
     protected final String[] TABLE_ID = {"UW_CO_STU_APPSV$scroll$0", "UW_CO_APPS_VW2$scrolli$0"};
     protected final short[] TABLE_NUM_COLS = {10, 12};
@@ -32,14 +32,13 @@ public class Applications extends JbmnplsTabListActivityBase{
     }
     
     //====================
-    //     Override Methods
+    //  Override Methods
     //====================
     
     @Override
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.applications);
         return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-//        return JbmnplsHttpService.GET_FAKE_LINKS.APPLICATIONS;
     
     }
     @Override
@@ -54,10 +53,9 @@ public class Applications extends JbmnplsTabListActivityBase{
     @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getListByTabId(getCurrentTab()).get(arg2);
-        BasicNameValuePair pass = new BasicNameValuePair("jobId", Integer.toString(jobId));
-        startActivity(Description.class, pass);
+        goToDescription(jobId);
     }
-    
+
     @Override
     protected Object parseWebpage(Document doc) throws HiddenColumnsException, JbmnplsParsingException{
         Element activeApps = parseTableById(doc, TABLE_ID[0]);
@@ -146,5 +144,12 @@ public class Applications extends JbmnplsTabListActivityBase{
     protected void onRequestComplete() {
         updateList(LISTS.ALL_JOBS);
     }
+    
+    //=====================
+    //  Protected Methods  
+    //=====================
+    protected void goToDescription(int jobId) {
+        BasicNameValuePair pass = new BasicNameValuePair("jobId", Integer.toString(jobId));
+        startActivity(Description.class, pass);
+    }
 }
-

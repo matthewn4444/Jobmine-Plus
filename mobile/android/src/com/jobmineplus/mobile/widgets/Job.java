@@ -348,6 +348,35 @@ public class Job {
         warning = text;        
     }
     
+    public void setDescriptionData(
+            String fullEmployerName,
+            String title,
+            String location,
+            LEVEL[] levelsArr,
+            Date openingDate,
+            Date lastDate,
+            boolean areGradesRequired,
+            int numOpenings,
+            String[] disciplines,
+            String workSupportName,
+            String hiringSupportName,
+            String descriptionWarning,
+            String description) {
+        setEmployerFullName(fullEmployerName);
+        setTitle(title);
+        setLocation(location);
+        setLevels(levelsArr);
+        setOpeningDateToApply(openingDate);
+        setLastDateToApply(lastDate);
+        setGradesRequired(areGradesRequired);
+        setNumberOfOpenings(numOpenings);
+        setDisciplines(disciplines);
+        setWorkSupport(workSupportName);
+        setHiringSupport(hiringSupportName);
+        setDescriptionWarning(descriptionWarning);
+        setDescription(description);
+    }
+    
     //    Protected
     protected void setTitle(String jTitle) {
         title = jTitle;

@@ -41,10 +41,6 @@ public final class JbmnplsHttpService {
         public static final String DESCRIP_PRE  = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_JOBDTLS?UW_CO_JOB_ID=";
     }
 
-    static public final class GET_FAKE_LINKS {
-        public static final String APPLICATIONS = "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
-    }
-    
     static public final class POST_LINKS {
         public static final String LOGIN    = "https://jobmine.ccol.uwaterloo.ca/psp/SS/?cmd=login&languageCd=ENG&sessionId=";
         public static final String LOGOUT   = "https://jobmine.ccol.uwaterloo.ca/psp/SS/?cmd=login&languageCd=ENG&";
@@ -60,7 +56,7 @@ public final class JbmnplsHttpService {
     //=============
     //  Constants
     //=============
-    private static final int AUTO_LOGOUT_TIME           = 1000 * 60 * 60 * 20;     //20 min 
+    private static final int AUTO_LOGOUT_TIME           = 1000 * 60 * 60 * 20;   //20 min 
     private static final int BUFFER_READER_SIZE         = 1024/2;                //512 Characters/line
     private static final String LOGIN_UNIQUE_STRING     = "document.login.userid.focus";
     private static final String OFFLINE_UNIQUE_STRING1  = "Invalid signon time for user";
@@ -120,8 +116,8 @@ public final class JbmnplsHttpService {
     
     public synchronized int login(String username, String password) {
         loginTimeStamp = 0;
-        if (username == "" || password == "") {
-            return LOGGED_OFFLINE;
+        if (username.length() == 0 || password.length() == 0) {
+            return LOGGED_OUT;
         }
         
         int found = 0;

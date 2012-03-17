@@ -3,8 +3,12 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.apache.http.message.BasicNameValuePair;
+
 import android.os.Bundle;
+import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.jobmineplus.mobile.widgets.Job;
@@ -12,7 +16,7 @@ import com.jobmineplus.mobile.widgets.Job;
 public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase implements OnItemClickListener{
     
     //======================
-    //     Declaration Objects
+    //  Declaration Objects
     //======================
     private HashMap<String, ArrayList<Integer>> lists;
     private JobListAdapter adapter;
@@ -20,7 +24,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     private String currentTab;
     
     //====================
-    //     Override Methods
+    //  Override Methods
     //====================
     
     @Override 
@@ -43,7 +47,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     }
     
     //====================================
-    //    Class Public/Protected Methods
+    //  Class Public/Protected Methods
     //====================================
     
     protected void createTab(String tag, String displayName) {
@@ -60,9 +64,9 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
     }
-
+    
     //======================
-    //    List Transactions
+    //  List Transactions
     //======================
     
     protected boolean listContainsId(String tag, int id) {
