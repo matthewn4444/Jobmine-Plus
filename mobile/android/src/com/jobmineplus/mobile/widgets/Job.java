@@ -138,7 +138,7 @@ public class Job {
     protected JbmnplsHttpService service;
     
     //===========================
-    //    Long list of properties
+    //  Long list of properties
     //===========================
 
     // Definitely write once; cannot change
@@ -260,7 +260,7 @@ public class Job {
     }
     
     //==============
-    //    Is Methods
+    //  Is Methods
     //==============
     public boolean areGradesRequired() {
         return gradesRequired;
@@ -291,7 +291,7 @@ public class Job {
     }
     
     //=============
-    //    Setters
+    //  Setters
     //=============
     public void setState(STATE jState) {
         state = jState;
@@ -395,6 +395,10 @@ public class Job {
         employerFull = name;
     }
     
+    protected void setReadAlready(boolean flag) {
+        hasRead = flag;
+    }
+    
     protected void setId(int jId) throws IllegalArgumentException{
         if (jId <= 0) {
             throw new IllegalArgumentException("You cannot set an id that is negative or equal to 0.");
@@ -408,7 +412,7 @@ public class Job {
     }
     
     //=============
-    //    Getters
+    //  Getters
     //=============
     public int getId() {
         return id;
@@ -491,17 +495,98 @@ public class Job {
     }
     
     //===========
-    //    Methods
+    //  Methods
     //===========
+    public void merge(Job job) {
+        int _id = job.getId();
+        if (id != _id) {
+            return;
+        }
+        String _title = job.getTitle();
+        String _employer = job.getEmployer();
+        String _term = job.getTerm();
+        STATE _state = job.getState();
+        STATUS _status = job.getStatus();
+        Date _lastDay = job.getLastDateToApply();
+        Date _openDay = job.getOpenDateToApply();
+        int _numApps = job.getNumberOfApplications();
+        int _numOpennings = job.getNumberOfOpenings();
+        String _fullEmployerName = job.getEmployerFullName();
+        boolean _gradesRequired = job.areGradesRequired();
+        String _location = getLocation();
+        String[] _disciplines = job.getDisciplines();
+        LEVEL[] _levels = job.getLevels();
+        String _hiringSupport = getHiringSupportName();
+        String _workTerm = job.getWorkSupportName();
+        String _description = job.getDescription();
+        String _warning = job.getDescriptionWarning();
+        boolean _hasRead = job.hasRead();
+                
+        if (_title != null) {
+            setTitle(_title);
+        }
+        if (_employer != null) {
+            setEmployer(_employer);
+        }
+        if (_term != null) {
+            setTerm(_term);
+        }
+        if (_state != STATE.getDefault()) {
+            setState(_state);
+        }
+        if (_status != STATUS.getDefault()) {
+            setStatus(_status);
+        }
+        if (_lastDay != null) {
+            setLastDateToApply(_lastDay);
+        }
+        if (_openDay != null) {
+            setOpeningDateToApply(_openDay);
+        }
+        if (_numApps != 0) {
+            setNumberOfApplications(_numApps);
+        }
+        if (_numOpennings != 0) {
+            setNumberOfOpenings(_numOpennings);
+        }
+        if (_fullEmployerName != null) {
+            setEmployerFullName(_fullEmployerName);
+        }
+        if (_gradesRequired) {
+            setGradesRequired(_gradesRequired);
+        }
+        if (_location != null) {
+            setLocation(_location);
+        }
+        if (_disciplines != null) {
+            setDisciplines(_disciplines);
+        }
+        if (_levels != null) {
+            setLevels(_levels);
+        }
+        if (_hiringSupport != null) {
+            setHiringSupport(_hiringSupport);
+        }
+        if (_workTerm != null) {
+            setWorkSupport(_workTerm);
+        }
+        if (_description != null) {
+            setDescription(_description);
+        }
+        if (_warning != null) {
+            setDescriptionWarning(_warning);
+        }
+        if (_hasRead) {
+            setReadAlready(_hasRead);
+        }
+    }
+    
     public String grabDescriptionData() {
         Document doc;
         String html;
         Elements spans = null;
         try {
-            html = service.getJobmineHtml(
-                url
-//                "http://eatthis.iblogger.org/jobmineplusmobile/00162402.html"
-                );
+            html = service.getJobmineHtml(url);
             doc = Jsoup.parse(html);
         } catch (JbmnplsLoggedOutException e) {
             e.printStackTrace();
@@ -607,12 +692,4 @@ public class Job {
         String text = getTextFromElement(e);
         return Double.parseDouble(text);
     }
-
-    
-    
-    
-    
-    
-    
-    
 }

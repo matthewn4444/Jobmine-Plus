@@ -19,7 +19,7 @@ public class DebugDescription extends Description {
         super.setUp(savedInstanceState);
         app = (DebugApplication) getApplication();
         
-        if (app.isOffline()) {
+        if (job.hasDescriptionData() && app.isOffline()) {
             LEVEL[] levels = {LEVEL.BACHELOR};
             String[] disc = {"System Design"};
             
