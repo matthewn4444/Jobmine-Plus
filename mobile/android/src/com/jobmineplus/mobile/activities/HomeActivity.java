@@ -11,7 +11,12 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 
 public class HomeActivity extends AlertActivity implements OnClickListener{
     protected JbmnplsHttpService service;
-    protected Button appsButton;
+    
+    
+    protected int[] buttonLayouts = {
+            R.id.apps_button,
+            R.id.shortlist_button
+    };
     
     private final String PREFIX_PATH = "com.jobmineplus.mobile";
     
@@ -24,9 +29,11 @@ public class HomeActivity extends AlertActivity implements OnClickListener{
     }
     
     protected void connectUI() {
-        appsButton = (Button) findViewById(R.id.apps_button);
-        
-        appsButton.setOnClickListener(this);
+        Button button;
+        for (int i = 0; i < buttonLayouts.length; i++) {
+            button = (Button) findViewById(buttonLayouts[i]);
+            button.setOnClickListener(this);
+        }
     }
     
     public boolean goToActivity(String activityName) {

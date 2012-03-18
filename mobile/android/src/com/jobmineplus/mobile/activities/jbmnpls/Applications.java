@@ -24,6 +24,7 @@ public class Applications extends JbmnplsTabListActivityBase{
     //======================
     protected final String[] TABLE_ID = {"UW_CO_STU_APPSV$scroll$0", "UW_CO_APPS_VW2$scrolli$0"};
     protected final short[] TABLE_NUM_COLS = {10, 12};
+    protected final String DATE_FORMAT = "d-MMM-yyyy";
     
     private static class LISTS {
         public static String ALL_JOBS = "all";
@@ -84,17 +85,16 @@ public class Applications extends JbmnplsTabListActivityBase{
             Elements tds = rowEl.getElementsByTag("td");
             
             // See if table is empty
-            String str_id = getTextFromElement(tds.get(0));
-            if (str_id.length() == 0) {
+            int id = getIntFromElement(tds.get(0));
+            if (id == 0) {
                 break;
             }
-            int id                 = Integer.parseInt(str_id);
             String title        = getTextFromElement(tds.get(1));
             String employer     = getTextFromElement(tds.get(2));
             String term         = getTextFromElement(tds.get(4));
             Job.STATE state = Job.STATE.getStatefromString(getTextFromElement(tds.get(5)));
             Job.STATUS status = Job.STATUS.getStatusfromString(getTextFromElement(tds.get(6)));
-            Date lastDate         = getDateFromElement(tds.get(8));
+            Date lastDate         = getDateFromElement(tds.get(8), DATE_FORMAT);
             int numApps         = getIntFromElement    (tds.get(9));
             job = new Job(id, title, employer, term, state, status, lastDate, numApps);
             addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
@@ -112,11 +112,10 @@ public class Applications extends JbmnplsTabListActivityBase{
             Elements tds = rowEl.getElementsByTag("td");
 
             // See if table is empty
-            String str_id = getTextFromElement(tds.get(0));
-            if (str_id.length() == 0) {
+            int id = getIntFromElement(tds.get(0));
+            if (id == 0) {
                 break;
             }
-            int id                 = Integer.parseInt(str_id);
             //If it is not contained, then parse and throw job id in rejectedJobs
             if (isListEmpty(LISTS.ACTIVE_JOBS) || !listContainsId(LISTS.ACTIVE_JOBS, id)) {
                 String title        = getTextFromElement(tds.get(1));
@@ -124,7 +123,7 @@ public class Applications extends JbmnplsTabListActivityBase{
                 String term         = getTextFromElement(tds.get(4));
                 Job.STATE state = Job.STATE.getStatefromString(getTextFromElement(tds.get(5)));
                 Job.STATUS status = Job.STATUS.getStatusfromString(getTextFromElement(tds.get(6)));
-                Date lastDate         = getDateFromElement(tds.get(8));
+                Date lastDate         = getDateFromElement(tds.get(8), DATE_FORMAT);
                 int numApps         = getIntFromElement    (tds.get(9));
                 job = new Job(id, title, employer, term, state, status, lastDate, numApps);
                 app.addJob(job);

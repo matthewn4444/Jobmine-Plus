@@ -10,29 +10,28 @@
           android:layout_height="wrap_content"
           android:ellipsize="end"
           android:singleLine="true"
-          android:textStyle="bold"
-          android:text="Software Engineer" />
+          android:textStyle="bold"/>
      <TextView
           android:id="@+id/job_employer"
           android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:text="AMD" />
+          android:layout_height="wrap_content"/>
+     <TextView
+          android:id="@+id/location"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"/>
       <TextView
         android:id="@+id/job_status"
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"
-        android:text="Not Selected" 
         />
       <TextView
        android:id="@+id/job_apps"
        android:layout_width="fill_parent"
-       android:layout_height="wrap_content"
-       android:text="Total Applications: 42" />
+       android:layout_height="wrap_content"/>
       <TextView
           android:id="@+id/job_last_day"
           android:layout_width="fill_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="right"
-          android:singleLine="true"
-          android:text="Last Day: Jan 1, 2012" />
+          android:singleLine="true" />
 </LinearLayout>

@@ -130,7 +130,7 @@ public final class JbmnplsHttpService {
         
         try {
             HttpResponse response = post(nameValuePairs, JbmnplsHttpService.POST_LINKS.LOGIN);
-            if (response.getStatusLine().getStatusCode() != 200) {
+            if (response == null || response.getStatusLine().getStatusCode() != 200) {
                 return LOGGED_OUT;
             }
             List<String> list = new ArrayList<String>();

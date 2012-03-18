@@ -11,14 +11,14 @@ import com.jobmineplus.mobile.widgets.Job;
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
     
     //=================
-    //     Declarations
+    //  Declarations
     //=================
     private ListView list;
     protected JobListAdapter adapter;
     protected ArrayList<Integer> allJobs;
     
     //====================
-    //     Override Methods
+    //  Override Methods
     //====================
     @Override
     protected void defineUI(Bundle savedInstanceState) {
@@ -37,10 +37,10 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
     
     //=================================
-    //    Class Public/Protected Methods
+    //  Class Public/Protected Methods
     //=================================
-    protected void updateList(ArrayList<Integer> displayList) {
-        adapter = new JobListAdapter(this, android.R.id.list, displayList);
+    protected void updateList() {
+        adapter = new JobListAdapter(this, android.R.id.list, allJobs);
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
     }
@@ -49,5 +49,13 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         int id = job.getId();
         app.addJob(job);
         allJobs.add(id);
+    }
+    
+    protected ArrayList<Integer> getList() {
+        return allJobs;
+    }
+    
+    protected void clearList() {
+        allJobs.clear();
     }
 }

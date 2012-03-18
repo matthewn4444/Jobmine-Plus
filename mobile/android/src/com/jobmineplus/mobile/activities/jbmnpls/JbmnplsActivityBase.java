@@ -14,6 +14,7 @@ import org.jsoup.nodes.Element;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -168,10 +169,10 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         return e.text().replaceAll("\\s+", " ").trim();
     }
     
-    protected Date getDateFromElement(Element e) {
+    protected Date getDateFromElement(Element e, String format) {
         String text = getTextFromElement(e);
         try {
-            return new SimpleDateFormat("d-MMM-yyyy", Locale.ENGLISH).parse(text);
+            return new SimpleDateFormat(format, Locale.ENGLISH).parse(text);
         } catch (ParseException error) {
             error.printStackTrace();
             return new Date();
@@ -180,6 +181,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     
     protected int getIntFromElement(Element e) {
         String text = getTextFromElement(e);
+        if (text.length() == 0) {
+            return 0;
+        }
         return Integer.parseInt(text);
     }
     
@@ -332,6 +336,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             public TextView job_status;
             public TextView last_date;
             public TextView numApps;
+            public TextView location;
         }
         
         @Override
@@ -342,11 +347,12 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                 LayoutInflater inflator = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 item = inflator.inflate(R.layout.job_widget, null);
                 elements = new JobListElements();
-                elements.job_title =     (TextView) item.findViewById(R.id.job_title);
-                elements.job_employer = (TextView) item.findViewById(R.id.job_employer);
-                elements.job_status =     (TextView) item.findViewById(R.id.job_status);
-                elements.last_date =     (TextView) item.findViewById(R.id.job_last_day);
-                elements.numApps =        (TextView) item.findViewById(R.id.job_apps);
+                elements.job_title =        (TextView) item.findViewById(R.id.job_title);
+                elements.job_employer =     (TextView) item.findViewById(R.id.job_employer);
+                elements.location =         (TextView) item.findViewById(R.id.location);
+                elements.job_status =       (TextView) item.findViewById(R.id.job_status);
+                elements.last_date =        (TextView) item.findViewById(R.id.job_last_day);
+                elements.numApps =          (TextView) item.findViewById(R.id.job_apps);
                 item.setTag(elements);
             } else {
                 elements = (JobListElements) item.getTag();
@@ -360,6 +366,13 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                 elements.job_status.setText(entry.getDisplayStatus());
                 elements.last_date.setText(DISPLAY_DATE_FORMAT.format(entry.getLastDateToApply()));
                 elements.numApps.setText(Integer.toString(entry.getNumberOfApplications()));
+                
+                String location = entry.getLocation();
+                if (location != null && location != "") {
+                    elements.location.setText(location);
+                } else {
+                    elements.location.setVisibility(View.GONE);
+                }
             }
             return item;
         }

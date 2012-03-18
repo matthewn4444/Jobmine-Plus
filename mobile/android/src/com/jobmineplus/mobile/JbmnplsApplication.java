@@ -28,6 +28,8 @@ public class JbmnplsApplication extends Application{
     }
     
     public synchronized void addJob(Job job) {
+        //TODO check if it exists, then merge new to old data so that 
+        //description stays!!!
         int id = job.getId();
         jobMap.put(id, job);
     }

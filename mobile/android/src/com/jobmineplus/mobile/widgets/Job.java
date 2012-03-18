@@ -62,14 +62,15 @@ public class Job {
     }
 
     static public enum STATUS{
-        APPLY        ("Apply", 3),
-        APPLIED        ("Applied", 3),
-        CANNOT_APPLY("Not Authorized to Apply", 8),
-        NOT_SELECTED("Not Selected", 10),
-        EMPLOYED    ("Employed", 11),
-        SELECTED    ("Selected", 10),
-        ALTERNATE    ("Alternate", 5),
-        BLANK        ("", 0);
+        APPLY           ("Apply", 3),
+        APPLIED         ("Applied", 3),
+        ALREADY_APPLIED ("Already Applied", 3),
+        CANNOT_APPLY    ("Not Authorized to Apply", 8),
+        NOT_SELECTED    ("Not Selected", 10),
+        EMPLOYED        ("Employed", 11),
+        SELECTED        ("Selected", 10),
+        ALTERNATE       ("Alternate", 5),
+        BLANK           ("", 0);
         
         public static STATUS getStatusfromString(String text) throws JbmnplsParsingException {
             if (text != null) {
@@ -172,7 +173,7 @@ public class Job {
     protected boolean hasRead = false;
     
     //================
-    //    Constructors
+    //  Constructors
     //================
     /**
      * Applications Constructor
