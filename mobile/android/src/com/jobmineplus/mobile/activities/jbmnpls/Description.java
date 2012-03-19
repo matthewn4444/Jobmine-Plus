@@ -112,9 +112,8 @@ public class Description extends JbmnplsTabActivityBase {
     }
 
     @Override
-    protected Object parseWebpage(Document doc) {
+    protected void parseWebpage(Document doc) {
         // Not needed because it is all done in onRequestData
-        return null;
     }
 
     @Override

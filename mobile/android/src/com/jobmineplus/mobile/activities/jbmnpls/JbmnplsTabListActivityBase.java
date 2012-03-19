@@ -3,12 +3,8 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.apache.http.message.BasicNameValuePair;
-
 import android.os.Bundle;
-import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.jobmineplus.mobile.widgets.Job;
@@ -95,5 +91,11 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     
     protected void clearListByTabId(String tag) {
         lists.put(tag, new ArrayList<Integer>());
+    }
+    
+    protected void clearAllLists() {
+        for (String key: lists.keySet()) {
+            clearListByTabId(key);
+        }
     }
 }

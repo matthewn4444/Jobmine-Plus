@@ -12,7 +12,8 @@ import com.jobmineplus.mobile.debug.DebugLoginActivity;
 public class DebugShortlist extends Shortlist{
     private DebugApplication app;
 
-    public static final String FAKE_SHORTLIST = "http://eatthis.iblogger.org/jobmineplusmobile/list.html";
+    public static final String FAKE_SHORTLIST = 
+            "http://eatthis.iblogger.org/jobmineplusmobile/list.html";
 
     @Override
     protected String setUp(Bundle savedInstanceState) {

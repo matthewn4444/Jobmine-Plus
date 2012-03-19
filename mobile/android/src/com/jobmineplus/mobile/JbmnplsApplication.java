@@ -8,7 +8,7 @@ import android.app.Application;
 import com.jobmineplus.mobile.widgets.Job;
 
 public class JbmnplsApplication extends Application{
-    private Object lock = new Object();
+//    private Object lock = new Object();
     
     public JbmnplsApplication() {
         jobManagerInit();
@@ -32,7 +32,6 @@ public class JbmnplsApplication extends Application{
         if (hasJobId(id)) {
             Job oldJob = getJob(id);
             oldJob.merge(job);
-            jobMap.put(id, oldJob);
         } else {
             jobMap.put(id, job);
         }

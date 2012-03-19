@@ -3,11 +3,8 @@ package com.jobmineplus.mobile.debug.activities;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
 
 import com.jobmineplus.mobile.activities.jbmnpls.Applications;
-import com.jobmineplus.mobile.activities.jbmnpls.Description;
 import com.jobmineplus.mobile.debug.DebugApplication;
 import com.jobmineplus.mobile.debug.DebugHomeActivity;
 import com.jobmineplus.mobile.debug.DebugLoginActivity;
@@ -17,7 +14,8 @@ public class DebugApplications extends Applications implements Debuggable {
 
     private DebugApplication app;
 
-    public static final String FAKE_APPLICATIONS = "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
+    public static final String FAKE_APPLICATIONS = 
+            "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
 
     @Override
     protected String setUp(Bundle savedInstanceState) {

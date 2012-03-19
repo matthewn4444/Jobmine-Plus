@@ -37,7 +37,7 @@ public class HomeActivity extends AlertActivity implements OnClickListener{
     }
     
     public boolean goToActivity(String activityName) {
-        Class name = null;
+        Class<?> name = null;
         try {
             name = Class.forName(PREFIX_PATH + activityName);
         } catch (ClassNotFoundException e) {

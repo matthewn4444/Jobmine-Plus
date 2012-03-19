@@ -7,14 +7,15 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
@@ -84,7 +85,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
      * 
      * @param doc
      */
-    protected abstract Object parseWebpage(Document doc);
+    protected abstract void parseWebpage(Document doc);
     
     /**
      * Calling this when the parseWebpage is complete.
@@ -139,6 +140,11 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         startActivityWithMessage(HomeActivity.class, reasonMsg);
     }
     
+    protected void goToDescription(int jobId) {
+        BasicNameValuePair pass = new BasicNameValuePair("jobId", Integer.toString(jobId));
+        startActivity(Description.class, pass);
+    }
+    
     protected void startActivityWithMessage(Class<?> cls, String reasonMsg) {
         Intent in = new Intent(this, cls);
         in.putExtra("reason", reasonMsg);
@@ -164,6 +170,169 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     //=======================
     //  Dom Text Extraction
     //=======================
+    /**
+     * Information for each column
+     * @author matthewn4444
+     *
+     */
+    protected class ColumnInfo {
+        final public static int TEXT      = 0;
+        final public static int DATE      = 1;
+        final public static int NUMERIC   = 2;
+        final public static int DOUBLE    = 3;
+        final public static int URL       = 4;
+        final public static int STATE     = 5;
+        final public static int STATUS    = 6;
+        
+        private int columnNumber;
+        private int type;
+        private String dateFormat;
+        /**
+         * This constructor is not for dates, For types please use
+         * static object ColumnInfo.<Type> such as ColumnInfo.TEXT
+         * @param columnNumber: the column number
+         * @param type: ColumnInfo.<Type>
+         */
+        public ColumnInfo (int columnNumber, int type) {
+            this.columnNumber = columnNumber;
+            if (type < 0 || type > STATUS) {
+                throw new JbmnplsParsingException("Setting the column type is invald.");
+            }
+            this.type = type;
+        }
+        /**
+         * This constructor is only used for columns that has a date
+         * Please you the static object ColumnInfo.DATE for 
+         * @param columnNumber: the column number
+         * @param type: ColumnInfo.DATE
+         * @param dateFormat: a String that shows the format of the date in column
+         */
+        public ColumnInfo (int columnNumber, int type, String dateFormat) {
+            this.columnNumber = columnNumber;
+            if (type < 0 || type > 4) {
+                throw new JbmnplsParsingException("Setting the column type is invald.");
+            }
+            this.type = type;
+            if (type == DATE && dateFormat == null) {
+                throw new JbmnplsParsingException("Date is invalid without specifying the dateformat.");
+            }
+            this.dateFormat = dateFormat;
+        }
+        public int getColumnNumber() {
+            return columnNumber;
+        }
+        public int getType () {
+            return type;
+        }
+        public String getDateFormat() {
+            return dateFormat;
+        }
+    }
+    
+    /**
+     * For this class, you need to have one for each table you are parsing
+     * You should declare an object of this class final. To parse the job
+     * data you must
+     * DO NOT include id as the first column as all tables have that 
+     * and it is redundent to declare it all the time.
+     * @author matthewn4444
+     *
+     */
+    protected class TableParsingOutline {
+        private String tableId;
+        private int numOfColumns;
+        private ColumnInfo[] columnInfo;
+        
+        /**
+         * This should be used with final keyword to describe the table
+         * @param tableId: the DOM id (eg. css #element_id)
+         * @param numOfColumns: number of expected columns, will throw an exception if failed
+         *                      when executed
+         * @param columnInfo: multi-arguments of column info (one per each column that is of 
+         *                    interest for job arguments)
+         */
+        public TableParsingOutline(String tableId, int numOfColumns, ColumnInfo ...columnInfo) {
+            this.tableId = tableId;
+            this.columnInfo = columnInfo;
+            this.numOfColumns = numOfColumns;
+        }
+        public void execute(Document doc) {
+            int rowLength;
+            Object[] passedObj = new Object[columnInfo.length + 1];
+            Element header, table = parseTableById(doc, tableId);
+            Elements rows;
+            if (table == null) {
+                throw new JbmnplsParsingException("Cannot parse '" + tableId + "'.");
+            }
+            rows = table.getElementsByTag("tr");
+            header = rows.get(0);
+            
+            if (header.getElementsByTag("th").size() != numOfColumns) {
+                throw new HiddenColumnsException();
+            }
+            rowLength = rows.size();
+            for (int r = 1; r < rowLength; r++) {
+                Element rowEl = rows.get(r);
+                Elements tds = rowEl.getElementsByTag("td");
+                
+                // See if table is empty
+                int id = getIntFromElement(tds.get(0));
+                if (id == 0) {
+                    break;
+                }
+                passedObj[0] = id;
+                
+                for (int c = 0; c < columnInfo.length; c++) {
+                    ColumnInfo each = columnInfo[c];
+                    Object value = null;
+                    Element td = tds.get( each.getColumnNumber() );
+                    switch (each.getType()) {
+                    case ColumnInfo.TEXT:
+                        value = getTextFromElement(td);
+                        break;
+                    case ColumnInfo.DATE:
+                        value = getDateFromElement(td, each.getDateFormat());
+                        break;
+                    case ColumnInfo.DOUBLE:
+                        value = getDoubleFromElement(td);
+                        break;
+                    case ColumnInfo.NUMERIC:
+                        value = getIntFromElement(td);
+                        break;
+                    case ColumnInfo.URL:
+                        value = getUrlFromElement(td);
+                        break;
+                    case ColumnInfo.STATE:
+                        value = Job.STATE.getStatefromString(getTextFromElement(td));
+                        break;
+                    case ColumnInfo.STATUS:
+                        value = Job.STATUS.getStatusfromString(getTextFromElement(td));
+                        break;
+                    default: 
+                        throw new JbmnplsParsingException("Cannot parse column with invalid type.");
+                    }
+                    passedObj[c + 1] = value;
+                }
+                onRowParse(this, passedObj);
+            }
+        }
+    }
+    
+    /**
+     * This is needed once you parse each row
+     * Parameter 1 will always be the job id, everything else will follow just 
+     * the same as the table columns
+     * @param data: the parameters for a job shown from TableParsingOutline class
+     */
+    protected void onRowParse(TableParsingOutline outline, Object ...jobData){}
+    
+    protected Element parseTableById(Document doc, String id) throws JbmnplsParsingException {
+        try{
+            return doc.getElementById(id).select("tr:eq(1) table table").first();
+        } catch(Exception e) {
+            throw new JbmnplsParsingException("Problem parsing table.");
+        }
+    }
     
     protected String getTextFromElement(Element e) {
         return e.text().replaceAll("\\s+", " ").trim();
@@ -187,7 +356,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         return Integer.parseInt(text);
     }
     
-    protected double getDoubleFromTD(Element e) {
+    protected double getDoubleFromElement(Element e) {
         String text = getTextFromElement(e);
         return Double.parseDouble(text);
     }
@@ -198,14 +367,6 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             return null;
         }
         return anchor.attr("href");
-    }
-    
-    protected Element parseTableById(Document doc, String id) throws JbmnplsParsingException {
-        try{
-            return doc.getElementById(id).select("tr:eq(1) table table").first();
-        } catch(Exception e) {
-            throw new JbmnplsParsingException("Problem parsing table.");
-        }
     }
     
     //=================
@@ -230,11 +391,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     //====================================
     
     protected void requestData() throws RuntimeException {
-        if (task == null) {
-            task = new GetHtmlTask(this, LOADING_MESSAGE);
-            if (dataUrl == null) {
-                throw new RuntimeException("Class that extended JbmnPlsActivityBase without specifying a dataurl.");
-            }
+        task = new GetHtmlTask(this, LOADING_MESSAGE);
+        if (dataUrl == null) {
+            throw new RuntimeException("Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
         task.execute(dataUrl);
     }
