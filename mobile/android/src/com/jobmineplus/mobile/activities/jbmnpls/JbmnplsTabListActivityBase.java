@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.jobmineplus.mobile.widgets.Job;
@@ -15,9 +16,20 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     //  Declaration Objects
     //======================
     private HashMap<String, ArrayList<Integer>> lists;
-    private JobListAdapter adapter;
+    private ArrayAdapter<Integer> adapter;
     private ListView list;
     private String currentTab;
+    
+    //====================
+    //  Abstract Methods
+    //====================
+    /**
+     * You will return an ArrayAdapter of integers so that when updating lists
+     * it will update use the correct adapter for each tabs
+     * @param list: given the list to put into the new ArrayAdapter class
+     * @return: the array adapter that is suppose to be made for the current tab
+     */
+    protected abstract ArrayAdapter<Integer> makeAdapterFromList (ArrayList<Integer> list);
     
     //====================
     //  Override Methods
@@ -42,6 +54,11 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         updateList(tag);
     }
     
+    @Override
+    protected void onRequestComplete() {
+        updateList(currentTab);
+    }
+    
     //====================================
     //  Class Public/Protected Methods
     //====================================
@@ -56,7 +73,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     
     protected void updateList(String tag) {
         currentTab = tag;
-        adapter = new JobListAdapter(this, android.R.id.list, lists.get(tag));
+        adapter = makeAdapterFromList( getListByTabId(tag) );
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
     }

@@ -25,6 +25,13 @@ import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 
 public final class JbmnplsHttpService {
     
+    /*
+     * Bugs:
+     *  There is a problem with logging back in when leaving the app and coming back
+     *      Might be that this class is recreated? 
+     *      Might be that it thought it was logged in and failed to parse? 
+     */
+    
     //================
     //  Static Links
     //================

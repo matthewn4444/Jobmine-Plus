@@ -4,27 +4,23 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.os.Bundle;
 
-import com.jobmineplus.mobile.activities.jbmnpls.Applications;
+import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
 import com.jobmineplus.mobile.debug.DebugApplication;
 import com.jobmineplus.mobile.debug.DebugHomeActivity;
 import com.jobmineplus.mobile.debug.DebugLoginActivity;
-import com.jobmineplus.mobile.debug.Debuggable;
 
-public class DebugApplications extends Applications implements Debuggable {
-
+public class DebugInterviews extends Interviews{
     private DebugApplication app;
 
-    public static final String FAKE_APPLICATIONS = 
-            "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
+    public static final String FAKE_INTERVIEWS = 
+            "http://eatthis.iblogger.org/jobmineplusmobile/Interviews.html";
 
     @Override
     protected String setUp(Bundle savedInstanceState) {
-        String returnVal = super.setUp(savedInstanceState);
         app = (DebugApplication) getApplication();
-        if (!app.isOffline()) {
-            return returnVal;
-        }
-        return FAKE_APPLICATIONS;
+
+        super.setUp(savedInstanceState);
+        return FAKE_INTERVIEWS;
     }
 
     @Override
@@ -52,5 +48,5 @@ public class DebugApplications extends Applications implements Debuggable {
         } else {
             return super.verifyLogin();
         }
-    }
+    } 
 }

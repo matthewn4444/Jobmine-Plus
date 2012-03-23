@@ -4,8 +4,10 @@ import java.util.ArrayList;
 
 import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
 
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
@@ -14,7 +16,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //  Declarations
     //=================
     private ListView list;
-    protected JobListAdapter adapter;
+    private ArrayAdapter<Integer> adapter;
     protected ArrayList<Integer> allJobs;
     
     //====================
@@ -29,7 +31,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     
     @Override
     protected void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
         if (adapter != null) {
             adapter.notifyDataSetChanged();
@@ -39,8 +40,21 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //=================================
     //  Class Public/Protected Methods
     //=================================
-    protected void updateList() {
-        adapter = new JobListAdapter(this, android.R.id.list, allJobs);
+    
+    /**
+     * If you are not using the Job object to be displayed on the
+     * page, please extend JobListAdapter and place the adapter
+     * on setUp();
+     * @param adapter
+     */
+    protected void setAdapter(ArrayAdapter<Integer> newAdapter) {
+        adapter = newAdapter; 
+    }
+    
+    protected void updateList() throws JbmnplsException{
+        if (adapter == null) {
+            throw new JbmnplsException("You have not set an adapter yet. Please use setAdapter(adapter).");
+        }
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
     }
@@ -57,5 +71,9 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     
     protected void clearList() {
         allJobs.clear();
+    }
+    
+    protected void onRequestComplete() {
+        updateList();
     }
 }

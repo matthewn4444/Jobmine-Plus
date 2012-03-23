@@ -18,22 +18,32 @@
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/location"
+        android:id="@+id/date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/job_status"
+        android:id="@+id/type"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/job_last_day"
+        android:id="@+id/time"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
     <TextView
-        android:id="@+id/job_apps"
+        android:id="@+id/interviewer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    
+    <TextView
+        android:id="@+id/room"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/instructions"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 

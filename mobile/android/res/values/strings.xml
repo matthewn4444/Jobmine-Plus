@@ -8,5 +8,6 @@
     <string name="applications_title">Applications</string>
     <string name="debug_title">Jobmine Plus Mobile [Debug]</string>
     <string name="shortlist_title">Shortlist</string>
+    <string name="interviews_title">Interviews</string>
 
 </resources>

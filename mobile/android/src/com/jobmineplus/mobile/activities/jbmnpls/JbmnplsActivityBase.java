@@ -2,7 +2,6 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
@@ -14,15 +13,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.TextView;
 
 import com.jobmineplus.mobile.JbmnplsApplication;
 import com.jobmineplus.mobile.R;
@@ -33,6 +26,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Alert;
+import com.jobmineplus.mobile.widgets.InterviewData;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 
@@ -176,13 +170,14 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
      *
      */
     protected class ColumnInfo {
-        final public static int TEXT      = 0;
-        final public static int DATE      = 1;
-        final public static int NUMERIC   = 2;
-        final public static int DOUBLE    = 3;
-        final public static int URL       = 4;
-        final public static int STATE     = 5;
-        final public static int STATUS    = 6;
+        final public static int TEXT            = 0;
+        final public static int DATE            = 1;
+        final public static int NUMERIC         = 2;
+        final public static int DOUBLE          = 3;
+        final public static int URL             = 4;
+        final public static int STATE           = 5;
+        final public static int STATUS          = 6;
+        final public static int INTERVIEW_TYPE  = 7;
         
         private int columnNumber;
         private int type;
@@ -195,8 +190,11 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
          */
         public ColumnInfo (int columnNumber, int type) {
             this.columnNumber = columnNumber;
-            if (type < 0 || type > STATUS) {
+            if (type < 0 || type > INTERVIEW_TYPE) {
                 throw new JbmnplsParsingException("Setting the column type is invald.");
+            }
+            if (type == DATE) {
+                throw new JbmnplsParsingException("You have used the wrong constructor to set the date.");
             }
             this.type = type;
         }
@@ -209,13 +207,13 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
          */
         public ColumnInfo (int columnNumber, int type, String dateFormat) {
             this.columnNumber = columnNumber;
-            if (type < 0 || type > 4) {
+            if (type < 0 || type > URL) {
                 throw new JbmnplsParsingException("Setting the column type is invald.");
             }
-            this.type = type;
             if (type == DATE && dateFormat == null) {
                 throw new JbmnplsParsingException("Date is invalid without specifying the dateformat.");
             }
+            this.type = type;
             this.dateFormat = dateFormat;
         }
         public int getColumnNumber() {
@@ -232,15 +230,18 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     /**
      * For this class, you need to have one for each table you are parsing
      * You should declare an object of this class final. To parse the job
-     * data you must
+     * data you must use ColumnInfo to specify each column's data of interest
+     * by their type.
      * DO NOT include id as the first column as all tables have that 
-     * and it is redundent to declare it all the time.
+-    * and it is redundent to declare it all the time. The id will be gained
+     * from the constructor column
      * @author matthewn4444
      *
      */
     protected class TableParsingOutline {
         private String tableId;
         private int numOfColumns;
+        private int jobIdColumn;
         private ColumnInfo[] columnInfo;
         
         /**
@@ -248,12 +249,14 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
          * @param tableId: the DOM id (eg. css #element_id)
          * @param numOfColumns: number of expected columns, will throw an exception if failed
          *                      when executed
+         * @param jobIdColumn: this is the column number of where the job id is; usually column 0                      
          * @param columnInfo: multi-arguments of column info (one per each column that is of 
          *                    interest for job arguments)
          */
-        public TableParsingOutline(String tableId, int numOfColumns, ColumnInfo ...columnInfo) {
+        public TableParsingOutline(String tableId, int numOfColumns, int jobIdColumn, ColumnInfo ...columnInfo) {
             this.tableId = tableId;
             this.columnInfo = columnInfo;
+            this.jobIdColumn = jobIdColumn;
             this.numOfColumns = numOfColumns;
         }
         public void execute(Document doc) {
@@ -276,7 +279,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                 Elements tds = rowEl.getElementsByTag("td");
                 
                 // See if table is empty
-                int id = getIntFromElement(tds.get(0));
+                int id = getIntFromElement(tds.get(jobIdColumn));
                 if (id == 0) {
                     break;
                 }
@@ -307,6 +310,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                         break;
                     case ColumnInfo.STATUS:
                         value = Job.STATUS.getStatusfromString(getTextFromElement(td));
+                        break;
+                    case ColumnInfo.INTERVIEW_TYPE:
+                        value = InterviewData.TYPE.getTypefromString(getTextFromElement(td));
                         break;
                     default: 
                         throw new JbmnplsParsingException("Cannot parse column with invalid type.");
@@ -472,68 +478,6 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                 }
                 finish();
             }
-        }
-    }
-    
-    //==================
-    //  JobListAdapter
-    //==================
-    
-    protected class JobListAdapter extends ArrayAdapter<Integer>{
-        private ArrayList<Integer> entries;
-        private Activity activity;
-        
-        public JobListAdapter(Activity a, int textViewResourceId, ArrayList<Integer> listOfIds) {
-            super(a, textViewResourceId, listOfIds);
-            entries = listOfIds;
-            activity = a;
-        }
-        
-        private class JobListElements {
-            public TextView job_title;
-            public TextView job_employer;
-            public TextView job_status;
-            public TextView last_date;
-            public TextView numApps;
-            public TextView location;
-        }
-        
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View item = convertView;
-            JobListElements elements;
-            if (item == null) {
-                LayoutInflater inflator = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                item = inflator.inflate(R.layout.job_widget, null);
-                elements = new JobListElements();
-                elements.job_title =        (TextView) item.findViewById(R.id.job_title);
-                elements.job_employer =     (TextView) item.findViewById(R.id.job_employer);
-                elements.location =         (TextView) item.findViewById(R.id.location);
-                elements.job_status =       (TextView) item.findViewById(R.id.job_status);
-                elements.last_date =        (TextView) item.findViewById(R.id.job_last_day);
-                elements.numApps =          (TextView) item.findViewById(R.id.job_apps);
-                item.setTag(elements);
-            } else {
-                elements = (JobListElements) item.getTag();
-            }
-            
-            final int id = entries.get(position);
-            final Job entry = app.getJob(id);
-            if (entry != null) {
-                elements.job_title.setText(entry.getTitle());
-                elements.job_employer.setText(entry.getEmployer());
-                elements.job_status.setText(entry.getDisplayStatus());
-                elements.last_date.setText(DISPLAY_DATE_FORMAT.format(entry.getLastDateToApply()));
-                elements.numApps.setText(Integer.toString(entry.getNumberOfApplications()));
-                
-                String location = entry.getLocation();
-                if (location != null && location != "") {
-                    elements.location.setText(location);
-                } else {
-                    elements.location.setVisibility(View.GONE);
-                }
-            }
-            return item;
         }
     }
 }    

@@ -15,7 +15,8 @@ public class HomeActivity extends AlertActivity implements OnClickListener{
     
     protected int[] buttonLayouts = {
             R.id.apps_button,
-            R.id.shortlist_button
+            R.id.shortlist_button,
+            R.id.interviews_button
     };
     
     private final String PREFIX_PATH = "com.jobmineplus.mobile";

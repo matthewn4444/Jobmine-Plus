@@ -1,16 +1,21 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.jsoup.nodes.Document;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 
 public class Applications extends JbmnplsTabListActivityBase{
     
@@ -34,12 +39,16 @@ public class Applications extends JbmnplsTabListActivityBase{
     protected final ColumnInfo COLUMN9 = new ColumnInfo(9, ColumnInfo.NUMERIC);
     
     protected final TableParsingOutline ACTIVE_OUTLINE = 
-            new TableParsingOutline("UW_CO_STU_APPSV$scroll$0", 10,
+            new TableParsingOutline("UW_CO_STU_APPSV$scroll$0", 10, 0,
                     COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
     
     protected final TableParsingOutline ALL_OUTLINE = 
-            new TableParsingOutline("UW_CO_APPS_VW2$scrolli$0", 12,
+            new TableParsingOutline("UW_CO_APPS_VW2$scrolli$0", 12, 0,
                     COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
+    
+    protected final int[] WIDGET_RESOURCE_LIST = { 
+            R.id.job_title, R.id.job_employer, R.id.location, 
+            R.id.job_status,R.id.job_last_day, R.id.job_apps };
     
     //====================
     //  Override Methods
@@ -54,7 +63,7 @@ public class Applications extends JbmnplsTabListActivityBase{
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-
+        
         createTab(LISTS.ALL_JOBS, "All");
         createTab(LISTS.ACTIVE_JOBS, "Active");
         createTab(LISTS.REJECTED_JOBS, "Rejected");
@@ -100,7 +109,33 @@ public class Applications extends JbmnplsTabListActivityBase{
     }
     
     @Override
-    protected void onRequestComplete() {
-        updateList(LISTS.ALL_JOBS);
+    protected ArrayAdapter<Integer> makeAdapterFromList(ArrayList<Integer> list) {
+        return new ApplicationsAdapter(this, android.R.id.list, 
+                R.layout.job_widget, WIDGET_RESOURCE_LIST, list);
+    }
+    
+    //=================
+    //  List Adapter
+    //=================
+    private class ApplicationsAdapter extends ViewAdapterBase<Integer> {
+        public ApplicationsAdapter(Activity a, int listViewResourceId,
+                int widgetResourceLayout, int[] viewResourceIdListInWidget,
+                ArrayList<Integer> list) {
+            super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
+                    list);
+        }
+
+        @Override
+        protected void setWidgetValues(Integer jobId, View[] elements) {
+            final Job job = app.getJob(jobId);
+            if (job != null) {
+                ((TextView) elements[0]).setText(job.getTitle());
+                ((TextView) elements[1]).setText(job.getEmployer());
+                ((TextView) elements[2]).setVisibility(View.GONE);          //Make location invisible
+                ((TextView) elements[3]).setText(job.getDisplayStatus());
+                ((TextView) elements[4]).setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
+                ((TextView) elements[5]).setText(Integer.toString(job.getNumberOfApplications()));
+            }
+        }
     }
 }

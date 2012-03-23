@@ -17,9 +17,12 @@ public class DebugShortlist extends Shortlist{
 
     @Override
     protected String setUp(Bundle savedInstanceState) {
+        String returnVal = super.setUp(savedInstanceState);
         app = (DebugApplication) getApplication();
-
-        super.setUp(savedInstanceState);
+        
+        if (!app.isOffline()) {
+            return returnVal;
+        }
         return FAKE_SHORTLIST;
     }
 

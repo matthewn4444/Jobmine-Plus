@@ -16,20 +16,116 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 
 
 public class Job {
+    //================
+    //  Constructors
+    //================
+    /**
+     * As long as all the data is present in the fields (ie. no one hid the
+     * columns) then you should be able to fill all of these fields. If user has
+     * blocked columns please alert the user to unhide them on the website.
+     */
+    
+    /**
+     * Applications Constructor
+     *     Since this is the applications, it will consider that you
+     *     have applied for this job.
+     * @param jId
+     * @param jTitle
+     * @param jEmployer
+     * @param jTerm
+     * @param jState - eg. Job.STATE.FILLED
+     * @param jStatus - eg. Job.STATUS.SCREENED
+     * @param jLastDate
+     * @param jNumApps
+     */
+    public Job(int jId, String jTitle, String jEmployer, String jTerm, 
+            STATE jState, STATUS jStatus, Date jLastDate, int jNumApps){
+        setId(jId);
+        title = jTitle;
+        employer = jEmployer;
+        term = jTerm;
+        state = jState;
+        status = jStatus;
+        lastToApply = jLastDate;
+        numApps = jNumApps;
+        service = JbmnplsHttpService.getInstance();
+    }
+    
+    /**
+     * Short List Constructor
+     *     Since this is the job short list, it will consider that you
+     *     have applied for this job.
+     * @param jId
+     * @param jTitle
+     * @param jEmployer
+     * @param jLocation
+     * @param jStatus - eg. Job.STATUS.SCREENED
+     * @param jLastDate
+     * @param jNumApps
+     */
+    public Job(int jId, String jTitle, String jEmployer, String jLocation,
+            STATUS jStatus, Date jLastDate, int jNumApps){
+        setId(jId);
+        title = jTitle;
+        employer = jEmployer;
+        location = jLocation;
+        status = jStatus;
+        lastToApply = jLastDate;
+        numApps = jNumApps;
+        service = JbmnplsHttpService.getInstance();
+    }
+    
+    /**
+     * Job Search Constructor
+     * @param jId
+     * @param jTitle
+     * @param jEmployer
+     * @param jLocation
+     * @param jOpenings
+     * @param jLastDate
+     * @param jNumApps
+     */
+    public Job(int jId, String jTitle, String jEmployer, String jLocation,
+            int jOpenings, Date jLastDate, int jNumApps){
+        setId(jId);
+        title = jTitle;
+        employer = jEmployer;
+        location = jLocation;
+        openings = jOpenings;
+        lastToApply = jLastDate;
+        numApps = jNumApps;
+        service = JbmnplsHttpService.getInstance();
+    }
+    
+    /**
+     * Interviews Constructor
+     *      You must use this for interviews, we assume that you have 
+     *      already applied and you are getting an interview for this job.
+     * @param jId
+     * @param jTitle
+     * @param jEmployer
+     */
+    public Job(int jId, String jTitle, String jEmployer) {
+        setId(jId);
+        title = jTitle;
+        employer = jEmployer;
+        service = JbmnplsHttpService.getInstance();
+    }
+    
     //===========================
-    //    Static properties used
+    //  Static properties used
     //===========================
     
     static public enum STATE{
-        CANCELLED        ("Cancelled", 9),
-        AVAILABLE        ("Applications Avaliable", 2),
-        FILLED            ("Filled", 6),
-        POSTED            ("Posted", 1),
-        SCREENED        ("Screened", 4),
-        RANKING_COMPLETE("Ranking Complete", 8),
-        SCHEDULED        ("Scheduled", 5),
-        APPROVED        ("Approved", 2),
-        COMPLETE        ("Complete", 2);
+        CANCELLED           ("Cancelled", 9),
+        AVAILABLE           ("Applications Avaliable", 2),
+        FILLED              ("Filled", 6),
+        POSTED              ("Posted", 1),
+        SCREENED            ("Screened", 4),
+        RANKING_COMPLETE    ("Ranking Complete", 8),
+        SCHEDULED           ("Scheduled", 5),
+        APPROVED            ("Approved", 2),
+        COMPLETE            ("Complete", 2);
         
         public static STATE getStatefromString(String text) throws JbmnplsParsingException {
             if (text != null) {
@@ -171,93 +267,6 @@ public class Job {
     
     // Other booleans
     protected boolean hasRead = false;
-    
-    //================
-    //  Constructors
-    //================
-    /**
-     * Applications Constructor
-     *     As long as all the data is present in the fields (ie. no one
-     *     hid the columns) then you should be able to fill all of these
-     *     fields. If user has blocked columns please alert the user to
-     *     unhide them on the website.
-     *     Since this is the applications, it will consider that you
-     *     have applied for this job.
-     * @param jId
-     * @param jTitle
-     * @param jEmployer
-     * @param jTerm
-     * @param jState - eg. Job.STATE.FILLED
-     * @param jStatus - eg. Job.STATUS.SCREENED
-     * @param jLastDate
-     * @param jNumApps
-     */
-    public Job(int jId, String jTitle, String jEmployer, String jTerm, 
-            STATE jState, STATUS jStatus, Date jLastDate, int jNumApps){
-        setId(jId);
-        title = jTitle;
-        employer = jEmployer;
-        term = jTerm;
-        state = jState;
-        status = jStatus;
-        lastToApply = jLastDate;
-        numApps = jNumApps;
-        service = JbmnplsHttpService.getInstance();
-    }
-    
-    /**
-     * Short List Constructor
-     *     As long as all the data is present in the fields (ie. no one
-     *     hid the columns) then you should be able to fill all of these
-     *     fields. If user has blocked columns please alert the user to
-     *     unhide them on the website.
-     *     Since this is the job short list, it will consider that you
-     *     have applied for this job.
-     * @param jId
-     * @param jTitle
-     * @param jEmployer
-     * @param jLocation
-     * @param jStatus - eg. Job.STATUS.SCREENED
-     * @param jLastDate
-     * @param jNumApps
-     */
-    public Job(int jId, String jTitle, String jEmployer, String jLocation,
-            STATUS jStatus, Date jLastDate, int jNumApps){
-        setId(jId);
-        title = jTitle;
-        employer = jEmployer;
-        location = jLocation;
-        status = jStatus;
-        lastToApply = jLastDate;
-        numApps = jNumApps;
-        service = JbmnplsHttpService.getInstance();
-    }
-    
-    /**
-     * Job Search Constructor
-     *     As long as all the data is present in the fields (ie. no one
-     *     hid the columns) then you should be able to fill all of these
-     *     fields. If user has blocked columns please alert the user to
-     *     unhide them on the website.
-     * @param jId
-     * @param jTitle
-     * @param jEmployer
-     * @param jLocation
-     * @param jOpenings
-     * @param jLastDate
-     * @param jNumApps
-     */
-    public Job(int jId, String jTitle, String jEmployer, String jLocation,
-            int jOpenings, Date jLastDate, int jNumApps){
-        setId(jId);
-        title = jTitle;
-        employer = jEmployer;
-        location = jLocation;
-        openings = jOpenings;
-        lastToApply = jLastDate;
-        numApps = jNumApps;
-        service = JbmnplsHttpService.getInstance();
-    }
     
     //==============
     //  Is Methods
