@@ -15,8 +15,10 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
+import com.jobmineplus.mobile.widgets.table.ColumnInfo;
+import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
 
-public class Shortlist extends JbmnplsListActivityBase{
+public class Shortlist extends JbmnplsListActivityBase implements TableParsingOutline.OnTableParseListener {
 
     //======================
     //  Declaration Objects
@@ -42,6 +44,7 @@ public class Shortlist extends JbmnplsListActivityBase{
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
+        SHORTLIST_OUTLINE.setOnTableRowParse(this);
         setAdapter(new ShortlistAdapter(this, android.R.id.list, 
                 R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
     }
@@ -59,7 +62,7 @@ public class Shortlist extends JbmnplsListActivityBase{
     }
     
     @Override
-    protected void onRowParse(TableParsingOutline outline, Object... jobData) {
+    public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job job = new Job(  //Shortlist constructor
                 (Integer)   jobData[0],     (String)jobData[1],
                 (String)    jobData[2],     (String)jobData[3],

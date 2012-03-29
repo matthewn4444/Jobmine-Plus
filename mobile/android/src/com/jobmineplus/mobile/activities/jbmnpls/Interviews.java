@@ -20,18 +20,20 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.InterviewData;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
+import com.jobmineplus.mobile.widgets.table.ColumnInfo;
+import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
 
-public class Interviews extends JbmnplsListActivityBase {
+public class Interviews extends JbmnplsListActivityBase implements TableParsingOutline.OnTableParseListener {
 
-    // ======================
-    // Declaration Objects
-    // ======================
+    //======================
+    //  Declaration Objects
+    //======================
     protected final String DATE_FORMAT = "d MMM yyyy";
     protected final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
-
-    // ======================
+    
+    //======================
     // Table Definitions
-    // ======================
+    //======================
     private final ColumnInfo COLUMN_2_INFO_TEXT = new ColumnInfo(2, ColumnInfo.TEXT);
     private final ColumnInfo COLUMN_3_INFO_TEXT = new ColumnInfo(3, ColumnInfo.TEXT);
     private final ColumnInfo COLUMN_4_INFO_DATE = new ColumnInfo(4, ColumnInfo.DATE, DATE_FORMAT);
@@ -87,12 +89,18 @@ public class Interviews extends JbmnplsListActivityBase {
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
+            
+        INTERVIEWS_OUTLINE.setOnTableRowParse(this);
+        GROUPS_OUTLINE.setOnTableRowParse(this);
+        SPECIAL_OUTLINE.setOnTableRowParse(this);
+        CANCELLED_OUTLINE.setOnTableRowParse(this);
+        
         setAdapter(new InterviewsAdapter(this, android.R.id.list, 
                 R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
     }
     
     @Override
-    protected void onRowParse(TableParsingOutline outline, Object... jobData) {
+    public void onRowParse(TableParsingOutline outline, Object... jobData) {
         InterviewData data = null;
         int id = (Integer) jobData[0];
         String employer = (String) jobData[1];

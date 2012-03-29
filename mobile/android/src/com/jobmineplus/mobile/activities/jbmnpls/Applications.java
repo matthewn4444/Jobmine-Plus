@@ -16,8 +16,10 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
+import com.jobmineplus.mobile.widgets.table.ColumnInfo;
+import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
 
-public class Applications extends JbmnplsTabListActivityBase{
+public class Applications extends JbmnplsTabListActivityBase implements TableParsingOutline.OnTableParseListener{
     
     //======================
     //  Declaration Objects
@@ -63,6 +65,8 @@ public class Applications extends JbmnplsTabListActivityBase{
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
+        ACTIVE_OUTLINE.setOnTableRowParse(this);
+        ALL_OUTLINE.setOnTableRowParse(this);
         
         createTab(LISTS.ALL_JOBS, "All");
         createTab(LISTS.ACTIVE_JOBS, "Active");
@@ -83,7 +87,7 @@ public class Applications extends JbmnplsTabListActivityBase{
     }
     
     @Override
-    protected void onRowParse(TableParsingOutline outline, Object... jobData) {
+    public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job.STATUS status = (Job.STATUS)jobData[5];
         int id = (Integer) jobData[0];
         //Applications constructor

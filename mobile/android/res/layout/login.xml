@@ -4,19 +4,19 @@
     android:layout_height="fill_parent"
     android:padding="20dp"
     android:orientation="vertical" >
-	
+    
     <EditText
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:id="@+id/username_field"
-    	android:hint="@+string/username_hint"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/username_field"
+        android:hint="@+string/username_hint"
         />
     <EditText
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:id="@+id/password_field"
-    	android:hint="@+string/password_hint"
-    	android:password="true"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/password_field"
+        android:hint="@+string/password_hint"
+        android:password="true"
         />
     <Button
         android:layout_width="fill_parent"

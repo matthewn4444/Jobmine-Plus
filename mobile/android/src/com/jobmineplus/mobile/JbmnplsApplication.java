@@ -64,9 +64,9 @@ public class JbmnplsApplication extends Application{
     }
     public synchronized void addInterview(InterviewData data) {
         int id = data.getJobId();
-        if (hasJobId(id)) {
-            InterviewData oldJob = getInterviewData(id);
-            oldJob.merge(data);
+        if (hasInterview(id)) {
+            InterviewData oldData = getInterviewData(id);
+            oldData.merge(data);
         } else {
             interviewsMap.put(id, data);
         }

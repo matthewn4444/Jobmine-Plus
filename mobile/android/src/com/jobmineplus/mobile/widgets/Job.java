@@ -238,7 +238,7 @@ public class Job {
     //===========================
 
     // Definitely write once; cannot change
-    protected int id;
+    protected int id; 
     protected String title;
     protected String employer;
     protected String term;
@@ -522,7 +522,7 @@ public class Job {
         int _numOpennings = job.getNumberOfOpenings();
         String _fullEmployerName = job.getEmployerFullName();
         boolean _gradesRequired = job.areGradesRequired();
-        String _location = getLocation();
+        String _location = job.getLocation();
         String[] _disciplines = job.getDisciplines();
         LEVEL[] _levels = job.getLevels();
         String _hiringSupport = getHiringSupportName();
