@@ -94,7 +94,6 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         setUpTabHost();
     }
     
-    @Override
     public View createTabContent(String tag) {
         onTabSwitched(tag);
         TabInfo tab = tabInfoMap.get(tag);
@@ -106,7 +105,6 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         }
     }
     
-    @Override
     public void onTabChanged(String tag) {
         TabInfo newTab = tabInfoMap.get(tag);
         if (newTab != currentTabInfo) {

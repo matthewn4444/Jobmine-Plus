@@ -99,7 +99,6 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
                 R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
     }
     
-    @Override
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
         InterviewData data = null;
         int id = (Integer) jobData[0];
@@ -133,7 +132,6 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
         super.addJob( new Job(data.getJobId(), data.getTitle(), data.getEmployer()) );
     } 
     
-    @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getList().get(arg2);
         goToDescription(jobId);

@@ -49,7 +49,6 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
                 R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
     }
     
-    @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getList().get(arg2);
         goToDescription(jobId);
@@ -61,7 +60,6 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
         return JbmnplsHttpService.GET_LINKS.SHORTLIST;
     }
     
-    @Override
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job job = new Job(  //Shortlist constructor
                 (Integer)   jobData[0],     (String)jobData[1],

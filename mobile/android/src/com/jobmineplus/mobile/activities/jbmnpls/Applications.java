@@ -73,7 +73,6 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
         createTab(LISTS.REJECTED_JOBS, "Rejected");
     }
 
-    @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getListByTabId(getCurrentTab()).get(arg2);
         goToDescription(jobId);
@@ -86,7 +85,6 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
         ALL_OUTLINE.execute(doc);
     }
     
-    @Override
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job.STATUS status = (Job.STATUS)jobData[5];
         int id = (Integer) jobData[0];

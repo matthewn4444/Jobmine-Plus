@@ -50,7 +50,6 @@ public class HomeActivity extends AlertActivity implements OnClickListener{
         return true;
     }
 
-    @Override
     public void onClick(View arg0) {
         Button button = (Button) arg0;
         String name = button.getText().toString();
