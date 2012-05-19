@@ -10,9 +10,11 @@ public class DebugApplication extends JbmnplsApplication{
     final public int ONLINE_TIME = 6;        //Opens at 6am
     
     public boolean isOffline () {
-        int hour = new Date().getHours();
-        return hour >= OFFLINE_TIME || hour <= ONLINE_TIME;
+        Date now = new Date();
+        // hehe I am in Japan :P
+        int hour = now.getHours();
+        hour -= 13;
+        now.setHours(hour);
+        return now.getDay() == 6 || now.getDay() == 0 || hour >= OFFLINE_TIME || hour <= ONLINE_TIME;
     }
-    
-    
 }
