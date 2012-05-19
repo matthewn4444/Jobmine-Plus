@@ -15,6 +15,6 @@ public class DebugApplication extends JbmnplsApplication{
         int hour = now.getHours();
         hour -= 13;
         now.setHours(hour);
-        return now.getDay() == 6 || now.getDay() == 0 || hour >= OFFLINE_TIME || hour <= ONLINE_TIME;
+        return now.getDay() != 6 && now.getDay() != 0 && (hour >= OFFLINE_TIME || hour <= ONLINE_TIME);
     }
 }
