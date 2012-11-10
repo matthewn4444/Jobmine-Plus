@@ -12,7 +12,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import com.jobmineplus.mobile.JbmnplsApplication;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoginActivity;
@@ -37,7 +36,6 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
     private JbmnplsHttpService service;
-    protected JbmnplsApplication app;
     protected GetHtmlTask task = null;
     protected JobDataSource jobDataSource;
     protected final String LOADING_MESSAGE = "Fetching data...";
@@ -90,7 +88,6 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (JbmnplsApplication) getApplication();
         service = JbmnplsHttpService.getInstance();
         jobDataSource = new JobDataSource(this);
         jobDataSource.open();

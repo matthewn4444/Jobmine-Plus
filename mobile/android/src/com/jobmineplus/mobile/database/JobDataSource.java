@@ -1,19 +1,13 @@
 package com.jobmineplus.mobile.database;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import com.jobmineplus.mobile.widgets.InterviewData;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.INTERVIEW_TYPE;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.os.Debug;
 
 public class JobDataSource extends DataSourceBase {
 
@@ -70,6 +64,12 @@ public class JobDataSource extends DataSourceBase {
         long lastDateTimestamp = lastDateToApply == null ? 0 : lastDateToApply.getTime();
         Date openDateToApply = job.getOpenDateToApply();
         long openDateTimestamp = openDateToApply == null ? 0 : openDateToApply.getTime();
+        Date interviewStart = job.getInterviewStartTime();
+        long interviewStartTimestamp = interviewStart == null ? 0 : interviewStart.getTime();
+        Date interviewEnd = job.getInterviewEndTime();
+        long interviewEndTimestamp = interviewEnd == null ? 0 : interviewEnd.getTime();
+        
+        Job.INTERVIEW_TYPE type = job.getInterviewType();
         
         // Add Date to the columns
         ContentValues values = new ContentValues();
@@ -93,28 +93,17 @@ public class JobDataSource extends DataSourceBase {
         addNonNullValue(values, JobTable.COLUMN_DESCRIPTION, job.getDescription());
         addNonNullValue(values, JobTable.COLUMN_DESCRIPTION_WARNING, job.getDescriptionWarning());
 
+        // Interview Data
+        addNonNullValue(values, JobTable.COLUMN_INTERVIEW_START_TIME, interviewStartTimestamp);
+        addNonNullValue(values, JobTable.COLUMN_DESCRIPTION_WARNING, interviewEndTimestamp);
+        addNonNullValue(values, JobTable.COLUMN_INTERVIEW_TYPE, type == null ? null : type.toString());
+        addNonNullValue(values, JobTable.COLUMN_INTERVIEW_ROOM, job.getRoomInfo());
+        addNonNullValue(values, JobTable.COLUMN_INTERVIEW_INSTRUCTIONS, job.getInstructions());
+        addNonNullValue(values, JobTable.COLUMN_INTERVIEWER, job.getInterviewer());
+        
         updateElseInsert(JobTable.TABLE_JOB, jobId, values);
     }
     
-    public synchronized void addInterviewData(InterviewData data) {
-        Date startDate = data.getStartTime();
-        long startTimestamp = startDate == null ? null : startDate.getTime();
-        Date endDate = data.getEndTime();
-        long endTimestamp = endDate == null ? null : endDate.getTime();
-
-        ContentValues values = new ContentValues();
-        values.put(JobTable.COLUMN_ID, data.getJobId());
-        values.put(JobTable.COLUMN_TITLE, data.getTitle());
-        values.put(JobTable.COLUMN_EMPLOYER, data.getEmployer());
-        values.put(JobTable.COLUMN_INTERVIEW_START_TIME, startTimestamp);
-        values.put(JobTable.COLUMN_INTERVIEW_END_TIME, endTimestamp);
-        values.put(JobTable.COLUMN_INTERVIEW_TYPE, data.getType().toString());
-        values.put(JobTable.COLUMN_INTERVIEW_ROOM, data.getRoomInfo());
-        values.put(JobTable.COLUMN_INTERVIEW_INSTRUCTIONS, data.getInstructions());
-        values.put(JobTable.COLUMN_INTERVIEWER, data.getInterviewer());
-        // TODO
-    }
-
     public synchronized Job getJob(int id) {
         Cursor cursor = database.query(JobTable.TABLE_JOB,
                 allColumns, JobTable.COLUMN_ID + " = " + id, null,
@@ -141,7 +130,15 @@ public class JobDataSource extends DataSourceBase {
                 cursor.getString(15),   // Hiring support
                 cursor.getString(16),   // Work support
                 cursor.getString(17),   // Description
-                cursor.getString(18)    // Description warning
+                cursor.getString(18),   // Description warning
+                
+                // Interview data
+                cursor.getLong(19),     // Interview start time
+                cursor.getLong(20),     // Interview end time
+                cursor.getString(21),   // Interview type
+                cursor.getString(22),   // Interview room
+                cursor.getString(23),   // Interview instructions
+                cursor.getString(24)    // Interviewer
                 );
         cursor.close();
         return job;

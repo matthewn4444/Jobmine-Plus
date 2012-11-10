@@ -1,7 +1,5 @@
 package com.jobmineplus.mobile.database;
 
-import java.util.Date;
-
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 

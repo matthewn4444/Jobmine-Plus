@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.widgets.InterviewData;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
@@ -100,37 +99,32 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     }
     
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
-        InterviewData data = null;
+        Job job = null;
         int id = (Integer) jobData[0];
         String employer = (String) jobData[1];
         String title = (String) jobData[2];
         
         if (outline.equals(SPECIAL_OUTLINE)) {
-            data = new InterviewData(id, employer, title, (String) jobData[3]);
+            job = new Job(id, employer, title, (String) jobData[3]);
         } else if (outline.equals(CANCELLED_OUTLINE)) {
-            data = new InterviewData(id, employer, title);
+            job = new Job(id, employer, title);
         } else {
             Date interviewDay = (Date) jobData[3];
             if (outline.equals(INTERVIEWS_OUTLINE)) {
-                data = new InterviewData(id, employer, title, 
+                job = new Job(id, employer, title, 
                         getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0), 
                         getDateFromDateWithTimeString(interviewDay, (String) jobData[5], (Integer) jobData[6]), 
-                        (InterviewData.TYPE) jobData[4], (String) jobData[7], (String) jobData[8], 
+                        (Job.INTERVIEW_TYPE) jobData[4], (String) jobData[7], (String) jobData[8], 
                         (String) jobData[9]);
             } else {    //GROUPS_OUTLINE
-                data = new InterviewData(id, employer, title, 
+                job = new Job(id, employer, title, 
                         getDateFromDateWithTimeString(interviewDay, (String) jobData[4], 0),  
                         getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0),  
                         (String) jobData[6], (String) jobData[7]);
             }
         }
-        addInterview(data);
+        addJob(job);
     }
-    
-    protected void addInterview(InterviewData data) {
-        app.addInterview(data);
-        super.addJob( new Job(data.getJobId(), data.getTitle(), data.getEmployer()) );
-    } 
     
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getList().get(arg2);
@@ -183,16 +177,17 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
 
         @Override
         protected void setWidgetValues(Integer id, View[] elements) {
-            final InterviewData data = app.getInterviewData(id);
-            if (data != null) {
-                Date start = data.getStartTime();
-                Date end = data.getEndTime();
-                InterviewData.TYPE type = data.getType();
-                String roominfo = data.getRoomInfo();
-                String instructions = data.getInstructions();
-                String interviewer = data.getInterviewer();
-                ((TextView) elements[0]).setText(data.getTitle());
-                ((TextView) elements[1]).setText(data.getEmployer());
+            final Job job = jobDataSource.getJob(id);
+            if (job != null) {
+                Date start = job.getInterviewStartTime();
+                Date end = job.getInterviewEndTime();
+                Job.INTERVIEW_TYPE type = job.getInterviewType();
+                String roominfo = job.getRoomInfo();
+                String instructions = job.getInstructions();
+                String interviewer = job.getInterviewer();
+                
+                ((TextView) elements[0]).setText(job.getTitle());
+                ((TextView) elements[1]).setText(job.getEmployer());
                 if (start != null) {
                     ((TextView) elements[2]).setText(DISPLAY_DATE_FORMAT.format(start));
                     if (end != null) {

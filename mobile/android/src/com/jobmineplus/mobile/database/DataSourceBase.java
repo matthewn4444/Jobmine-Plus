@@ -1,9 +1,6 @@
 package com.jobmineplus.mobile.database;
 
-import java.util.Map.Entry;
-
 import android.content.ContentValues;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 
 public abstract class DataSourceBase {

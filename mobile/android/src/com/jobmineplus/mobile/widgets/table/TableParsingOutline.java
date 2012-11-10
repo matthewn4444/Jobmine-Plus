@@ -11,7 +11,6 @@ import org.jsoup.select.Elements;
 
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.InterviewData;
 import com.jobmineplus.mobile.widgets.Job;
 
 /**
@@ -121,7 +120,7 @@ public class TableParsingOutline {
                     value = Job.STATUS.getStatusfromString(getTextFromElement(td));
                     break;
                 case ColumnInfo.INTERVIEW_TYPE:
-                    value = InterviewData.TYPE.getTypefromString(getTextFromElement(td));
+                    value = Job.INTERVIEW_TYPE.getTypefromString(getTextFromElement(td));
                     break;
                 default: 
                     throw new JbmnplsParsingException("Cannot parse column with invalid type.");

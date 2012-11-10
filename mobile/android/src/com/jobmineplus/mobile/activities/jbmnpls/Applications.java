@@ -129,7 +129,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
 
         @Override
         protected void setWidgetValues(Integer jobId, View[] elements) {
-            final Job job = app.getJob(jobId);
+            final Job job = jobDataSource.getJob(jobId);
             if (job != null) {
                 ((TextView) elements[0]).setText(job.getTitle());
                 ((TextView) elements[1]).setText(job.getEmployer());

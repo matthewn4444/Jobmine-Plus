@@ -2,12 +2,12 @@ package com.jobmineplus.mobile.debug;
 
 import java.util.Date;
 
-import com.jobmineplus.mobile.JbmnplsApplication;
+import android.app.Application;
 
-public class DebugApplication extends JbmnplsApplication{
+public class DebugApplication extends Application{
     
-    final public int OFFLINE_TIME = 21;     //24 hour clock
-    final public int ONLINE_TIME = 6;        //Opens at 6am
+    final public int OFFLINE_TIME = 24;     //24 hour clock
+    final public int ONLINE_TIME = 7;        //Opens at 6am
     
     public boolean isOffline () {
         Date now = new Date();
@@ -16,7 +16,11 @@ public class DebugApplication extends JbmnplsApplication{
         hour -= 13;
         now.setHours(hour);
         hour = now.getHours();
-        System.out.println("Is offline: " + (now.getDay() != 6 && now.getDay() != 0 && (hour >= OFFLINE_TIME || hour <= ONLINE_TIME)));
-        return now.getDay() != 6 && now.getDay() != 0 && (hour >= OFFLINE_TIME || hour <= ONLINE_TIME);
+        int day = now.getDay();
+        boolean isOnline = (day == 6 && hour >= ONLINE_TIME || day == 0) || (hour >= ONLINE_TIME && hour < OFFLINE_TIME);
+        System.out.println("Is offline: " + (!isOnline));
+        return !isOnline;
     }
 }
+
+

@@ -13,7 +13,7 @@
     If you want to use the real application use this instead of the 
     debug one
     
-            android:name=".JbmnplsApplication" 
+            android:name=".Applications" 
             
             Debug one
             
