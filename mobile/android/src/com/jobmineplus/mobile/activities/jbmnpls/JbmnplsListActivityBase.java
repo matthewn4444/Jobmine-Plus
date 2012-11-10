@@ -16,8 +16,8 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //  Declarations
     //=================
     private ListView list;
-    private ArrayAdapter<Integer> adapter;
-    protected ArrayList<Integer> allJobs;
+    private ArrayAdapter<Job> adapter;
+    protected ArrayList<Job> allJobs;
     
     //====================
     //  Override Methods
@@ -26,7 +26,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     protected void defineUI(Bundle savedInstanceState) {
         list = (ListView) findViewById(android.R.id.list);
         list.setOnItemClickListener(this);
-        allJobs = new ArrayList<Integer>();
+        allJobs = new ArrayList<Job>();
     }
     
     @Override
@@ -47,7 +47,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
      * on setUp();
      * @param adapter
      */
-    protected void setAdapter(ArrayAdapter<Integer> newAdapter) {
+    protected void setAdapter(ArrayAdapter<Job> newAdapter) {
         adapter = newAdapter; 
     }
     
@@ -60,13 +60,11 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
     
     protected void addJob(Job job) {
-        int id = job.getId();
-        //app.addJob(job);
         jobDataSource.addJob(job);
-        allJobs.add(id);
+        allJobs.add(job);
     }
     
-    protected ArrayList<Integer> getList() {
+    protected ArrayList<Job> getList() {
         return allJobs;
     }
     

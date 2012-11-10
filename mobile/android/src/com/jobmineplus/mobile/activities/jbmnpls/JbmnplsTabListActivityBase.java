@@ -15,8 +15,8 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     //======================
     //  Declaration Objects
     //======================
-    private HashMap<String, ArrayList<Integer>> lists;
-    private ArrayAdapter<Integer> adapter;
+    private HashMap<String, ArrayList<Job>> lists;
+    private ArrayAdapter<Job> adapter;
     private ListView list;
     private String currentTab;
     
@@ -29,7 +29,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
      * @param list: given the list to put into the new ArrayAdapter class
      * @return: the array adapter that is suppose to be made for the current tab
      */
-    protected abstract ArrayAdapter<Integer> makeAdapterFromList (ArrayList<Integer> list);
+    protected abstract ArrayAdapter<Job> makeAdapterFromList (ArrayList<Job> list);
     
     //====================
     //  Override Methods
@@ -39,7 +39,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     protected void defineUI(Bundle savedInstanceState) {
         list = (ListView) findViewById(android.R.id.list);
         list.setOnItemClickListener(this);
-        lists = new HashMap<String, ArrayList<Integer>>();
+        lists = new HashMap<String, ArrayList<Job>>();
         super.defineUI(savedInstanceState);
     }
     
@@ -83,7 +83,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     //======================
     
     protected boolean listContainsId(String tag, int id) {
-        ArrayList<Integer> theList = lists.get(tag);
+        ArrayList<Job> theList = lists.get(tag);
         return theList.contains(id);
     }
     
@@ -91,14 +91,14 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         return lists.get(tag).isEmpty();
     }
     
-    protected ArrayList<Integer> getListByTabId(String tag) {
+    protected ArrayList<Job> getListByTabId(String tag) {
         return lists.get(tag);
     }
     
     protected void addJobToListByTabId(String tag, Job job) {
-        ArrayList<Integer> theList = lists.get(tag);
+        ArrayList<Job> theList = lists.get(tag);
         if (theList != null) {
-            theList.add(job.getId());
+            theList.add(job);
         }
     }
     
@@ -108,7 +108,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     }
     
     protected void clearListByTabId(String tag) {
-        lists.put(tag, new ArrayList<Integer>());
+        lists.put(tag, new ArrayList<Job>());
     }
     
     protected void clearAllLists() {

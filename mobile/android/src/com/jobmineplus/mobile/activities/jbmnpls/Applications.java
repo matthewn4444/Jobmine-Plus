@@ -74,7 +74,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getListByTabId(getCurrentTab()).get(arg2);
+        int jobId = getListByTabId(getCurrentTab()).get(arg2).getId();
         goToDescription(jobId);
     }
 
@@ -111,7 +111,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     }
     
     @Override
-    protected ArrayAdapter<Integer> makeAdapterFromList(ArrayList<Integer> list) {
+    protected ArrayAdapter<Job> makeAdapterFromList(ArrayList<Job> list) {
         return new ApplicationsAdapter(this, android.R.id.list, 
                 R.layout.job_widget, WIDGET_RESOURCE_LIST, list);
     }
@@ -119,17 +119,16 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     //=================
     //  List Adapter
     //=================
-    private class ApplicationsAdapter extends ViewAdapterBase<Integer> {
+    private class ApplicationsAdapter extends ViewAdapterBase<Job> {
         public ApplicationsAdapter(Activity a, int listViewResourceId,
                 int widgetResourceLayout, int[] viewResourceIdListInWidget,
-                ArrayList<Integer> list) {
+                ArrayList<Job> list) {
             super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
                     list);
         }
 
         @Override
-        protected void setWidgetValues(Integer jobId, View[] elements) {
-            final Job job = jobDataSource.getJob(jobId);
+        protected void setWidgetValues(Job job, View[] elements) {
             if (job != null) {
                 ((TextView) elements[0]).setText(job.getTitle());
                 ((TextView) elements[1]).setText(job.getEmployer());

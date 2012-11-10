@@ -127,7 +127,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     }
     
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getList().get(arg2);
+        int jobId = getList().get(arg2).getId();
         goToDescription(jobId);
     }
 
@@ -167,17 +167,16 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     //=================
     //  List Adapter
     //=================
-    private class InterviewsAdapter extends ViewAdapterBase<Integer> {
+    private class InterviewsAdapter extends ViewAdapterBase<Job> {
         public InterviewsAdapter(Activity a, int listViewResourceId,
                 int widgetResourceLayout, int[] viewResourceIdListInWidget,
-                ArrayList<Integer> list) {
+                ArrayList<Job> list) {
             super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
                     list);
         }
 
         @Override
-        protected void setWidgetValues(Integer id, View[] elements) {
-            final Job job = jobDataSource.getJob(id);
+        protected void setWidgetValues(Job job, View[] elements) {
             if (job != null) {
                 Date start = job.getInterviewStartTime();
                 Date end = job.getInterviewEndTime();

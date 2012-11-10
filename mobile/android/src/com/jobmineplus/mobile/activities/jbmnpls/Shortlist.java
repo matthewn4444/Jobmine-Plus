@@ -50,7 +50,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     }
     
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getList().get(arg2);
+        int jobId = getList().get(arg2).getId();
         goToDescription(jobId);
     }
     
@@ -78,17 +78,16 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     //=================
     //  List Adapter
     //=================
-    private class ShortlistAdapter extends ViewAdapterBase<Integer> {
+    private class ShortlistAdapter extends ViewAdapterBase<Job> {
         public ShortlistAdapter(Activity a, int listViewResourceId,
                 int widgetResourceLayout, int[] viewResourceIdListInWidget,
-                ArrayList<Integer> list) {
+                ArrayList<Job> list) {
             super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
                     list);
         }
 
         @Override
-        protected void setWidgetValues(Integer jobId, View[] elements) {
-            final Job job = jobDataSource.getJob(jobId);
+        protected void setWidgetValues(Job job, View[] elements) {
             if (job != null) {
                 ((TextView) elements[0]).setText(job.getTitle());
                 ((TextView) elements[1]).setText(job.getEmployer());
