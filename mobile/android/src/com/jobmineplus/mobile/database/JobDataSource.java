@@ -3,7 +3,6 @@ package com.jobmineplus.mobile.database;
 import java.util.Date;
 
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.Job.INTERVIEW_TYPE;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -111,8 +110,59 @@ public class JobDataSource extends DataSourceBase {
         if (cursor != null) {
             cursor.moveToFirst();
         }
-        Job job = new Job(
-                id,                     // Id
+        
+        // No job available
+        if (cursor.isAfterLast()) {
+            return null;
+        }
+        
+        Job job = cursorToJob(cursor);
+        cursor.close();
+        return job;
+    }
+    
+    public synchronized void deleteJob(int id) {
+        database.delete(JobTable.TABLE_JOB, JobTable.COLUMN_ID + "=?", new String[] { id + "" });
+    }
+    
+    public synchronized void deleteJob(Job job) {
+        deleteJob(job.getId());
+    }
+    
+    public synchronized Job[] getJobsByIdList(int[] ids) {
+        // Join the ids
+        String idList = "";
+        for (int id : ids) {
+            idList += id + ",";
+        }
+        idList = idList.substring(0, idList.length() - 1);
+        
+        // Do query
+        Cursor cursor = database.rawQuery(String.format("select * from %s where %s in (%s)", JobTable.TABLE_JOB, JobTable.COLUMN_ID, idList), null);
+        return cursorToJobListAndClose(cursor);
+    }
+
+    public synchronized Job[] getAllJobs() {
+        Cursor cursor = database.rawQuery("select * from " + JobTable.TABLE_JOB, null);
+        return cursorToJobListAndClose(cursor);
+    }
+    
+    private Job[] cursorToJobListAndClose(Cursor cursor) {
+        Job[] jobs = new Job[cursor.getCount()];
+        int counter = 0;
+        if (cursor.moveToFirst()) {
+            while (cursor.isAfterLast() == false) {
+                jobs[counter++] = cursorToJob(cursor);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+        return jobs;
+    }
+    
+    private Job cursorToJob(Cursor cursor) {
+        return new Job(
+                cursor.getInt(0),       // Id
                 cursor.getString(1),    // Title
                 cursor.getString(2),    // Employer
                 cursor.getString(3),    // Term
@@ -139,23 +189,7 @@ public class JobDataSource extends DataSourceBase {
                 cursor.getString(22),   // Interview room
                 cursor.getString(23),   // Interview instructions
                 cursor.getString(24)    // Interviewer
-                );
-        cursor.close();
-        return job;
-    }
-    
-    public synchronized Job[] getJobsFromIds(int[] ids) {
-        //TODO
-        return null;
-    }
-
-    public synchronized void deleteJob(Job job) {
-        // TODO
-    }
-
-    public synchronized Job[] getAllJobs() {
-        // TODO
-        return null;
+        );
     }
 
 }
