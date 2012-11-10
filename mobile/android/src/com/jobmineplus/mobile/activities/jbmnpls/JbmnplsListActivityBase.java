@@ -61,7 +61,8 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     
     protected void addJob(Job job) {
         int id = job.getId();
-        app.addJob(job);
+        //app.addJob(job);
+        jobDataSource.addJob(job);
         allJobs.add(id);
     }
     

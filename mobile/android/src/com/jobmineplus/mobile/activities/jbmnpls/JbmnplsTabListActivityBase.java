@@ -103,7 +103,8 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     }
     
     protected void addJobToService(Job job) {
-        app.addJob(job);
+        //app.addJob(job);
+        jobDataSource.addJob(job);
     }
     
     protected void clearListByTabId(String tag) {

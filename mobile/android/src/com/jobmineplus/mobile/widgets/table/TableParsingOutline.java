@@ -81,6 +81,8 @@ public class TableParsingOutline {
             throw new HiddenColumnsException();
         }
         rowLength = rows.size();
+        
+        long a = new Date().getTime();
         for (int r = 1; r < rowLength; r++) {
             Element rowEl = rows.get(r);
             Elements tds = rowEl.getElementsByTag("td");
@@ -128,6 +130,8 @@ public class TableParsingOutline {
             }
             listener.onRowParse(this, passedObj);
         }
+        long b = new Date().getTime();
+        System.out.println((b -a)  + " msec");
     }
 
     // ==================================
@@ -177,7 +181,7 @@ public class TableParsingOutline {
         }
         return anchor.attr("href");
     }
-    
+        
     //=============
     //    Interface
     //=============

@@ -16,6 +16,7 @@ import com.jobmineplus.mobile.JbmnplsApplication;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoginActivity;
+import com.jobmineplus.mobile.database.JobDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -25,184 +26,212 @@ import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 
 public abstract class JbmnplsActivityBase extends FragmentActivity {
 
-    //=================
-    //  Declarations
-    //=================
-    protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
-    
+    // =================
+    // Declarations
+    // =================
+    protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat(
+            "MMM d, yyyy");
+
     private final int MAX_LOGIN_ATTEMPTS = 3;
-    
-    private String dataUrl = null;         //Use JbmnPlsHttpService.GET_LINKS.<url>
+
+    private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
     private JbmnplsHttpService service;
     protected JbmnplsApplication app;
     protected GetHtmlTask task = null;
+    protected JobDataSource jobDataSource;
     protected final String LOADING_MESSAGE = "Fetching data...";
     private Alert alert;
-    
-    //====================
-    //  Abstract Methods
-    //====================
-    
+
+    // ====================
+    // Abstract Methods
+    // ====================
+
     /**
-     * Running setUp() you need to specify the "layout" and
-     * "dataUrl".
-     * For example:
-     *     protected void setUp() {
-     *         setContentView(layout);
-     *        String url = JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-     *        return url;
-     *     }
+     * Running setUp() you need to specify the "layout" and "dataUrl". 
+     * For example: 
+     *      protected void setUp() { 
+     *          setContentView(layout); 
+     *          String url =
+     *          JbmnplsHttpService.GET_LINKS.APPLICATIONS; 
+     *          return url; 
+     *      }
+     *
      * @param savedInstanceState
      * @return dataUrl (String) that gets the data that will be parsed
      */
     protected abstract String setUp(Bundle savedInstanceState);
-    
+
     /**
-     * This allows the user to define all their UI object variables here.
-     * is necessary but does not always need it. Please specify layout in
-     * setUp();
+     * This allows the user to define all their UI object variables here. is
+     * necessary but does not always need it. Please specify layout in setUp();
      */
     protected abstract void defineUI(Bundle savedInstanceState);
-    
+
     /**
-     * Here you are given the document of the dataUrl page
-     * specified in setUp(). Also render the layout with the 
-     * data here.
+     * Here you are given the document of the dataUrl page specified in setUp().
+     * Also render the layout with the data here.
      * 
      * @param doc
      */
     protected abstract void parseWebpage(Document doc);
-    
+
     /**
-     * Calling this when the parseWebpage is complete.
-     * This is used when you need to update any visual element
-     * that you cannot do in parseWebpage
+     * Calling this when the parseWebpage is complete. This is used when you
+     * need to update any visual element that you cannot do in parseWebpage
      * 
      * @param doc
      */
     protected abstract void onRequestComplete();
-    
-    //====================
-    //  Override Methods
-    //====================
+
+    // ====================
+    // Override Methods
+    // ====================
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         app = (JbmnplsApplication) getApplication();
         service = JbmnplsHttpService.getInstance();
-        dataUrl = setUp(savedInstanceState);
+        jobDataSource = new JobDataSource(this);
+        jobDataSource.open();
         alert = new Alert(this);
+        dataUrl = setUp(savedInstanceState);
         defineUI(savedInstanceState);
         requestData();
     }
-    
-    //========================
-    //  Login/Logout Methods
-    //========================
+
+    @Override
+    protected void onResume() {
+        jobDataSource.open();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        jobDataSource.close();
+        super.onPause();
+    }
+
+    // ========================
+    // Login/Logout Methods
+    // ========================
     protected boolean verifyLogin() {
         if (!service.isLoggedIn()) {
-           for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-               int result = service.login();
-               if (result == JbmnplsHttpService.LOGIN) {
-                   return true;
-               } else if (result == JbmnplsHttpService.LOGGED_OFFLINE) {
-                   return false;
-               }
-           }
-           return false;
+            for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
+                int result = service.login();
+                if (result == JbmnplsHttpService.LOGIN) {
+                    return true;
+                } else if (result == JbmnplsHttpService.LOGGED_OFFLINE) {
+                    return false;
+                }
+            }
+            return false;
         }
         return true;
     }
-    
-    //======================
-    //  Activity Movements
-    //======================
-    
+
+    // ======================
+    // Activity Movements
+    // ======================
+
     protected void goToLoginActivity(String reasonMsg) {
         startActivityWithMessage(LoginActivity.class, reasonMsg);
     }
-    
+
     protected void goToHomeActivity(String reasonMsg) {
         startActivityWithMessage(HomeActivity.class, reasonMsg);
     }
-    
+
     protected void goToDescription(int jobId) {
-        BasicNameValuePair pass = new BasicNameValuePair("jobId", Integer.toString(jobId));
+        BasicNameValuePair pass = new BasicNameValuePair("jobId",
+                Integer.toString(jobId));
         startActivity(Description.class, pass);
     }
-    
+
     protected void startActivityWithMessage(Class<?> cls, String reasonMsg) {
         Intent in = new Intent(this, cls);
         in.putExtra("reason", reasonMsg);
         startActivity(in);
         finish();
     }
-    
+
     protected void startActivity(Class<?> goToClass) {
         NameValuePair[] empty = null;
         startActivity(goToClass, empty);
     }
-    
-    protected void startActivity(Class<?> goToClass, NameValuePair ...args) {
+
+    protected void startActivity(Class<?> goToClass, NameValuePair... args) {
         Intent in = new Intent(this, goToClass);
         if (args != null) {
-            for (NameValuePair arg: args) {
+            for (NameValuePair arg : args) {
                 in.putExtra(arg.getName(), arg.getValue());
             }
         }
         startActivity(in);
     }
 
-    //=================
-    //  Miscellaneous
-    //=================
-    
+    // =================
+    // Miscellaneous
+    // =================
+
     protected boolean isLoading() {
         return task != null && task.isRunning();
     }
 
-    protected void log(Object txt) {
-        System.out.println(txt);
+    protected void log(Object... txt) {
+        String returnStr = "";
+        int i = 1;
+        int size = txt.length;
+        if (size != 0) {
+            returnStr = txt[0] == null ? "null" : txt[0].toString();
+            for (; i < size; i++) {
+                returnStr += ", "
+                        + (txt[i] == null ? "null" : txt[i].toString());
+            }
+        }
+        System.out.println(returnStr);
     }
-    
+
     protected void showMessage(String message) {
         alert.show(message);
     }
-    
-    //====================================
-    //  Data Request Classes and Methods
-    //====================================
-    
+
+    // ====================================
+    // Data Request Classes and Methods
+    // ====================================
+
     protected void requestData() throws RuntimeException {
         task = new GetHtmlTask(this, LOADING_MESSAGE);
         if (dataUrl == null) {
-            throw new RuntimeException("Class that extended JbmnPlsActivityBase without specifying a dataurl.");
+            throw new RuntimeException(
+                    "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
         task.execute(dataUrl);
     }
-    
+
     /**
-     * You can override this function if you need to fetch
-     * something else besides the default url.
-     * Return null if it failed and this class will throw 
-     * a dialog saying it failed otherwise return the html
+     * You can override this function if you need to fetch something else
+     * besides the default url. Return null if it failed and this class will
+     * throw a dialog saying it failed otherwise return the html
+     * 
      * @param url
      * @return null if failed or String that is the html
      */
-    protected String onRequestData(String[] args) throws JbmnplsLoggedOutException {
+    protected String onRequestData(String[] args)
+            throws JbmnplsLoggedOutException {
         String url = args[0];
         return service.getJobmineHtml(url);
     }
-    
-    private class GetHtmlTask extends ProgressDialogAsyncTaskBase<String, Void, Integer>{
-        
+
+    private class GetHtmlTask extends
+            ProgressDialogAsyncTaskBase<String, Void, Integer> {
+
         static final int NO_PROBLEM = 0;
         static final int FORCED_LOGGEDOUT = 1;
         static final int GO_HOME_NO_REASON = 2;
         static final int HIDDEN_COLUMNS_ERROR = 3;
         static final int PARSING_ERROR = 4;
-        
+
         public GetHtmlTask(Activity activity, String dialogueMessage) {
             super(activity, dialogueMessage);
         }
@@ -233,7 +262,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                 return FORCED_LOGGEDOUT;
             }
         }
-        
+
         @Override
         protected void onPostExecute(Integer reasonForFailure) {
             super.onPostExecute(reasonForFailure);
@@ -258,4 +287,4 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             }
         }
     }
-}    
+}

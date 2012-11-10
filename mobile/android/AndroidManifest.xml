@@ -33,7 +33,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 
-                <category android:name="android.intent.category.LAUNCHER.OLD" />
+                <category android:name="android.intent.category.LAUNCHER.old" />
             </intent-filter>
         </activity>
         <activity

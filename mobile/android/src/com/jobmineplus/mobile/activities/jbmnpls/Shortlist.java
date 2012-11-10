@@ -61,7 +61,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     }
     
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
-        Job job = new Job(  //Shortlist constructor
+        Job job = new Job(  // Shortlist constructor
                 (Integer)   jobData[0],     (String)jobData[1],
                 (String)    jobData[2],     (String)jobData[3],
                 (Job.STATUS)jobData[4],     (Date)  jobData[5],
@@ -88,7 +88,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
 
         @Override
         protected void setWidgetValues(Integer jobId, View[] elements) {
-            final Job job = app.getJob(jobId);
+            final Job job = jobDataSource.getJob(jobId);
             if (job != null) {
                 ((TextView) elements[0]).setText(job.getTitle());
                 ((TextView) elements[1]).setText(job.getEmployer());

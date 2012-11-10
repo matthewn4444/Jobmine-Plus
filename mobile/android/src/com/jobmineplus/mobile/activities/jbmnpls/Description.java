@@ -56,7 +56,7 @@ public class Description extends JbmnplsTabActivityBase {
             throw new JbmnplsParsingException(
                     "Did not receive an id going here.");
         }
-        job = app.getJob(id);
+        job = jobDataSource.getJob(id);
         if (job == null) {
             throw new JbmnplsParsingException(
                     "This id does not have a job object");
@@ -108,7 +108,10 @@ public class Description extends JbmnplsTabActivityBase {
 
     @Override
     protected String onRequestData(String[] args) {
-        return job.grabDescriptionData();
+        String descriptionData = job.grabDescriptionData();
+        log(job.hasDescriptionData(), "Write to job");
+        jobDataSource.addJob(job);      // updates with the description data
+        return descriptionData;
     }
 
     @Override
@@ -142,22 +145,9 @@ public class Description extends JbmnplsTabActivityBase {
                 .setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
         hiringSupport.setText(job.getHiringSupportName());
         worktermSupport.setText(job.getWorkSupportName());
-        levels.setText(arrayJoin(job.getLevels(), ", "));
-        disciplines.setText(arrayJoin(job.getDisciplines(), ", "));
+        levels.setText(job.getLevelsAsString());
+        disciplines.setText(job.getDisciplinesAsString());
 
         container.setVisibility(View.VISIBLE);
-    }
-
-    private String arrayJoin(Object[] array, String delimiter) {
-        String returnStr = "";
-        int i = 1;
-        int size = array.length;
-        if (size != 0) {
-            returnStr = array[0].toString();
-            for (; i < size; i++) {
-                returnStr += delimiter + array[i];
-            }
-        }
-        return returnStr;
     }
 }
