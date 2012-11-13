@@ -20,7 +20,7 @@ import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
 
 public class Applications extends JbmnplsTabListActivityBase implements TableParsingOutline.OnTableParseListener{
-    
+
     //======================
     //  Declaration Objects
     //======================
@@ -29,9 +29,9 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
         final public static String ACTIVE_JOBS = "active";
         final public static String REJECTED_JOBS = "rejected";
     }
-    
+
     protected final String DATE_FORMAT = "d-MMM-yyyy";
-    
+
     protected final ColumnInfo COLUMN1 = new ColumnInfo(1, ColumnInfo.TEXT);
     protected final ColumnInfo COLUMN2 = new ColumnInfo(2, ColumnInfo.TEXT);
     protected final ColumnInfo COLUMN4 = new ColumnInfo(4, ColumnInfo.TEXT);
@@ -39,35 +39,34 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     protected final ColumnInfo COLUMN6 = new ColumnInfo(6, ColumnInfo.STATUS);
     protected final ColumnInfo COLUMN8 = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
     protected final ColumnInfo COLUMN9 = new ColumnInfo(9, ColumnInfo.NUMERIC);
-    
-    protected final TableParsingOutline ACTIVE_OUTLINE = 
+
+    protected final TableParsingOutline ACTIVE_OUTLINE =
             new TableParsingOutline("UW_CO_STU_APPSV$scroll$0", 10, 0,
                     COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
-    
-    protected final TableParsingOutline ALL_OUTLINE = 
+
+    protected final TableParsingOutline ALL_OUTLINE =
             new TableParsingOutline("UW_CO_APPS_VW2$scrolli$0", 12, 0,
                     COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
-    
-    protected final int[] WIDGET_RESOURCE_LIST = { 
-            R.id.job_title, R.id.job_employer, R.id.location, 
+
+    protected final int[] WIDGET_RESOURCE_LIST = {
+            R.id.job_title, R.id.job_employer, R.id.location,
             R.id.job_status,R.id.job_last_day, R.id.job_apps };
-    
+
     //====================
     //  Override Methods
     //====================
-    
+
     @Override
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.applications);
         return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-    
     }
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         ACTIVE_OUTLINE.setOnTableRowParse(this);
         ALL_OUTLINE.setOnTableRowParse(this);
-        
+
         createTab(LISTS.ALL_JOBS, "All");
         createTab(LISTS.ACTIVE_JOBS, "Active");
         createTab(LISTS.REJECTED_JOBS, "Rejected");
@@ -84,14 +83,14 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
         ACTIVE_OUTLINE.execute(doc);
         ALL_OUTLINE.execute(doc);
     }
-    
+
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job.STATUS status = (Job.STATUS)jobData[5];
         int id = (Integer) jobData[0];
         //Applications constructor
-        Job job = new Job(          id, (String)    jobData[1],     
-                (String)    jobData[2], (String)    jobData[3],   
-                (Job.STATE) jobData[4],                 status, 
+        Job job = new Job(          id, (String)    jobData[1],
+                (String)    jobData[2], (String)    jobData[3],
+                (Job.STATE) jobData[4],                 status,
                 (Date)      jobData[6], (Integer)   jobData[7]);
         if (outline.equals(ALL_OUTLINE)) {
             if (status == Job.STATUS.EMPLOYED) {
@@ -109,13 +108,13 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
             addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
         }
     }
-    
+
     @Override
     protected ArrayAdapter<Job> makeAdapterFromList(ArrayList<Job> list) {
-        return new ApplicationsAdapter(this, android.R.id.list, 
+        return new ApplicationsAdapter(this, android.R.id.list,
                 R.layout.job_widget, WIDGET_RESOURCE_LIST, list);
     }
-    
+
     //=================
     //  List Adapter
     //=================

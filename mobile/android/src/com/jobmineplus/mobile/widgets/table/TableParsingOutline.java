@@ -18,19 +18,19 @@ import com.jobmineplus.mobile.widgets.Job;
  * You should declare an object of this class final. To parse the job
  * data you must use ColumnInfo to specify each column's data of interest
  * by their type.
- * DO NOT include id as the first column as all tables have that 
+ * DO NOT include id as the first column as all tables have that
 -    * and it is redundant to declare it all the time. The id will be gained
  * from the constructor column
  * @author matthewn4444
  *
  */
 public class TableParsingOutline {
-    private String tableId;
-    private int numOfColumns;
-    private int jobIdColumn;
-    private ColumnInfo[] columnInfo;
+    private final String tableId;
+    private final int numOfColumns;
+    private final int jobIdColumn;
+    private final ColumnInfo[] columnInfo;
     private OnTableParseListener listener;
-    
+
     //===============
     //    Constructor
     //===============
@@ -39,8 +39,8 @@ public class TableParsingOutline {
      * @param tableId: the DOM id (eg. css #element_id)
      * @param numOfColumns: number of expected columns, will throw an exception if failed
      *                      when executed
-     * @param jobIdColumn: this is the column number of where the job id is; usually column 0                      
-     * @param columnInfo: multi-arguments of column info (one per each column that is of 
+     * @param jobIdColumn: this is the column number of where the job id is; usually column 0
+     * @param columnInfo: multi-arguments of column info (one per each column that is of
      *                    interest for job arguments)
      */
     public TableParsingOutline(String tableId, int numOfColumns, int jobIdColumn, ColumnInfo ...columnInfo) {
@@ -49,7 +49,7 @@ public class TableParsingOutline {
         this.jobIdColumn = jobIdColumn;
         this.numOfColumns = numOfColumns;
     }
-    
+
     //==================
     //    Public Methods
     //==================
@@ -60,12 +60,12 @@ public class TableParsingOutline {
     public void setOnTableRowParse (OnTableParseListener listener) {
         this.listener = listener;
     }
-    
+
     public void execute(Document doc) {
         if (listener == null) {
             throw new JbmnplsParsingException("You did not attach a listener to the table parsing function.");
         }
-        
+
         int rowLength;
         Object[] passedObj = new Object[columnInfo.length + 1];
         Element header, table = parseTableById(doc, tableId);
@@ -75,24 +75,24 @@ public class TableParsingOutline {
         }
         rows = table.getElementsByTag("tr");
         header = rows.get(0);
-        
+
         if (header.getElementsByTag("th").size() != numOfColumns) {
             throw new HiddenColumnsException();
         }
         rowLength = rows.size();
-        
+
         long a = new Date().getTime();
         for (int r = 1; r < rowLength; r++) {
             Element rowEl = rows.get(r);
             Elements tds = rowEl.getElementsByTag("td");
-            
+
             // See if table is empty
             int id = getIntFromElement(tds.get(jobIdColumn));
             if (id == 0) {
                 break;
             }
             passedObj[0] = id;
-            
+
             for (int c = 0; c < columnInfo.length; c++) {
                 ColumnInfo each = columnInfo[c];
                 Object value = null;
@@ -122,7 +122,7 @@ public class TableParsingOutline {
                 case ColumnInfo.INTERVIEW_TYPE:
                     value = Job.INTERVIEW_TYPE.getTypefromString(getTextFromElement(td));
                     break;
-                default: 
+                default:
                     throw new JbmnplsParsingException("Cannot parse column with invalid type.");
                 }
                 passedObj[c + 1] = value;
@@ -142,6 +142,7 @@ public class TableParsingOutline {
             return doc.getElementById(id).select("tr:eq(1) table table")
                     .first();
         } catch (Exception e) {
+            System.out.println("Original HTML:\n" + doc.html());
             throw new JbmnplsParsingException("Problem parsing table.");
         }
     }
@@ -180,14 +181,14 @@ public class TableParsingOutline {
         }
         return anchor.attr("href");
     }
-        
+
     //=============
     //    Interface
     //=============
     public interface OnTableParseListener {
         /**
          * This is needed once you parse each row
-         * Parameter 1 will always be the job id, everything else will follow just 
+         * Parameter 1 will always be the job id, everything else will follow just
          * the same as the table columns
          * @param data: the parameters for a job shown from TableParsingOutline class
          */

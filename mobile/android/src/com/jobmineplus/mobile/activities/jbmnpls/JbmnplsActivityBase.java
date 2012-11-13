@@ -11,6 +11,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
@@ -22,6 +23,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Alert;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
+import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsActivityBase extends FragmentActivity {
 
@@ -46,13 +48,12 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     // ====================
 
     /**
-     * Running setUp() you need to specify the "layout" and "dataUrl". 
-     * For example: 
-     *      protected void setUp() { 
-     *          setContentView(layout); 
-     *          String url =
-     *          JbmnplsHttpService.GET_LINKS.APPLICATIONS; 
-     *          return url; 
+     * Running setUp() you need to specify the "layout" and "dataUrl".
+     * For example:
+     *      protected void setUp() {
+     *          setContentView(layout);
+     *          String url = JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+     *          return url;
      *      }
      *
      * @param savedInstanceState
@@ -69,7 +70,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     /**
      * Here you are given the document of the dataUrl page specified in setUp().
      * Also render the layout with the data here.
-     * 
+     *
      * @param doc
      */
     protected abstract void parseWebpage(Document doc);
@@ -77,7 +78,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     /**
      * Calling this when the parseWebpage is complete. This is used when you
      * need to update any visual element that you cannot do in parseWebpage
-     * 
+     *
      * @param doc
      */
     protected abstract void onRequestComplete();
@@ -115,10 +116,11 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     protected boolean verifyLogin() {
         if (!service.isLoggedIn()) {
             for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-                int result = service.login();
-                if (result == JbmnplsHttpService.LOGIN) {
+                log("Login attempt: ", i);
+                JbmnplsHttpService.LOGGED result = service.login();
+                if (result == JbmnplsHttpService.LOGGED.IN) {
                     return true;
-                } else if (result == JbmnplsHttpService.LOGGED_OFFLINE) {
+                } else if (result == JbmnplsHttpService.LOGGED.OFFLINE) {
                     return false;
                 }
             }
@@ -210,7 +212,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
      * You can override this function if you need to fetch something else
      * besides the default url. Return null if it failed and this class will
      * throw a dialog saying it failed otherwise return the html
-     * 
+     *
      * @param url
      * @return null if failed or String that is the html
      */
@@ -229,8 +231,12 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         static final int HIDDEN_COLUMNS_ERROR = 3;
         static final int PARSING_ERROR = 4;
 
+        private final StopWatch sw = new StopWatch();
+        protected Activity a;
+
         public GetHtmlTask(Activity activity, String dialogueMessage) {
             super(activity, dialogueMessage);
+            a = activity;
         }
 
         @Override
@@ -238,6 +244,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             if (!verifyLogin()) {
                 return FORCED_LOGGEDOUT;
             }
+            sw.start();
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
             Document doc = null;
             try {
@@ -245,7 +252,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                 if (html == null) {
                     return PARSING_ERROR;
                 }
+                sw.lap();
                 doc = Jsoup.parse(html);
+                log(sw.last() + " ms to parse to dom", sw.elapsed() + " ms passed");
                 activity.parseWebpage(doc);
                 return NO_PROBLEM;
             } catch (HiddenColumnsException e) {
@@ -263,6 +272,8 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         @Override
         protected void onPostExecute(Integer reasonForFailure) {
             super.onPostExecute(reasonForFailure);
+            log(sw.elapsed() + " ms to render");
+            Toast.makeText(a, sw.elapsed() + " to get", Toast.LENGTH_SHORT).show();
             if (reasonForFailure == NO_PROBLEM) {
                 onRequestComplete();
             } else {

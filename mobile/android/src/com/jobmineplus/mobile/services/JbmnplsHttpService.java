@@ -1,14 +1,18 @@
+
 package com.jobmineplus.mobile.services;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
@@ -17,25 +21,37 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+import org.apache.http.params.HttpProtocolParams;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
+import com.jobmineplus.mobile.widgets.StopWatch;
 
 public final class JbmnplsHttpService {
-    
+
     /*
      * Bugs:
      *  There is a problem with logging back in when leaving the app and coming back
-     *      Might be that this class is recreated? 
-     *      Might be that it thought it was logged in and failed to parse? 
+     *      Might be that this class is recreated?
+     *      Might be that it thought it was logged in and failed to parse?
+     *
+     *
+     *
+     * New stuff
+     *      Signin HTML for JobMine. <--- this is for
+     *      not authorized for this time period
+     *      Invalid URL - no Node found in <--- broken url
+     *      Invalid signon time for user
      */
-    
+
     //================
     //  Static Links
     //================
-    
+
     static public final class GET_LINKS {
         public static final String DOCUMENTS    = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_STUDDOCS";
         public static final String PROFILE      = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_STUDENT";
@@ -52,39 +68,48 @@ public final class JbmnplsHttpService {
         public static final String LOGIN    = "https://jobmine.ccol.uwaterloo.ca/psp/SS/?cmd=login&languageCd=ENG&sessionId=";
         public static final String LOGOUT   = "https://jobmine.ccol.uwaterloo.ca/psp/SS/?cmd=login&languageCd=ENG&";
     }
-    
+
     //===========================
     //  Logged in or out states
     //===========================
-    static public final int LOGIN           = 0;
-    static public final int LOGGED_OUT      = 1;
-    static public final int LOGGED_OFFLINE  = 2;
-    
+    static public enum LOGGED { IN, OUT, OFFLINE }
+
+
     //=============
     //  Constants
     //=============
-    private static final int AUTO_LOGOUT_TIME           = 1000 * 60 * 60 * 20;   //20 min 
-    private static final int BUFFER_READER_SIZE         = 1024/2;                //512 Characters/line
-    private static final String LOGIN_UNIQUE_STRING     = "document.login.userid.focus";
-    private static final String OFFLINE_UNIQUE_STRING1  = "Invalid signon time for user";
-    private static final String OFFLINE_UNIQUE_STRING2  = "not authorized for this time period";
+    private static final int AUTO_LOGOUT_TIME           = 1000 * 60 * 60 * 20;   //20 min
+    private static final int BUFFER_READER_SIZE         = 1024;
+
+    // Login constants
+    private static final String LOGIN_UNIQUE_STRING     = "Signin HTML for JobMine.";
+    private static final String LOGIN_INVALID_CRED      = "Your User ID and/or Password are invalid.";
     private static final String DEFAULT_HTML_ENCODER    = "UTF-8";
-    
+    private static final String FAILED_URL              = "Invalid URL - no Node found in";
+    private static final int    LOGIN_READ_LENGTH       = 300;
+    private static final int    LOGIN_ERROR_MSG_SKIP    = 3500;
+
+
     //=====================
     //  Private Variables
     //=====================
-    private static HttpClient client = new DefaultHttpClient();
+    private static HttpClient client;
     private static JbmnplsHttpService instance = null;
     private static Object lock = new Object();
     private static long loginTimeStamp = 0;
     private static String username = "";
     private static String password = "";
-    
+
     //=========================
     //  Singleton Definition
     //=========================
-    private JbmnplsHttpService() {}
-    
+    private JbmnplsHttpService() {
+        HttpParams params = new BasicHttpParams();
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0");
+        client = new DefaultHttpClient(params);
+    }
+
     public static JbmnplsHttpService getInstance() {
         if (instance == null) {
             synchronized (lock) {
@@ -95,7 +120,7 @@ public final class JbmnplsHttpService {
         }
         return instance;
     }
-    
+
     //==============
     //  Login Data
     //==============
@@ -103,78 +128,92 @@ public final class JbmnplsHttpService {
         JbmnplsHttpService.username = username;
         JbmnplsHttpService.password = password;
     }
-    
+
     public synchronized String getUsername() {
         return username;
     }
-    
+
     public synchronized String getPassword() {
         return password;
     }
-    
+
     public synchronized boolean isLoggedIn() {
         long timeNow = new java.util.Date().getTime();
         return loginTimeStamp != 0 && (timeNow - loginTimeStamp) < AUTO_LOGOUT_TIME;
     }
-    
-    public int login() { 
+
+    public LOGGED login() {
         return login(username, password);
     }
-    
-    public synchronized int login(String username, String password) {
+
+    public synchronized LOGGED login(String username, String password) {
         loginTimeStamp = 0;
         if (username.length() == 0 || password.length() == 0) {
-            return LOGGED_OUT;
+            return LOGGED.OUT;
         }
-        
-        int found = 0;
+
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
         nameValuePairs.add(new BasicNameValuePair("httpPort", ""));
         nameValuePairs.add(new BasicNameValuePair("submit", "Submit"));
         nameValuePairs.add(new BasicNameValuePair("timezoneOffset", "480"));
         nameValuePairs.add(new BasicNameValuePair("pwd", password));
         nameValuePairs.add(new BasicNameValuePair("userid", username));
-        
+
+        BufferedReader reader = null;
         try {
+            StopWatch s = new StopWatch(true);
             HttpResponse response = post(nameValuePairs, JbmnplsHttpService.POST_LINKS.LOGIN);
+            System.out.println(s.elapsed() + " ms login post");
             if (response == null || response.getStatusLine().getStatusCode() != 200) {
-                return LOGGED_OUT;
+                return LOGGED.OUT;
             }
-            List<String> list = new ArrayList<String>();
-            list.add(OFFLINE_UNIQUE_STRING2);
-            list.add(OFFLINE_UNIQUE_STRING1);
-            list.add(LOGIN_UNIQUE_STRING);
-            found = findLinesOfWordsFromResponse(response, list);
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            return LOGGED_OUT;
-        } catch (UnknownHostException e) {
-            System.out.println("Cannot find host!");
-            e.printStackTrace();
-            return LOGGED_OUT;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return LOGGED_OUT;
-        }
-        switch (found) {
-        case 0:
+
+            reader = getReaderFromResponse(response);
+            char[] buffer = new char[LOGIN_READ_LENGTH];
+            reader.read(buffer, 0, LOGIN_READ_LENGTH);
+            String text = new String(buffer);
+
+            if (text.contains(LOGIN_UNIQUE_STRING)) {
+                // On login page
+                reader.skip(LOGIN_ERROR_MSG_SKIP);
+                reader.read(buffer, 0, LOGIN_READ_LENGTH);
+                text = new String(buffer);
+                // Check for offline error
+                if (text.contains(LOGIN_INVALID_CRED)) {
+                    // Failed login and password
+                    return LOGGED.OUT;
+                }
+                // Offline or some error
+                return LOGGED.OFFLINE;
+
+            } else if (text.contains(FAILED_URL)) {
+                System.out.println("Failed login post/url");
+                return LOGGED.OUT;
+            }
+            // Successful login
             setLoginCredentials(username, password);
             updateTimestamp();
-            return LOGIN;
-        case 1:
-            return LOGGED_OUT;
-        default:
-            return LOGGED_OFFLINE;
+            return LOGGED.IN;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return LOGGED.OUT;
+        } finally {
+            try {
+                reader.close();
+            } catch(IOException e) {
+                e.printStackTrace();
+                return LOGGED.OUT;
+            }
         }
     }
-    
+
     public void logout() {
         synchronized (lock) {
             client = new DefaultHttpClient();
             loginTimeStamp = 0;
         }
     }
-    
+
     //=====================
     //  GET HTTP Requests
     //=====================
@@ -182,14 +221,16 @@ public final class JbmnplsHttpService {
         HttpResponse response = null;
         try {
             HttpGet getRequest = new HttpGet(url);
+            StopWatch s = new StopWatch(true);
             response = client.execute(getRequest);
+            System.out.println(s.elapsed() + " ms get request");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
         return response;
     }
-    
+
     public synchronized JSONObject getJSON(String url) {
         HttpResponse response = get(url);
         if (response == null) {
@@ -197,7 +238,7 @@ public final class JbmnplsHttpService {
         }
         return getJSONFromResponse( response );
     }
-    
+
     public synchronized String getJobmineHtml (String url) throws JbmnplsLoggedOutException{
         HttpResponse response = get(url);
         String html;
@@ -205,14 +246,16 @@ public final class JbmnplsHttpService {
             return null;
         }
         try {
+            StopWatch s = new StopWatch(true);
             html = getJbmnHtmlFromHttpResponse(response);
+            System.out.println(s.elapsed() + " ms to turn into html");
         } catch (Exception e) {
             e.printStackTrace();
             throw new JbmnplsLoggedOutException();
         }
         return html;
     }
-    
+
     //======================
     //  POST HTTP Requests
     //======================
@@ -228,7 +271,7 @@ public final class JbmnplsHttpService {
             return null;
         }
     }
-    
+
     public synchronized JSONObject postJSON(List<NameValuePair> postData, String url) {
         HttpResponse response = post(postData, url);
         if (response == null) {
@@ -236,7 +279,7 @@ public final class JbmnplsHttpService {
         }
         return getJSONFromResponse( response );
     }
-    
+
     public synchronized String postJobmineHtml (List<NameValuePair> postData, String url) throws JbmnplsLoggedOutException {
         HttpResponse response = post(postData, url);
         String html;
@@ -251,11 +294,11 @@ public final class JbmnplsHttpService {
         }
         return html;
     }
-    
+
     //========================
     //  HTML/JSON Conversion
     //========================
-    
+
     public String getHtmlFromHttpResponse(HttpResponse response) throws IllegalStateException, IOException {
         return getHtmlFromHttpResponse(response, DEFAULT_HTML_ENCODER);
     }
@@ -270,7 +313,7 @@ public final class JbmnplsHttpService {
         in.close();
         return str.toString();
     }
-    
+
     public String getJbmnHtmlFromHttpResponse(HttpResponse response) throws IllegalStateException, IOException, JbmnplsLoggedOutException {
         return getJbmnHtmlFromHttpResponse(response, DEFAULT_HTML_ENCODER);
     }
@@ -279,17 +322,19 @@ public final class JbmnplsHttpService {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
         StringBuilder str = new StringBuilder();
         String line = null;
+
         while((line = reader.readLine()) != null) {
             if (line.contains(LOGIN_UNIQUE_STRING)) {
                 throw new JbmnplsLoggedOutException();
             }
             str.append(line);
         }
-        in.close();
+//        in.close();
+
         updateTimestamp();
         return str.toString();
     }
-    
+
     private JSONObject getJSONFromResponse(HttpResponse response) {
         String html;
         JSONObject json;
@@ -310,10 +355,19 @@ public final class JbmnplsHttpService {
         }
         return json;
     }
-    
+
     //===================
     //  Private Methods
     //===================
+    private BufferedReader getReaderFromResponse(HttpResponse response) throws IllegalStateException, IOException {
+        return getReaderFromResponse(response, DEFAULT_HTML_ENCODER);
+    }
+
+    private BufferedReader getReaderFromResponse(HttpResponse response, String encoder) throws IllegalStateException, IOException {
+        InputStream in = response.getEntity().getContent();
+        return new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
+    }
+
     private int findLinesOfWordsFromResponse(HttpResponse response, List<String> lines) throws IllegalStateException, IOException {
         if (lines.isEmpty()) {
             return 0;
@@ -323,6 +377,7 @@ public final class JbmnplsHttpService {
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, DEFAULT_HTML_ENCODER), BUFFER_READER_SIZE);
         String bufferLine = null;
         int numFound = 0;
+
         while((bufferLine = reader.readLine()) != null) {
             for (int i = aLines.size() - 1; i >= 0; i--) {
                 String line = aLines.get(i);
@@ -335,11 +390,11 @@ public final class JbmnplsHttpService {
                 break;
             }
         }
-        in.close();
+        reader.close();
         return numFound;
     }
 
     private synchronized void updateTimestamp() {
-        loginTimeStamp = new java.util.Date().getTime();
+        loginTimeStamp = System.nanoTime() / 1000000;
     }
 }
