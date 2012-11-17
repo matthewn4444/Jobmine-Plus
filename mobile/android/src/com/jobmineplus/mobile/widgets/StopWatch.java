@@ -65,6 +65,15 @@ public class StopWatch {
         return stopTime - startTime;
     }
 
+    public void printLast() {
+        System.out.println(last() + " ms since last lap");
+    }
+
+
+    public void printElapsed() {
+        System.out.println(elapsed() + " ms has passed");
+    }
+
     private long time() {
         return (System.nanoTime() / 1000000);
     }

@@ -10,15 +10,15 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
  * @author matthewn4444
  */
 public class ColumnInfo {
-    final public static int TEXT            = 0;
-    final public static int DATE            = 1;
-    final public static int NUMERIC         = 2;
-    final public static int DOUBLE          = 3;
-    final public static int URL             = 4;
+    final public static int ID              = 0;
+    final public static int TEXT            = 1;
+    final public static int DATE            = 2;
+    final public static int NUMERIC         = 3;
+    final public static int DOUBLE          = 4;
     final public static int STATE           = 5;
     final public static int STATUS          = 6;
     final public static int INTERVIEW_TYPE  = 7;
-    
+
     private int columnNumber;
     private int type;
     private String dateFormat;
@@ -40,14 +40,14 @@ public class ColumnInfo {
     }
     /**
      * This constructor is only used for columns that has a date
-     * Please you the static object ColumnInfo.DATE for 
+     * Please you the static object ColumnInfo.DATE for
      * @param columnNumber: the column number
      * @param type: ColumnInfo.DATE
      * @param dateFormat: a String that shows the format of the date in column
      */
     public ColumnInfo (int columnNumber, int type, String dateFormat) {
         this.columnNumber = columnNumber;
-        if (type < 0 || type > URL) {
+        if (type < 0 || type > STATE) {
             throw new JbmnplsParsingException("Setting the column type is invald.");
         }
         if (type == DATE && dateFormat == null) {

@@ -3,8 +3,6 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.jsoup.nodes.Document;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -32,21 +30,22 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
 
     protected final String DATE_FORMAT = "d-MMM-yyyy";
 
-    protected final ColumnInfo COLUMN1 = new ColumnInfo(1, ColumnInfo.TEXT);
-    protected final ColumnInfo COLUMN2 = new ColumnInfo(2, ColumnInfo.TEXT);
-    protected final ColumnInfo COLUMN4 = new ColumnInfo(4, ColumnInfo.TEXT);
-    protected final ColumnInfo COLUMN5 = new ColumnInfo(5, ColumnInfo.STATE);
-    protected final ColumnInfo COLUMN6 = new ColumnInfo(6, ColumnInfo.STATUS);
-    protected final ColumnInfo COLUMN8 = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
-    protected final ColumnInfo COLUMN9 = new ColumnInfo(9, ColumnInfo.NUMERIC);
+    protected final ColumnInfo COLUMNID = new ColumnInfo(0, ColumnInfo.ID);
+    protected final ColumnInfo COLUMN1  = new ColumnInfo(1, ColumnInfo.TEXT);
+    protected final ColumnInfo COLUMN2  = new ColumnInfo(2, ColumnInfo.TEXT);
+    protected final ColumnInfo COLUMN4  = new ColumnInfo(4, ColumnInfo.TEXT);
+    protected final ColumnInfo COLUMN5  = new ColumnInfo(5, ColumnInfo.STATE);
+    protected final ColumnInfo COLUMN6  = new ColumnInfo(6, ColumnInfo.STATUS);
+    protected final ColumnInfo COLUMN8  = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
+    protected final ColumnInfo COLUMN9  = new ColumnInfo(9, ColumnInfo.NUMERIC);
 
     protected final TableParsingOutline ACTIVE_OUTLINE =
-            new TableParsingOutline("UW_CO_STU_APPSV$scroll$0", 10, 0,
-                    COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
+            new TableParsingOutline("UW_CO_STU_APPSV$scroll$0", 10,
+                    COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
 
     protected final TableParsingOutline ALL_OUTLINE =
-            new TableParsingOutline("UW_CO_APPS_VW2$scrolli$0", 12, 0,
-                    COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
+            new TableParsingOutline("UW_CO_APPS_VW2$scrolli$0", 12,
+                    COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
 
     protected final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
@@ -78,10 +77,10 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     }
 
     @Override
-    protected void parseWebpage(Document doc) {
+    protected void parseWebpage(String html) {
         clearAllLists();
-        ACTIVE_OUTLINE.execute(doc);
-        ALL_OUTLINE.execute(doc);
+        ACTIVE_OUTLINE.execute(html);
+        ALL_OUTLINE.execute(html);
     }
 
     public void onRowParse(TableParsingOutline outline, Object... jobData) {

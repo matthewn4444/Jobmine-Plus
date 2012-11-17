@@ -12,6 +12,12 @@ import com.jobmineplus.mobile.widgets.Job;
 
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
 
+    /**
+     * TODO after adding jobs, you can try to place them in database
+     * on another thread, make it 400ms faster
+     *
+     */
+
     //=================
     //  Declarations
     //=================

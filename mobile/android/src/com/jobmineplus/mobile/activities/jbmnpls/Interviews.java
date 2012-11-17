@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import org.jsoup.nodes.Document;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -29,10 +27,11 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     //======================
     protected final String DATE_FORMAT = "d MMM yyyy";
     protected final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
-    
+
     //======================
     // Table Definitions
     //======================
+    private final ColumnInfo COLUMN_1_INFO_ID   = new ColumnInfo(1, ColumnInfo.ID);
     private final ColumnInfo COLUMN_2_INFO_TEXT = new ColumnInfo(2, ColumnInfo.TEXT);
     private final ColumnInfo COLUMN_3_INFO_TEXT = new ColumnInfo(3, ColumnInfo.TEXT);
     private final ColumnInfo COLUMN_4_INFO_DATE = new ColumnInfo(4, ColumnInfo.DATE, DATE_FORMAT);
@@ -40,7 +39,8 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
 
     // First Table
     protected final TableParsingOutline INTERVIEWS_OUTLINE = new TableParsingOutline(
-            "UW_CO_STUD_INTV$scroll$0", 13, 1, 
+            "UW_CO_STUD_INTV$scroll$0", 13,
+            COLUMN_1_INFO_ID,                              // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT,                             // Title
             COLUMN_4_INFO_DATE,                             // Date
@@ -53,7 +53,8 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
 
     // Second Table
     protected final TableParsingOutline GROUPS_OUTLINE = new TableParsingOutline(
-            "UW_CO_GRP_STU_V$scroll$0", 9, 1,
+            "UW_CO_GRP_STU_V$scroll$0", 9,
+            COLUMN_1_INFO_ID,                              // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT,                             // Title
             COLUMN_4_INFO_DATE,                             // Date
@@ -64,46 +65,48 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
 
     // Third Table
     protected final TableParsingOutline SPECIAL_OUTLINE = new TableParsingOutline(
-            "UW_CO_NSCHD_JOB$scroll$0", 5, 1,
+            "UW_CO_NSCHD_JOB$scroll$0", 5,
+            COLUMN_1_INFO_ID,                              // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT,                             // Title
             new ColumnInfo(4, ColumnInfo.TEXT));            // Instruction
 
     // Fourth Table
     protected final TableParsingOutline CANCELLED_OUTLINE = new TableParsingOutline(
-            "UW_CO_SINT_CANC$scroll$0", 4, 1,
+            "UW_CO_SINT_CANC$scroll$0", 4,
+            COLUMN_1_INFO_ID,                              // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT);                            // Title
-    
+
     //================================
     //  Widget Resource List Outline
     //================================
-    protected final int[] WIDGET_RESOURCE_LIST = { 
+    protected final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.date, R.id.type, R.id.time,
             R.id.interviewer, R.id.room, R.id.instructions};
-    
+
     //====================
     //  Override Methods
     //====================
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-            
+
         INTERVIEWS_OUTLINE.setOnTableRowParse(this);
         GROUPS_OUTLINE.setOnTableRowParse(this);
         SPECIAL_OUTLINE.setOnTableRowParse(this);
         CANCELLED_OUTLINE.setOnTableRowParse(this);
-        
-        setAdapter(new InterviewsAdapter(this, android.R.id.list, 
+
+        setAdapter(new InterviewsAdapter(this, android.R.id.list,
                 R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
     }
-    
+
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job job = null;
         int id = (Integer) jobData[0];
         String employer = (String) jobData[1];
         String title = (String) jobData[2];
-        
+
         if (outline.equals(SPECIAL_OUTLINE)) {
             job = new Job(id, employer, title, (String) jobData[3]);
         } else if (outline.equals(CANCELLED_OUTLINE)) {
@@ -111,21 +114,21 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
         } else {
             Date interviewDay = (Date) jobData[3];
             if (outline.equals(INTERVIEWS_OUTLINE)) {
-                job = new Job(id, employer, title, 
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0), 
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], (Integer) jobData[6]), 
-                        (Job.INTERVIEW_TYPE) jobData[4], (String) jobData[7], (String) jobData[8], 
+                job = new Job(id, employer, title,
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0),
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], (Integer) jobData[6]),
+                        (Job.INTERVIEW_TYPE) jobData[4], (String) jobData[7], (String) jobData[8],
                         (String) jobData[9]);
             } else {    //GROUPS_OUTLINE
-                job = new Job(id, employer, title, 
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[4], 0),  
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0),  
+                job = new Job(id, employer, title,
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[4], 0),
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0),
                         (String) jobData[6], (String) jobData[7]);
             }
         }
         addJob(job);
     }
-    
+
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getList().get(arg2).getId();
         goToDescription(jobId);
@@ -138,18 +141,18 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     }
 
     @Override
-    protected void parseWebpage(Document doc) {
+    protected void parseWebpage(String html) {
         clearList();
-        INTERVIEWS_OUTLINE.execute(doc);
-        GROUPS_OUTLINE.execute(doc);
-        SPECIAL_OUTLINE.execute(doc);
-        CANCELLED_OUTLINE.execute(doc);
+        INTERVIEWS_OUTLINE.execute(html);
+        GROUPS_OUTLINE.execute(html);
+        SPECIAL_OUTLINE.execute(html);
+        CANCELLED_OUTLINE.execute(html);
     }
-    
+
     //===================
     //  Private Methods
     //===================
-    private Date getDateFromDateWithTimeString(Date date, String timeString, 
+    private Date getDateFromDateWithTimeString(Date date, String timeString,
             int minutesOffset) throws JbmnplsParsingException{
         Date retDate = (Date)date.clone();
         Date timeDate;
@@ -163,7 +166,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
         retDate.setMinutes(timeDate.getMinutes() + minutesOffset);
         return retDate;
     }
-    
+
     //=================
     //  List Adapter
     //=================
@@ -184,7 +187,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
                 String roominfo = job.getRoomInfo();
                 String instructions = job.getInstructions();
                 String interviewer = job.getInterviewer();
-                
+
                 ((TextView) elements[0]).setText(job.getTitle());
                 ((TextView) elements[1]).setText(job.getEmployer());
                 if (start != null) {
@@ -221,6 +224,6 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
             }
         }
     }
-    
-    
+
+
 }

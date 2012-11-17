@@ -5,16 +5,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpVersion;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
@@ -138,7 +134,7 @@ public final class JbmnplsHttpService {
     }
 
     public synchronized boolean isLoggedIn() {
-        long timeNow = new java.util.Date().getTime();
+        long timeNow = System.nanoTime() / 1000000;
         return loginTimeStamp != 0 && (timeNow - loginTimeStamp) < AUTO_LOGOUT_TIME;
     }
 
@@ -199,7 +195,9 @@ public final class JbmnplsHttpService {
             return LOGGED.OUT;
         } finally {
             try {
-                reader.close();
+                if (reader != null) {
+                    reader.close();
+                }
             } catch(IOException e) {
                 e.printStackTrace();
                 return LOGGED.OUT;
@@ -305,7 +303,7 @@ public final class JbmnplsHttpService {
     public String getHtmlFromHttpResponse(HttpResponse response, String encoder) throws IllegalStateException, IOException {
         InputStream in = response.getEntity().getContent();
         BufferedReader reader = new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
-        StringBuilder str = new StringBuilder();
+        StringBuilder str = new StringBuilder(in.available());
         String line = null;
         while((line = reader.readLine()) != null) {
             str.append(line);
@@ -329,7 +327,7 @@ public final class JbmnplsHttpService {
             }
             str.append(line);
         }
-//        in.close();
+        in.close();
 
         updateTimestamp();
         return str.toString();

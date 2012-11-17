@@ -1,7 +1,5 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
-import org.jsoup.nodes.Document;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -115,7 +113,7 @@ public class Description extends JbmnplsTabActivityBase {
     }
 
     @Override
-    protected void parseWebpage(Document doc) {
+    protected void parseWebpage(String html) {
         // Not needed because it is all done in onRequestData
     }
 

@@ -4,9 +4,6 @@ import java.text.SimpleDateFormat;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -73,7 +70,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
      *
      * @param doc
      */
-    protected abstract void parseWebpage(Document doc);
+    protected abstract void parseWebpage(String html);
 
     /**
      * Calling this when the parseWebpage is complete. This is used when you
@@ -116,7 +113,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     protected boolean verifyLogin() {
         if (!service.isLoggedIn()) {
             for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-                log("Login attempt: ", i);
+                log("Login attempt: " + i);
                 JbmnplsHttpService.LOGGED result = service.login();
                 if (result == JbmnplsHttpService.LOGGED.IN) {
                     return true;
@@ -246,16 +243,12 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             }
             sw.start();
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
-            Document doc = null;
             try {
                 String html = activity.onRequestData(params);
                 if (html == null) {
                     return PARSING_ERROR;
                 }
-                sw.lap();
-                doc = Jsoup.parse(html);
-                log(sw.last() + " ms to parse to dom", sw.elapsed() + " ms passed");
-                activity.parseWebpage(doc);
+                activity.parseWebpage(html);
                 return NO_PROBLEM;
             } catch (HiddenColumnsException e) {
                 e.printStackTrace();

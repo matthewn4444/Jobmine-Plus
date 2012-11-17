@@ -81,6 +81,7 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
 
     protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpService.LOGGED> {
         protected JbmnplsHttpService service;
+        private StopWatch sw;
 
         public AsyncLoginTask(Activity activity) {
             super(activity, activity.getString(R.string.login_message));
@@ -89,11 +90,9 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
 
         @Override
         protected JbmnplsHttpService.LOGGED doInBackground(String... args) {
-            StopWatch sw = new StopWatch();
-            sw.start();
-            JbmnplsHttpService.LOGGED b = service.login(args[0], args[1]);
-            System.out.println(sw.elapsed() + " ms to login");
-            return b;
+            sw = new StopWatch(true);
+            JbmnplsHttpService.LOGGED result = service.login(args[0], args[1]);
+            return result;
         }
 
         @Override
@@ -101,7 +100,8 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
             Activity activity = getActivity();
             super.onPostExecute(loginState);
             if (loginState == JbmnplsHttpService.LOGGED.IN) {
-                Toast.makeText(activity, "You are logged in!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(activity, "You are logged in! " + sw.elapsed() + " ms",
+                        Toast.LENGTH_SHORT).show();
                 goToHomeActivity();
             } else if (loginState == JbmnplsHttpService.LOGGED.OUT) {
                 Toast.makeText(activity, activity.getString(R.string.login_fail_message),
