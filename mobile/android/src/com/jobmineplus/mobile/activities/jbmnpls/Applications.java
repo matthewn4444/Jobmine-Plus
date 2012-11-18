@@ -101,7 +101,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
                     addJobToListByTabId(LISTS.REJECTED_JOBS, job);
                 }
             }
-            addJobToService(job);
+            addJob(job);
             addJobToListByTabId(LISTS.ALL_JOBS, job);
         } else {
             addJobToListByTabId(LISTS.ACTIVE_JOBS, job);

@@ -3,9 +3,6 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;

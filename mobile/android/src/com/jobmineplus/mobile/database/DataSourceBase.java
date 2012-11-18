@@ -23,25 +23,25 @@ public abstract class DataSourceBase {
             database.insertOrThrow(table, null, values);
         }
     }
-    
+
     protected void addNonNullValue(ContentValues values, String column, String value) {
         if (value != null) {
             values.put(column, value);
         }
     }
-    
+
     protected void addNonNullValue(ContentValues values, String column, int value) {
         if (value != 0) {
             values.put(column, value);
         }
     }
-    
+
     protected void addNonNullValue(ContentValues values, String column, long value) {
         if (value != 0) {
             values.put(column, value);
         }
     }
-    
+
     // TEMP
     protected void log(Object... txt) {
         String returnStr = "";

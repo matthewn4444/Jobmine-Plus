@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
 
@@ -66,12 +68,15 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
 
     protected void addJob(Job job) {
-        jobDataSource.addJob(job);
         allJobs.add(job);
     }
 
     protected ArrayList<Job> getList() {
         return allJobs;
+    }
+
+    protected void jobsToDatabase() {
+        jobDataSource.addJobs(allJobs);
     }
 
     protected void clearList() {
@@ -81,5 +86,8 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     @Override
     protected void onRequestComplete() {
         updateList();
+        StopWatch sw = new StopWatch(true);
+        jobsToDatabase();
+        Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
     }
 }

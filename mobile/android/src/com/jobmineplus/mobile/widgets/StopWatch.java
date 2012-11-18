@@ -69,6 +69,9 @@ public class StopWatch {
         System.out.println(last() + " ms since last lap");
     }
 
+    public void printElapsed(String format) {
+        System.out.println(String.format(format, elapsed()));
+    }
 
     public void printElapsed() {
         System.out.println(elapsed() + " ms has passed");
