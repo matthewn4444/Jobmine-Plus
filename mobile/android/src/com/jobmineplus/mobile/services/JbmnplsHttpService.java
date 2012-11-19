@@ -20,10 +20,6 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
@@ -165,27 +161,11 @@ public final class JbmnplsHttpService {
             }
 
             reader = getReaderFromResponse(response);
-            char[] buffer = new char[LOGIN_READ_LENGTH];
-            reader.read(buffer, 0, LOGIN_READ_LENGTH);
-            String text = new String(buffer);
-
-            if (text.contains(LOGIN_UNIQUE_STRING)) {
-                // On login page
-                reader.skip(LOGIN_ERROR_MSG_SKIP);
-                reader.read(buffer, 0, LOGIN_READ_LENGTH);
-                text = new String(buffer);
-                // Check for offline error
-                if (text.contains(LOGIN_INVALID_CRED)) {
-                    // Failed login and password
-                    return LOGGED.OUT;
-                }
-                // Offline or some error
-                return LOGGED.OFFLINE;
-
-            } else if (text.contains(FAILED_URL)) {
-                System.out.println("Failed login post/url");
-                return LOGGED.OUT;
+            LOGGED result = validateLoginJobmine(reader);
+            if (result != LOGGED.IN) {
+                return result;
             }
+
             // Successful login
             setLoginCredentials(username, password);
             updateTimestamp();
@@ -229,14 +209,6 @@ public final class JbmnplsHttpService {
         return response;
     }
 
-    public synchronized JSONObject getJSON(String url) {
-        HttpResponse response = get(url);
-        if (response == null) {
-            return null;
-        }
-        return getJSONFromResponse( response );
-    }
-
     public synchronized String getJobmineHtml (String url) throws JbmnplsLoggedOutException{
         HttpResponse response = get(url);
         String html;
@@ -270,14 +242,6 @@ public final class JbmnplsHttpService {
         }
     }
 
-    public synchronized JSONObject postJSON(List<NameValuePair> postData, String url) {
-        HttpResponse response = post(postData, url);
-        if (response == null) {
-            return null;
-        }
-        return getJSONFromResponse( response );
-    }
-
     public synchronized String postJobmineHtml (List<NameValuePair> postData, String url) throws JbmnplsLoggedOutException {
         HttpResponse response = post(postData, url);
         String html;
@@ -293,70 +257,74 @@ public final class JbmnplsHttpService {
         return html;
     }
 
-    //========================
-    //  HTML/JSON Conversion
-    //========================
-
-    public String getHtmlFromHttpResponse(HttpResponse response) throws IllegalStateException, IOException {
-        return getHtmlFromHttpResponse(response, DEFAULT_HTML_ENCODER);
-    }
-    public String getHtmlFromHttpResponse(HttpResponse response, String encoder) throws IllegalStateException, IOException {
-        InputStream in = response.getEntity().getContent();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
-        StringBuilder str = new StringBuilder(in.available());
-        String line = null;
-        while((line = reader.readLine()) != null) {
-            str.append(line);
-        }
-        in.close();
-        return str.toString();
-    }
-
-    public String getJbmnHtmlFromHttpResponse(HttpResponse response) throws IllegalStateException, IOException, JbmnplsLoggedOutException {
+    //===================
+    //  HTML Conversion
+    //===================
+    public String getJbmnHtmlFromHttpResponse(HttpResponse response) {
         return getJbmnHtmlFromHttpResponse(response, DEFAULT_HTML_ENCODER);
     }
-    public String getJbmnHtmlFromHttpResponse(HttpResponse response, String encoder) throws JbmnplsLoggedOutException, IllegalStateException, IOException {
-        InputStream in = response.getEntity().getContent();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
+
+    public String getJbmnHtmlFromHttpResponse(HttpResponse response, String encoder) {
+        InputStream in = null;
         StringBuilder str = new StringBuilder();
-        String line = null;
 
-        while((line = reader.readLine()) != null) {
-            if (line.contains(LOGIN_UNIQUE_STRING)) {
-                throw new JbmnplsLoggedOutException();
+        try {
+            in = response.getEntity().getContent();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
+
+            // Validates the html to make sure we logged in
+            if (validateLoginJobmine(reader) != LOGGED.IN) {
+                return null;
             }
-            str.append(line);
-        }
-        in.close();
 
+            String line = null;
+            while((line = reader.readLine()) != null) {
+                str.append(line);
+            }
+        } catch(IOException e) {        // Temp
+            System.out.println("Error parsing html");
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException e) {
+                }
+            }
+        }
         updateTimestamp();
         return str.toString();
-    }
-
-    private JSONObject getJSONFromResponse(HttpResponse response) {
-        String html;
-        JSONObject json;
-        try {
-            html = getHtmlFromHttpResponse(response);
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            return null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-        try {
-            json = new JSONObject(new JSONTokener(html));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
-        return json;
     }
 
     //===================
     //  Private Methods
     //===================
+    private LOGGED validateLoginJobmine(BufferedReader reader) throws IOException {
+        char[] buffer = new char[LOGIN_READ_LENGTH];
+        reader.read(buffer, 0, LOGIN_READ_LENGTH);
+        String text = new String(buffer);
+
+        if (text.contains(LOGIN_UNIQUE_STRING)) {
+            // On login page
+            reader.skip(LOGIN_ERROR_MSG_SKIP);
+            reader.read(buffer, 0, LOGIN_READ_LENGTH);
+            text = new String(buffer);
+            // Check for offline error
+            if (text.contains(LOGIN_INVALID_CRED)) {
+                // Failed login and password
+                return LOGGED.OUT;
+            }
+            // Offline or some error
+            return LOGGED.OFFLINE;
+
+        } else if (text.contains(FAILED_URL)) {
+            System.out.println("Failed login post/url");
+            return LOGGED.OUT;
+        }
+        return LOGGED.IN;
+    }
+
     private BufferedReader getReaderFromResponse(HttpResponse response) throws IllegalStateException, IOException {
         return getReaderFromResponse(response, DEFAULT_HTML_ENCODER);
     }
@@ -364,32 +332,6 @@ public final class JbmnplsHttpService {
     private BufferedReader getReaderFromResponse(HttpResponse response, String encoder) throws IllegalStateException, IOException {
         InputStream in = response.getEntity().getContent();
         return new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
-    }
-
-    private int findLinesOfWordsFromResponse(HttpResponse response, List<String> lines) throws IllegalStateException, IOException {
-        if (lines.isEmpty()) {
-            return 0;
-        }
-        ArrayList<String> aLines = new ArrayList<String>(lines);
-        InputStream in = response.getEntity().getContent();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in, DEFAULT_HTML_ENCODER), BUFFER_READER_SIZE);
-        String bufferLine = null;
-        int numFound = 0;
-
-        while((bufferLine = reader.readLine()) != null) {
-            for (int i = aLines.size() - 1; i >= 0; i--) {
-                String line = aLines.get(i);
-                if (bufferLine.contains(line)) {
-                    numFound++;
-                    aLines.remove(i);
-                }
-            }
-            if (aLines.isEmpty()) {
-                break;
-            }
-        }
-        reader.close();
-        return numFound;
     }
 
     private synchronized void updateTimestamp() {
