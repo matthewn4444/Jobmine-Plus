@@ -8,6 +8,7 @@ import java.util.Locale;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.SimpleHtmlParser;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
 /**
@@ -113,24 +114,25 @@ public class TableParsingOutline {
      * @param html
      */
     private void parseTable(String html) {
-        int row = 0, position = 0;
+        SimpleHtmlParser parser = new SimpleHtmlParser(html);
+        int row = 0;
         Object[] passedObj = new Object[columnInfo.length];
-        while(position != -1 && row < INFINITE_LOOP_LIMIT) {
+        while(!parser.isEndOfContent() && row < INFINITE_LOOP_LIMIT) {
             int column = 0;
 
             // Check if there is another TD, if not we are done
-            position = html.indexOf("<td", position);
+            int position = html.indexOf("<td", parser.getPosition());
             if (position == -1) { return; }
+            parser.setPosition(position);
 
             // Skip TDs till we get to the id column
             column = columnInfo[0].getColumnNumber() - column;
-            position = skipColumns(html, position, column);
+            parser.skipColumns(column);
 
             // Parse the job id of the table, if no id, then table is empty
-            ParsingResult result = parseTextInTD(html, position);
-            if (result.Text == "") { return; }
-            position = result.Position;
-            passedObj[0] = Integer.parseInt(result.Text);
+            String text = parser.getHTMLInNextTD();
+            if (text == "") { return; }
+            passedObj[0] = Integer.parseInt(text);
             column++;
 
             // Parse each column info, start at 1 because index 0 is job id
@@ -139,13 +141,11 @@ public class TableParsingOutline {
                 int entryCol = entry.getColumnNumber();
 
                 // Skip TDs/columns till we get to a column we want
-                position = skipColumns(html, position, entryCol - column);
+                parser.skipColumns(entryCol - column);
                 column += entryCol - column;
 
                 // Get the text from this column
-                result = parseTextInTD(html, position);
-                position = result.Position;
-                String text = result.Text;
+                text = parser.getHTMLInNextTD();
                 column++;
 
                 // Convert the value to the column type
@@ -187,7 +187,7 @@ public class TableParsingOutline {
             }
 
             // Skip the html till we get to the next row
-            position = skipColumns(html, position, numOfColumns - column);
+            parser.skipColumns(numOfColumns - column);
 
             // Now we pass the values back to the activities to make jobs
             listener.onRowParse(this, passedObj);
@@ -199,105 +199,6 @@ public class TableParsingOutline {
             throw new JbmnplsParsingException("We ran an infinite loop looking for column data.");
         }
         throw new JbmnplsParsingException("Went to end of table but found no information.");
-    }
-
-    // ========================
-    //  Parsing Helper Methods
-    // ========================
-
-    /**
-     * Pass in the HTML and the position of last search plus number of columns to skip. Uses
-     * indexOf to find the <td> and skip them to move to the next column without parsing the
-     * insides. Will throw if end of HTML. Throws exception when column does not exist.
-     * @param html
-     * @param position
-     * @param numberOf
-     * @return position
-     */
-    private int skipColumns(String html, int position, int numberOf) {
-        for (int i = 0; i < numberOf; i++) {
-            position = skipTag(html, "td", position);
-            if (position == -1) {
-                throw new JbmnplsParsingException("Cannot skip column when no columns left.");
-            }
-        }
-        return position;
-    }
-
-    /**
-     * Passes the HTML, the tag you are looking for and the position, will skip that tag
-     * and forward the position in the HTML. Will throw if end of HTML.
-     * @param html
-     * @param tag
-     * @param position
-     * @return position
-     */
-    private int skipTag(String html, String tag, int position) {
-        // Get the text inside the column
-       String open = "<" + tag, closing = "</" + tag + ">";
-       position = html.indexOf(open, position);
-       if (position == -1) {
-           throw new JbmnplsParsingException("Cannot skip tag because open " + tag + " doesnt exist.");
-       }
-       position = html.indexOf(closing, position);
-       if (position == -1) {
-           throw new JbmnplsParsingException("Cannot skip tag because closing " + tag + " doesnt exist.");
-       }
-       position += closing.length();
-       return position;
-    }
-
-    /**
-     * Gets the text inside a TD. Very customized for Jobmine web page tables.
-     * Looks for the <td>, then <span> and if inside is an anchor tag <a>, then it will
-     * find the text in that. Remove extra spaces and returns it.
-     * Specify the HTML and its current position and it will return the position and text
-     * it found. Will throw exceptions if end of HTML.
-     * @param html
-     * @param position
-     * @return ParsingResult (which is a wrapper class of position and text)
-     */
-    private ParsingResult parseTextInTD(String html, int position) {
-        ParsingResult result = htmlInTag(html, "td", position);
-        if (result == null)  { throw new JbmnplsParsingException("Cannot find TD in html."); }
-        String text = result.Text;
-        position = result.Position;
-        result = htmlInTag(text, "span", 0);
-
-        // Column has text?
-        if (result != null) {
-            text = result.Text;
-            if (text.startsWith("<a")) {
-                result = htmlInTag(text, "a", 0);
-                text = result.Text;
-            }
-            text = text.replaceAll("&nbsp;", "").trim();
-        } else {
-            text = "";
-        }
-        return new ParsingResult(text, position);
-    }
-
-    /**
-     * Finds the text of the tag you are looking for in the HTML. Will update the
-     * position to end of the element. If cannot find, it will return null.
-     * @param html
-     * @param tag
-     * @param position
-     * @return ParsingResult, if not found will return null
-     */
-    private ParsingResult htmlInTag(String html, String tag, int position) {
-        // Get the text inside the column
-        String open = "<" + tag, closing = "</" + tag + ">";
-        int start = html.indexOf(open, position);
-        if (start == -1) { return null; }
-        start = html.indexOf(">", start);
-        if (start == -1) { return null; }
-        int end = html.indexOf(closing, start);
-        if (end == -1) { return null; }
-        String text = html.substring(++start, end);
-        end += closing.length();
-        return new ParsingResult(text, end);
     }
 
     /**
@@ -315,19 +216,6 @@ public class TableParsingOutline {
             }
         }
         return counter;
-    }
-
-    //=================
-    //  Parsing Result
-    //=================
-    private class ParsingResult {
-        public int Position;
-        public String Text;
-
-        public ParsingResult(String text, int position) {
-            this.Position = position;
-            this.Text = text;
-        }
     }
 
     //=============

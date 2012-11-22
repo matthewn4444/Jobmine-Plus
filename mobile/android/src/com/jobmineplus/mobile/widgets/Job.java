@@ -403,8 +403,8 @@ public class Job {
                 return null;
             }
             for (INTERVIEW_TYPE interview_type : INTERVIEW_TYPE.values()) {
-                String a = interview_type.toString().toLowerCase();
-                text = text.toLowerCase();
+                String a = interview_type.toString().toLowerCase(Locale.getDefault());
+                text = text.toLowerCase(Locale.getDefault());
                 if (text.contains(a)) {
                     return interview_type;
                 }
@@ -777,7 +777,7 @@ public class Job {
     }
 
     // ===========
-    // Methods
+    //  Methods
     // ===========
     public String grabDescriptionData() throws IOException {
         Document doc;
