@@ -1,5 +1,6 @@
 package com.jobmineplus.mobile.widgets;
 
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +29,7 @@ public class Job {
     /**
      * Applications Constructor Since this is the applications, it will consider
      * that you have applied for this job.
-     * 
+     *
      * @param jId
      * @param jTitle
      * @param jEmployer
@@ -56,7 +57,7 @@ public class Job {
     /**
      * Short List Constructor Since this is the job short list, it will consider
      * that you have applied for this job.
-     * 
+     *
      * @param jId
      * @param jTitle
      * @param jEmployer
@@ -79,7 +80,7 @@ public class Job {
 
     /**
      * Job Search Constructor
-     * 
+     *
      * @param jId
      * @param jTitle
      * @param jEmployer
@@ -103,7 +104,7 @@ public class Job {
     /**
      * Interviews Constructor You must use this for interviews, we assume that
      * you have already applied and you are getting an interview for this job.
-     * 
+     *
      * @param jId
      * @param jTitle
      * @param jEmployer
@@ -118,7 +119,7 @@ public class Job {
    /**
     * Database Constructor This is used for putting all data back into a Job
     * object
-    * 
+    *
     * @param jId
     * @param jTitle
     * @param jEmployer
@@ -150,8 +151,8 @@ public class Job {
             int jOpenings, long jOpenToApply, String jEmployerFull,
             int jGradesRequired, String jLocation, String jDisciplines,
             String jLevels, String jHiringSupport, String jWorkSupport,
-            String jDescription, String jWarning, long jInterviewStart, 
-            long jInterviewEnd, String jInterviewType, String jRoom, 
+            String jDescription, String jWarning, long jInterviewStart,
+            long jInterviewEnd, String jInterviewType, String jRoom,
             String jInstructions, String jInterviewer) {
         setId(jId);
         title = jTitle;
@@ -167,7 +168,7 @@ public class Job {
         gradesRequired = jGradesRequired == 1;
         location = jLocation;
         disciplines = jDisciplines == null ? null : jDisciplines.split(",");
-        levels = jLevels == null ? null : 
+        levels = jLevels == null ? null :
             LEVEL.getLevelsFromStrArray(jLevels.split(","));
         hiringSupport = jHiringSupport;
         workSupport = jWorkSupport;
@@ -181,7 +182,7 @@ public class Job {
         interviewer = jInterviewer;
         service = JbmnplsHttpService.getInstance();
     }
-    
+
     //==========================
     //  Interview Constructors
     //==========================
@@ -199,7 +200,7 @@ public class Job {
      * @param interviewer
      * @param jobStatus
      */
-    public Job(int jobId, String employer, String title, Date interviewStartTime, Date interviewEndTime, INTERVIEW_TYPE interview_type, 
+    public Job(int jobId, String employer, String title, Date interviewStartTime, Date interviewEndTime, INTERVIEW_TYPE interview_type,
             String roomInfo, String instructions, String interviewer) throws JbmnplsParsingException{
         setId(jobId);
         if (interview_type == INTERVIEW_TYPE.GROUP || interview_type == INTERVIEW_TYPE.CANCELLED || interview_type == INTERVIEW_TYPE.SPECIAL) {
@@ -214,7 +215,7 @@ public class Job {
         setInstructions(instructions);
         setInterviewer(interviewer);
     }
-    
+
     /**
      * Group Interviews Constructor
      *  This is the constructor for the 2nd table
@@ -226,7 +227,7 @@ public class Job {
      * @param roomInfo
      * @param instructions
      */
-    public Job(int jobId, String employer, String title, Date interviewStartTime, 
+    public Job(int jobId, String employer, String title, Date interviewStartTime,
             Date interviewEndTime, String roomInfo, String instructions) {
         setId(jobId);
         setEmployer(employer);
@@ -237,7 +238,7 @@ public class Job {
         setRoomInfo(roomInfo);
         setInstructions(instructions);
     }
-    
+
     /**
      * Special Interviews Constructor
      *  This is the constructor for the 3rd table
@@ -259,14 +260,14 @@ public class Job {
     // ===========================
 
     static public enum STATE {
-        CANCELLED("Cancelled", 9), 
-        AVAILABLE("Applications Avaliable", 2), 
-        FILLED("Filled", 6), 
-        POSTED("Posted", 1), 
-        SCREENED("Screened", 4), 
-        RANKING_COMPLETE("Ranking Complete", 8), 
-        SCHEDULED("Scheduled", 5), 
-        APPROVED("Approved", 2), 
+        CANCELLED("Cancelled", 9),
+        AVAILABLE("Applications Avaliable", 2),
+        FILLED("Filled", 6),
+        POSTED("Posted", 1),
+        SCREENED("Screened", 4),
+        RANKING_COMPLETE("Ranking Complete", 8),
+        SCHEDULED("Scheduled", 5),
+        APPROVED("Approved", 2),
         COMPLETE("Complete", 2);
 
         public static STATE getStatefromString(String text)
@@ -306,14 +307,14 @@ public class Job {
     }
 
     static public enum STATUS {
-        APPLY("Apply", 3), 
-        APPLIED("Applied", 3), 
-        ALREADY_APPLIED("Already Applied", 3), 
-        CANNOT_APPLY("Not Authorized to Apply", 8), 
-        NOT_SELECTED("Not Selected", 10), 
-        EMPLOYED("Employed", 11), 
-        SELECTED("Selected", 10), 
-        ALTERNATE("Alternate", 5), 
+        APPLY("Apply", 3),
+        APPLIED("Applied", 3),
+        ALREADY_APPLIED("Already Applied", 3),
+        CANNOT_APPLY("Not Authorized to Apply", 8),
+        NOT_SELECTED("Not Selected", 10),
+        EMPLOYED("Employed", 11),
+        SELECTED("Selected", 10),
+        ALTERNATE("Alternate", 5),
         BLANK("", 0);
 
         public static STATUS getStatusfromString(String text)
@@ -368,7 +369,7 @@ public class Job {
             throw new JbmnplsParsingException("State: Cannot match value '"
                     + text + "'");
         }
-        
+
         public static LEVEL[] getLevelsFromStrArray(String[] arr) {
             LEVEL[] levels = new LEVEL[arr.length];
             int count = 0;
@@ -389,7 +390,7 @@ public class Job {
 
         private String state;
     }
-    
+
     static public enum INTERVIEW_TYPE{
         IN_PERSON   ("In Person"),
         VIDEO       ("Video"),
@@ -403,7 +404,7 @@ public class Job {
             }
             for (INTERVIEW_TYPE interview_type : INTERVIEW_TYPE.values()) {
                 String a = interview_type.toString().toLowerCase();
-                text = text.toLowerCase(); 
+                text = text.toLowerCase();
                 if (text.contains(a)) {
                     return interview_type;
                 }
@@ -462,7 +463,7 @@ public class Job {
     private String room;
     private String instructions;
     private String interviewer;
-    
+
     // Cannot set this
     protected String url = null;
 
@@ -499,7 +500,7 @@ public class Job {
     public boolean hasDescriptionData() {
         return description != null && description != "";
     }
-    
+
     // This is for interview data
     public boolean hasPassed() {
         if (interviewEndTime == null) {
@@ -568,17 +569,17 @@ public class Job {
     }
 
     public void setDescriptionData(
-            String fullEmployerName, 
+            String fullEmployerName,
             String title,
-            String location, 
-            LEVEL[] levelsArr, 
+            String location,
+            LEVEL[] levelsArr,
             Date openingDate,
-            Date lastDate, 
-            boolean areGradesRequired, 
+            Date lastDate,
+            boolean areGradesRequired,
             int numOpenings,
-            String[] disciplines, 
+            String[] disciplines,
             String workSupportName,
-            String hiringSupportName, 
+            String hiringSupportName,
             String descriptionWarning,
             String description) {
         setEmployerFullName(fullEmployerName);
@@ -629,23 +630,23 @@ public class Job {
         }
         url = Job.DESCR_URL_PREFIX + str_id;
     }
-    
+
     public void setInterviewStartTime(Date start) {
         interviewStartTime = start;
     }
-    
+
     public void setInterviewEndTime(Date end) {
         interviewEndTime = end;
     }
-    
+
     public void setRoomInfo(String roomInfo) {
         room = roomInfo;
     }
-    
+
     public void setInstructions(String instructions) {
         this.instructions = instructions;
     }
-    
+
     public void setInterviewer(String name) {
         interviewer = name;
     }
@@ -741,15 +742,15 @@ public class Job {
     public String getEmployerFullName() {
         return employerFull;
     }
-    
+
     public Date getInterviewStartTime() {
         return interviewStartTime;
     }
-    
+
     public Date getInterviewEndTime() {
         return interviewEndTime;
     }
-    
+
     public int getInterviewLengthInMinutes() {
         int length = (int)((interviewEndTime.getTime() - interviewStartTime.getTime()) / 1000) / 60;
         if (length <= 0) {
@@ -758,19 +759,19 @@ public class Job {
         }
         return length;
     }
-    
+
     public INTERVIEW_TYPE getInterviewType() {
         return interview_type;
     }
-    
+
     public String getRoomInfo() {
         return room;
     }
-    
+
     public String getInstructions() {
         return instructions;
     }
-    
+
     public String getInterviewer() {
         return interviewer;
     }
@@ -778,7 +779,7 @@ public class Job {
     // ===========
     // Methods
     // ===========
-    public String grabDescriptionData() {
+    public String grabDescriptionData() throws IOException {
         Document doc;
         String html;
         Elements spans = null;

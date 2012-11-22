@@ -1,5 +1,6 @@
 package com.jobmineplus.mobile.debug.activities;
 
+import java.io.IOException;
 import java.util.Date;
 
 import android.os.Bundle;
@@ -11,30 +12,30 @@ import com.jobmineplus.mobile.debug.DebugLoginActivity;
 import com.jobmineplus.mobile.widgets.Job.LEVEL;
 
 public class DebugDescription extends Description {
-    
+
     DebugApplication app;
-    
+
     @Override
     protected String setUp(Bundle savedInstanceState) {
         super.setUp(savedInstanceState);
         app = (DebugApplication) getApplication();
-        
+
         if (!job.hasDescriptionData() && app.isOffline()) {
             LEVEL[] levels = {LEVEL.BACHELOR};
             String[] disc = {"System Design"};
-            
+
             //Place in fake data
             job.setDescriptionData(
                     "Employername",
                     "Title Placeholder",
-                    "Toronto", 
-                    levels, 
-                    new Date(), 
+                    "Toronto",
+                    levels,
                     new Date(),
-                    false, 
-                    10, 
-                    disc, 
-                    "Matt Ng", 
+                    new Date(),
+                    false,
+                    10,
+                    disc,
+                    "Matt Ng",
                     "Matt Ng",
                     "Nothing",
                     "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
@@ -46,15 +47,15 @@ public class DebugDescription extends Description {
         }
         return "";
     }
-    
+
     @Override
-    protected String onRequestData(String[] args) {
+    protected String onRequestData(String[] args) throws IOException {
         if (app.isOffline()) {
             return "<html></html>";
         }
         return super.onRequestData(args);
     }
-    
+
     //Must use this for every debug activity
     @Override
     protected void goToLoginActivity(String reasonMsg) {

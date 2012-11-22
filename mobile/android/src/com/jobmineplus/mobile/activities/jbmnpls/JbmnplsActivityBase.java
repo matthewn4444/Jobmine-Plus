@@ -1,9 +1,11 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,10 +29,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     // =================
     // Declarations
     // =================
+    @SuppressLint("SimpleDateFormat")
     protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat(
             "MMM d, yyyy");
-
-    private final int MAX_LOGIN_ATTEMPTS = 3;
 
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
@@ -111,19 +112,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     // Login/Logout Methods
     // ========================
     protected boolean verifyLogin() {
-        if (!service.isLoggedIn()) {
-            for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-                log("Login attempt: " + i);
-                JbmnplsHttpService.LOGGED result = service.login();
-                if (result == JbmnplsHttpService.LOGGED.IN) {
-                    return true;
-                } else if (result == JbmnplsHttpService.LOGGED.OFFLINE) {
-                    return false;
-                }
-            }
-            return false;
-        }
-        return true;
+        return service.verifyLogin();
     }
 
     // ======================
@@ -212,9 +201,10 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
      *
      * @param url
      * @return null if failed or String that is the html
+     * @throws IOException
      */
     protected String onRequestData(String[] args)
-            throws JbmnplsLoggedOutException {
+            throws JbmnplsLoggedOutException, IOException {
         String url = args[0];
         return service.getJobmineHtml(url);
     }
@@ -227,6 +217,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         static final int GO_HOME_NO_REASON = 2;
         static final int HIDDEN_COLUMNS_ERROR = 3;
         static final int PARSING_ERROR = 4;
+        static final int NETWORK_ERROR = 5;
 
         private final StopWatch sw = new StopWatch();
         protected Activity a;
@@ -259,6 +250,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
                 return FORCED_LOGGEDOUT;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return NETWORK_ERROR;
             }
         }
 
@@ -279,6 +273,9 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
                     break;
                 case HIDDEN_COLUMNS_ERROR:
                     goToHomeActivity(getString(R.string.hidden_column_message));
+                    break;
+                case NETWORK_ERROR:
+                    goToHomeActivity(getString(R.string.network_error));
                     break;
                 case GO_HOME_NO_REASON:
                     goToHomeActivity("");

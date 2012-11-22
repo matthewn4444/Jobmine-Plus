@@ -20,6 +20,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
+
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
@@ -80,6 +81,7 @@ public final class JbmnplsHttpService {
     private static final String FAILED_URL              = "Invalid URL - no Node found in";
     private static final int    LOGIN_READ_LENGTH       = 300;
     private static final int    LOGIN_ERROR_MSG_SKIP    = 3500;
+    private static final int    MAX_LOGIN_ATTEMPTS = 3;
 
 
     //=====================
@@ -95,12 +97,7 @@ public final class JbmnplsHttpService {
     //=========================
     //  Singleton Definition
     //=========================
-    private JbmnplsHttpService() {
-        HttpParams params = new BasicHttpParams();
-        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
-        HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0");
-        client = new DefaultHttpClient(params);
-    }
+    private JbmnplsHttpService() {}
 
     public static JbmnplsHttpService getInstance() {
         if (instance == null) {
@@ -138,8 +135,24 @@ public final class JbmnplsHttpService {
         return login(username, password);
     }
 
+    public boolean verifyLogin() {
+        if (!isLoggedIn()) {
+            for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
+                System.out.println("Login attempt: " + i);
+                JbmnplsHttpService.LOGGED result = login();
+                if (result == JbmnplsHttpService.LOGGED.IN) {
+                    return true;
+                } else if (result == JbmnplsHttpService.LOGGED.OFFLINE) {
+                    return false;
+                }
+            }
+            return false;
+        }
+        return true;
+    }
+
     public synchronized LOGGED login(String username, String password) {
-        loginTimeStamp = 0;
+        reset();
         if (username.length() == 0 || password.length() == 0) {
             return LOGGED.OUT;
         }
@@ -172,7 +185,7 @@ public final class JbmnplsHttpService {
             return LOGGED.IN;
         } catch (IOException e) {
             e.printStackTrace();
-            return LOGGED.OUT;
+            return LOGGED.OFFLINE;
         } finally {
             try {
                 if (reader != null) {
@@ -209,21 +222,62 @@ public final class JbmnplsHttpService {
         return response;
     }
 
-    public synchronized String getJobmineHtml (String url) throws JbmnplsLoggedOutException{
-        HttpResponse response = get(url);
-        String html;
-        if (response == null) {
-            return null;
-        }
+    public synchronized String getJobmineHtml (String url) throws JbmnplsLoggedOutException, IOException{
+        InputStream in = null;
+        BufferedReader reader = null;
         try {
-            StopWatch s = new StopWatch(true);
-            html = getJbmnHtmlFromHttpResponse(response);
-            System.out.println(s.elapsed() + " ms to turn into html");
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new JbmnplsLoggedOutException();
+            // Attempt 3 times if logged out
+            boolean loggedIn = false;
+            for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
+                System.out.println("login attempt " + i);
+                if (in != null) {
+                    in.close();
+                    in = null;
+                }
+
+                HttpResponse response = get(url);
+                if (response != null) {
+                    in = response.getEntity().getContent();
+                    reader = new BufferedReader(new InputStreamReader(in,
+                            DEFAULT_HTML_ENCODER), BUFFER_READER_SIZE);
+
+                    // Validates the html to make sure we logged in
+                    // If failed to login, try it again 2 more times
+                    LOGGED result = validateLoginJobmine(reader);
+                    if (result == LOGGED.IN) {
+                        loggedIn = true;
+                        break;
+                    } else if (result == LOGGED.OFFLINE) {
+                        throw new JbmnplsLoggedOutException();
+                    }
+                }
+                if (login() == LOGGED.OFFLINE) {
+                    throw new JbmnplsLoggedOutException();
+                }
+            }
+            if (!loggedIn) {
+                throw new JbmnplsLoggedOutException();
+            }
+
+            // Successfully logged in
+            StopWatch sw = new StopWatch(true);
+            StringBuilder str = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                str.append(line);
+            }
+            sw.printElapsed();
+            updateTimestamp();
+            return str.toString();
+        } catch (IOException e) {
+            throw e;
+        } finally {
+            if (in != null) {
+                try {
+                    in.close();
+                } catch(IOException e) {}
+            }
         }
-        return html;
     }
 
     //======================
@@ -274,15 +328,15 @@ public final class JbmnplsHttpService {
 
             // Validates the html to make sure we logged in
             if (validateLoginJobmine(reader) != LOGGED.IN) {
+                // TODO deal with logout and try to log back in if password is avaliable
                 return null;
-            }
+           }
 
             String line = null;
             while((line = reader.readLine()) != null) {
                 str.append(line);
             }
         } catch(IOException e) {        // Temp
-            System.out.println("Error parsing html");
             e.printStackTrace();
             return null;
         } finally {
@@ -300,6 +354,14 @@ public final class JbmnplsHttpService {
     //===================
     //  Private Methods
     //===================
+    private void reset() {
+        HttpParams params = new BasicHttpParams();
+        HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
+        HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0");
+        client = new DefaultHttpClient(params);
+        loginTimeStamp = 0;
+    }
+
     private LOGGED validateLoginJobmine(BufferedReader reader) throws IOException {
         char[] buffer = new char[LOGIN_READ_LENGTH];
         reader.read(buffer, 0, LOGIN_READ_LENGTH);
@@ -310,6 +372,7 @@ public final class JbmnplsHttpService {
             reader.skip(LOGIN_ERROR_MSG_SKIP);
             reader.read(buffer, 0, LOGIN_READ_LENGTH);
             text = new String(buffer);
+
             // Check for offline error
             if (text.contains(LOGIN_INVALID_CRED)) {
                 // Failed login and password
@@ -319,7 +382,7 @@ public final class JbmnplsHttpService {
             return LOGGED.OFFLINE;
 
         } else if (text.contains(FAILED_URL)) {
-            System.out.println("Failed login post/url");
+            loginTimeStamp = 0;
             return LOGGED.OUT;
         }
         return LOGGED.IN;
