@@ -130,7 +130,7 @@ public class TableParsingOutline {
             parser.skipColumns(column);
 
             // Parse the job id of the table, if no id, then table is empty
-            String text = parser.getHTMLInNextTD();
+            String text = parser.getTextInNextTD();
             if (text == "") { return; }
             passedObj[0] = Integer.parseInt(text);
             column++;
@@ -145,7 +145,7 @@ public class TableParsingOutline {
                 column += entryCol - column;
 
                 // Get the text from this column
-                text = parser.getHTMLInNextTD();
+                text = parser.getTextInNextTD();
                 column++;
 
                 // Convert the value to the column type

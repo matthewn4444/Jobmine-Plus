@@ -1,5 +1,7 @@
 package com.jobmineplus.mobile.widgets;
 
+import android.util.Pair;
+
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 
 public class SimpleHtmlParser {
@@ -8,6 +10,11 @@ public class SimpleHtmlParser {
 
     public SimpleHtmlParser(String html) {
         this.position = 0;
+        this.html = html;
+    }
+
+    public SimpleHtmlParser(String html, int pos) {
+        this.position = pos;
         this.html = html;
     }
 
@@ -62,6 +69,53 @@ public class SimpleHtmlParser {
     }
 
     /**
+     * Used to find the text inside the element (goes further down the children till reaches
+     * text). This is not smart enough to pick up trailing text after embedded elements or
+     * the same element in the element (such as a <div> inside another <div>). Since Jobmine
+     * does not do this, we do not need to waste time doing that parsing.
+     * @param tag
+     * @return text
+     */
+    public String getTextInNextElement(String tag) {
+        return getTextInNextElement(html, tag, position);
+    }
+
+    /**
+     * Recursively crawls an element's children and receives its text. Not smart enough for
+     * major parsing but simple for Jobmine tables.
+     * @param text
+     * @param tag
+     * @param pos
+     * @return text in the child node
+     */
+    private String getTextInNextElement(String text, String tag, int pos) {
+        Pair<Integer, String> result = htmlInTag(text, tag, pos);
+        if (result == null) {
+            throw new JbmnplsParsingException("Cannot find " + tag + " in html.");
+        }
+        int holdPosition = result.first;
+        text = result.second;
+
+        if (text.charAt(0) == '<') {
+            int greaterThan = text.indexOf('>', 1);
+            int space = text.indexOf(' ', 1);
+            if (greaterThan == space) {
+                throw new JbmnplsParsingException("Cannot find " + tag + " in html.");
+            }
+            greaterThan = greaterThan == -1 ? text.length() : greaterThan;
+            space = space == -1 ? text.length() : space;
+            tag = text.substring(1, Math.min(greaterThan, space));
+            text = getTextInNextElement(text, tag, 0);
+            position = holdPosition;
+            return text;
+        }
+
+        text = text.replaceAll("&nbsp;", "").trim();
+        position = holdPosition;
+        return text;
+    }
+
+    /**
      * Gets the text inside a TD. Very customized for Jobmine web page tables.
      * Looks for the <td>, then <span> and if inside is an anchor tag <a>, then it will
      * find the text in that. Remove extra spaces and returns it.
@@ -69,27 +123,8 @@ public class SimpleHtmlParser {
      * it found. Will throw exceptions if end of HTML.
      * @return String
      */
-    public String getHTMLInNextTD() {
-        ParsingResult result = htmlInTag(html, "td", position);
-        if (result == null) {
-            throw new JbmnplsParsingException("Cannot find TD in html.");
-        }
-        String text = result.Text;
-        position = result.Position;
-        result = htmlInTag(text, "span", 0);
-
-        // Column has text?
-        if (result != null) {
-            text = result.Text;
-            if (text.startsWith("<a")) {
-                result = htmlInTag(text, "a", 0);
-                text = result.Text;
-            }
-            text = text.replaceAll("&nbsp;", "").trim();
-        } else {
-            text = "";
-        }
-        return text;
+    public String getTextInNextTD() {
+        return getTextInNextElement("td");
     }
 
     /**
@@ -98,9 +133,9 @@ public class SimpleHtmlParser {
      * @param html
      * @param tag
      * @param position
-     * @return ParsingResult, if not found will return null
+     * @return Pair (of positon and text), if not found will return null
      */
-    private ParsingResult htmlInTag(String text, String tag, int pos) {
+    private Pair<Integer, String> htmlInTag(String text, String tag, int pos) {
         // Get the text inside the column
         String open = "<" + tag, closing = "</" + tag + ">";
         int start = text.indexOf(open, pos);
@@ -111,33 +146,6 @@ public class SimpleHtmlParser {
         if (end == -1) { return null; }
         text = text.substring(++start, end);
         end += closing.length();
-        return new ParsingResult(text, end);
-    }
-
-    //=================
-    //  Parsing Result
-    //=================
-    private class ParsingResult {
-        public int Position;
-        public String Text;
-
-        public ParsingResult(String text, int position) {
-            this.Position = position;
-            this.Text = text;
-        }
-    }
-
-    protected void log(Object... txt) {
-        String returnStr = "";
-        int i = 1;
-        int size = txt.length;
-        if (size != 0) {
-            returnStr = txt[0] == null ? "null" : txt[0].toString();
-            for (; i < size; i++) {
-                returnStr += ", "
-                        + (txt[i] == null ? "null" : txt[i].toString());
-            }
-        }
-        System.out.println(returnStr);
+        return new Pair<Integer, String>(end, text);
     }
 }
