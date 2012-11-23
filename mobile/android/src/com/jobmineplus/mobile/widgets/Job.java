@@ -6,11 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -424,6 +419,8 @@ public class Job {
     static public final String DESCR_URL_PREFIX = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_JOBDTLS?UW_CO_JOB_ID=";
     private final short NUM_DIGITS_ID = 8;
     private final String REQUIRED_TEXT = "Required";
+    private final String TAG = "span";
+    private final int NUM_OF_TAGS = 32;
 
     protected JbmnplsHttpService service;
 
@@ -780,65 +777,69 @@ public class Job {
     //  Methods
     // ===========
     public String grabDescriptionData() throws IOException {
-        Document doc;
+        // Get the html
         String html;
-        Elements spans = null;
         try {
             html = service.getJobmineHtml(url);
-            doc = Jsoup.parse(html);
         } catch (JbmnplsLoggedOutException e) {
             e.printStackTrace();
             return null;
         }
 
-        try {
-            spans = doc.getElementById("ACE_width").getElementsByTag("span");
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            throw new JbmnplsParsingException(
-                    "Cannot parse description, the div's have changed.");
+        StopWatch sw = new StopWatch(true);
+
+        // Starts us at the correct table and then we get the text
+        int start = html.indexOf("id='ACE_width'");
+        if (start == -1) {
+            start = html.indexOf("id=\"ACE_width\"");
+            if (start == -1) { throw new JbmnplsParsingException("Cannot find id in html."); }
         }
 
-        int count = spans.size();
-        String disciplines = "";
-        Element span;
-        for (int i = 0; i < count; i++) {
-            span = spans.get(i);
+        // Easiest way to parse job details is to go through spans
+        SimpleHtmlParser parser = new SimpleHtmlParser(html, start);
+        String text, disc = "";
+        for (int i = 0; i < NUM_OF_TAGS; i++) {
             switch (i) {
             case 3:
-                setOpeningDateToApply(getDateFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setOpeningDateToApply(parseDate(text));
                 break;
             case 4:
-                setLastDateToApply(getDateFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setLastDateToApply(parseDate(text));
                 break;
             case 10:
-                setEmployerFullName(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setEmployerFullName(text);
                 break;
             case 12:
-                setTitle(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setTitle(text);
                 break;
             case 14:
-                setGradesRequired((getTextFromElement(span)
-                        .equals(REQUIRED_TEXT)));
+                text = parser.getTextInNextElement(TAG);
+                setGradesRequired(text.equals(REQUIRED_TEXT));
                 break;
             case 16:
-                setLocation(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setLocation(text);
                 break;
             case 18:
-                setNumberOfOpenings(getIntFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setNumberOfOpenings(text.length() == 0 ? 0 : Integer.parseInt(text));
                 break;
             case 20:
-                disciplines = getTextFromElement(span);
+                disc = parser.getTextInNextElement(TAG);
                 break;
             case 21:
-                String temp = getTextFromElement(span);
+                String temp = parser.getTextInNextElement(TAG);
                 if (temp.length() != 0) {
-                    disciplines += "," + temp;
+                    disc += "," + temp;
                 }
-                setDisciplines(disciplines.split(","));
+                setDisciplines(disc.split(","));
                 break;
             case 23:
-                String[] thing = getTextFromElement(span).split(",");
+                String[] thing = parser.getTextInNextElement(TAG).split(",");
                 LEVEL[] l = new LEVEL[thing.length];
                 for (int j = 0; j < thing.length; j++) {
                     String tempStr = thing[j].trim();
@@ -849,49 +850,39 @@ public class Job {
                 setLevels(l);
                 break;
             case 27:
-                setWorkSupport(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setWorkSupport(text);
                 break;
             case 26:
-                setHiringSupport(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setHiringSupport(text);
                 break;
             case 29:
-                setDescriptionWarning(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setDescriptionWarning(text);
                 break;
             case 31:
-                setDescription(getTextFromElement(span));
+                text = parser.getTextInNextElement(TAG);
+                setDescription(text.replace("<br />", "\n"));
+                break;
+            default:
+                parser.skipTag(TAG);
                 break;
             }
         }
         hasRead = true;
+        sw.printElapsed("%s ms has passed to parse html");
         return html;
     }
 
-    protected String getTextFromElement(Element e) {
-        return e.text().replaceAll("\\s+", " ").trim();
-    }
-
-    protected Date getDateFromElement(Element e) {
-        String text = getTextFromElement(e);
+    protected Date parseDate(String dateString) {
         try {
             return new SimpleDateFormat("d MMM yyyy", Locale.ENGLISH)
-                    .parse(text);
+                    .parse(dateString);
         } catch (ParseException error) {
             error.printStackTrace();
             return new Date();
         }
-    }
-
-    protected int getIntFromElement(Element e) {
-        String text = getTextFromElement(e);
-        if (text.length() == 0) {
-            return 0;
-        }
-        return Integer.parseInt(text);
-    }
-
-    protected double getDoubleFromTD(Element e) {
-        String text = getTextFromElement(e);
-        return Double.parseDouble(text);
     }
 
     protected String arrayJoin(Object[] array, String delimiter) {
