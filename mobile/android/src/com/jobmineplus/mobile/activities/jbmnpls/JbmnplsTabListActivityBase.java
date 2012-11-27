@@ -62,7 +62,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     protected void onRequestComplete() {
         updateList(currentTab);
         StopWatch sw = new StopWatch(true);
-        jobsToDatabase();
+        jobsToDatabase(allJobs);
         Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
     }
 
@@ -111,10 +111,6 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
 
     protected void addJob(Job job) {
         allJobs.add(job);
-    }
-
-    protected void jobsToDatabase() {
-        jobDataSource.addJobs(allJobs);
     }
 
     protected void clearListByTabId(String tag) {

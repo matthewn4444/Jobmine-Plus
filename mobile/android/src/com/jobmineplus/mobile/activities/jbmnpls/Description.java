@@ -89,7 +89,6 @@ public class Description extends JbmnplsTabActivityBase {
         detailsLayout = (ScrollView) findViewById(R.id.details_layout);
 
         // Make tabs
-
         createTab(LISTS.DESCRIPTION, "Description", descriptionLayout);
         createTab(LISTS.DETAILS, "Details", detailsLayout);
 

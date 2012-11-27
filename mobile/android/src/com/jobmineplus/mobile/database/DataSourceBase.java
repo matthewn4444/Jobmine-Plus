@@ -1,7 +1,10 @@
 package com.jobmineplus.mobile.database;
 
+import java.util.ArrayList;
+
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Pair;
 
 public abstract class DataSourceBase {
     protected SQLiteDatabase database;
@@ -16,9 +19,16 @@ public abstract class DataSourceBase {
     // ======================
     // Protected Methods
     // ======================
-    protected void updateElseInsert(String table, long id, ContentValues values) {
+    protected void updateElseInsert(String table, ArrayList<Pair<String, Object>> where, ContentValues values) {
         // Unlike insert, update does not throw any errors and it will be faster
-        int affected = database.update(table, values, "_id=?", new String[]{id + ""});
+        String whereStr = "";
+        int i = 0;
+        for (i = 0; i < where.size() - 1; i++) {
+            whereStr += where.get(i).first + "='" + where.get(i).second + "' AND ";
+        }
+        whereStr += where.get(i).first + "=?";
+
+        int affected = database.update(table, values, whereStr, new String[]{where.get(i).second + ""});
         if (affected == 0) {
             database.insertOrThrow(table, null, values);
         }

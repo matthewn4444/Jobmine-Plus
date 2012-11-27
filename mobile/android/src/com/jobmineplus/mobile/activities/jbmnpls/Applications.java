@@ -58,6 +58,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     @Override
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.applications);
+        pageName = "Applications";
         return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
     }
     @Override

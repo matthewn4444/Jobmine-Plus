@@ -2,6 +2,7 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -15,12 +16,14 @@ import android.widget.Toast;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoginActivity;
-import com.jobmineplus.mobile.database.JobDataSource;
+import com.jobmineplus.mobile.database.jobs.JobDataSource;
+import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Alert;
+import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
@@ -38,7 +41,10 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     private JbmnplsHttpService service;
     protected GetHtmlTask task = null;
     protected JobDataSource jobDataSource;
+    protected PageDataSource pageDataSource;
     protected final String LOADING_MESSAGE = "Fetching data...";
+    protected long timestamp;
+    protected String pageName;
     private Alert alert;
 
     // ====================
@@ -89,8 +95,11 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
         super.onCreate(savedInstanceState);
         service = JbmnplsHttpService.getInstance();
         jobDataSource = new JobDataSource(this);
+        pageDataSource = new PageDataSource(this);
         jobDataSource.open();
+        pageDataSource.open();
         alert = new Alert(this);
+        pageName = null;
         dataUrl = setUp(savedInstanceState);
         defineUI(savedInstanceState);
         requestData();
@@ -99,12 +108,14 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     @Override
     protected void onResume() {
         jobDataSource.open();
+        pageDataSource.open();
         super.onResume();
     }
 
     @Override
     protected void onPause() {
         jobDataSource.close();
+        pageDataSource.close();
         super.onPause();
     }
 
@@ -158,6 +169,13 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     // =================
     // Miscellaneous
     // =================
+
+    protected void jobsToDatabase(ArrayList<Job> allJobs) {
+        jobDataSource.addJobs(allJobs);
+        if (pageName != null) {
+            pageDataSource.addPage(pageName, allJobs, timestamp);
+        }
+    }
 
     protected boolean isLoading() {
         return task != null && task.isRunning();
@@ -236,6 +254,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
             try {
                 String html = activity.onRequestData(params);
+                timestamp = System.currentTimeMillis();
                 if (html == null) {
                     return PARSING_ERROR;
                 }

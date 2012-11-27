@@ -91,7 +91,6 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-
         INTERVIEWS_OUTLINE.setOnTableRowParse(this);
         GROUPS_OUTLINE.setOnTableRowParse(this);
         SPECIAL_OUTLINE.setOnTableRowParse(this);
@@ -131,6 +130,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getList().get(arg2).getId();
+        pageName = "Interviews";
         goToDescription(jobId);
     }
 
