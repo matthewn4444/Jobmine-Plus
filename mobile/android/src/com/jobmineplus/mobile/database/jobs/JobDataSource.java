@@ -115,13 +115,13 @@ public final class JobDataSource extends DataSourceBase {
         deleteJob(job.getId());
     }
 
-    public synchronized Job[] getJobsByIdList(String idList) {
+    public synchronized ArrayList<Job> getJobsByIdList(String idList) {
         // Do query
         Cursor cursor = database.rawQuery(String.format("select * from %s where %s in (%s)", JobTable.TABLE_JOB, JobTable.COLUMN_ID, idList), null);
         return cursorToJobListAndClose(cursor);
     }
 
-    public synchronized Job[] getJobsByIdList(int[] ids) {
+    public synchronized ArrayList<Job> getJobsByIdList(int[] ids) {
         // Join the ids
         String idList = "";
         for (int id : ids) {
@@ -132,7 +132,7 @@ public final class JobDataSource extends DataSourceBase {
         return getJobsByIdList(idList);
     }
 
-    public synchronized Job[] getAllJobs() {
+    public synchronized ArrayList<Job> getAllJobs() {
         Cursor cursor = database.rawQuery("select * from " + JobTable.TABLE_JOB, null);
         return cursorToJobListAndClose(cursor);
     }
@@ -187,12 +187,11 @@ public final class JobDataSource extends DataSourceBase {
         updateElseInsert(JobTable.TABLE_JOB, where, values);
     }
 
-    private Job[] cursorToJobListAndClose(Cursor cursor) {
-        Job[] jobs = new Job[cursor.getCount()];
-        int counter = 0;
+    private ArrayList<Job> cursorToJobListAndClose(Cursor cursor) {
+        ArrayList<Job> jobs = new ArrayList<Job>(cursor.getCount());
         if (cursor.moveToFirst()) {
             while (cursor.isAfterLast() == false) {
-                jobs[counter++] = cursorToJob(cursor);
+                jobs.add(cursorToJob(cursor));
                 cursor.moveToNext();
             }
         }

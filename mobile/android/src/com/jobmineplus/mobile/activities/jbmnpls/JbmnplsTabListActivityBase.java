@@ -7,10 +7,7 @@ import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase implements OnItemClickListener{
 
@@ -18,7 +15,6 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     //  Declaration Objects
     //======================
     private HashMap<String, ArrayList<Job>> lists;
-    private ArrayList<Job> allJobs;
     private ArrayAdapter<Job> adapter;
     private ListView list;
     private String currentTab;
@@ -43,7 +39,6 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         list = (ListView) findViewById(android.R.id.list);
         list.setOnItemClickListener(this);
         lists = new HashMap<String, ArrayList<Job>>();
-        allJobs = new ArrayList<Job>();
         super.defineUI(savedInstanceState);
     }
 
@@ -61,9 +56,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     @Override
     protected void onRequestComplete() {
         updateList(currentTab);
-        StopWatch sw = new StopWatch(true);
-        jobsToDatabase(allJobs);
-        Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
+        jobsToDatabase();
     }
 
     //====================================
@@ -107,10 +100,6 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         if (theList != null) {
             theList.add(job);
         }
-    }
-
-    protected void addJob(Job job) {
-        allJobs.add(job);
     }
 
     protected void clearListByTabId(String tag) {

@@ -6,11 +6,8 @@ import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
 
@@ -25,7 +22,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //=================
     private ListView list;
     private ArrayAdapter<Job> adapter;
-    protected ArrayList<Job> allJobs;
 
     //====================
     //  Override Methods
@@ -34,7 +30,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     protected void defineUI(Bundle savedInstanceState) {
         list = (ListView) findViewById(android.R.id.list);
         list.setOnItemClickListener(this);
-        allJobs = new ArrayList<Job>();
     }
 
     @Override
@@ -67,10 +62,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         list.setAdapter(adapter);
     }
 
-    protected void addJob(Job job) {
-        allJobs.add(job);
-    }
-
     protected ArrayList<Job> getList() {
         return allJobs;
     }
@@ -82,8 +73,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     @Override
     protected void onRequestComplete() {
         updateList();
-        StopWatch sw = new StopWatch(true);
-        jobsToDatabase(allJobs);
-        Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
+        jobsToDatabase();
     }
 }

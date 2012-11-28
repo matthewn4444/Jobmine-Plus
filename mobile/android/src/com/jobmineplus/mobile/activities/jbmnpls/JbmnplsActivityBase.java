@@ -6,16 +6,15 @@ import java.util.ArrayList;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoginActivity;
+import com.jobmineplus.mobile.activities.SimpleActivityBase;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
@@ -27,18 +26,18 @@ import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
-public abstract class JbmnplsActivityBase extends FragmentActivity {
+public abstract class JbmnplsActivityBase extends SimpleActivityBase {
 
     // =================
     // Declarations
     // =================
-    @SuppressLint("SimpleDateFormat")
     protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat(
             "MMM d, yyyy");
 
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
     private JbmnplsHttpService service;
+    protected ArrayList<Job> allJobs;
     protected GetHtmlTask task = null;
     protected JobDataSource jobDataSource;
     protected PageDataSource pageDataSource;
@@ -94,6 +93,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         service = JbmnplsHttpService.getInstance();
+        allJobs = new ArrayList<Job>();
         jobDataSource = new JobDataSource(this);
         pageDataSource = new PageDataSource(this);
         jobDataSource.open();
@@ -170,11 +170,19 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
     // Miscellaneous
     // =================
 
-    protected void jobsToDatabase(ArrayList<Job> allJobs) {
-        jobDataSource.addJobs(allJobs);
-        if (pageName != null) {
-            pageDataSource.addPage(pageName, allJobs, timestamp);
+    protected void jobsToDatabase() {
+        if (IS_ONLINE_MODE) {
+            StopWatch sw = new StopWatch(true);
+            jobDataSource.addJobs(allJobs);
+            if (pageName != null) {
+                pageDataSource.addPage(pageName, allJobs, timestamp);
+            }
+            Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    protected void addJob(Job job) {
+        allJobs.add(job);
     }
 
     protected boolean isLoading() {
@@ -209,6 +217,7 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
             throw new RuntimeException(
                     "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
+        // TODO: if offline mode, do not execute
         task.execute(dataUrl);
     }
 
@@ -247,31 +256,48 @@ public abstract class JbmnplsActivityBase extends FragmentActivity {
 
         @Override
         protected Integer doInBackground(String... params) {
-            if (!verifyLogin()) {
-                return FORCED_LOGGEDOUT;
-            }
-            sw.start();
-            JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
-            try {
-                String html = activity.onRequestData(params);
-                timestamp = System.currentTimeMillis();
-                if (html == null) {
-                    return PARSING_ERROR;
+            if (JbmnplsActivityBase.IS_ONLINE_MODE) {
+                // We are in online mode
+                if (!verifyLogin()) {
+                    return FORCED_LOGGEDOUT;
                 }
-                activity.parseWebpage(html);
+                sw.start();
+                JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
+                try {
+                    String html = activity.onRequestData(params);
+                    timestamp = System.currentTimeMillis();
+                    if (html == null) {
+                        return PARSING_ERROR;
+                    }
+                    activity.parseWebpage(html);
+                    return NO_PROBLEM;
+                } catch (HiddenColumnsException e) {
+                    e.printStackTrace();
+                    return HIDDEN_COLUMNS_ERROR;
+                } catch (JbmnplsParsingException e) {
+                    e.printStackTrace();
+                    return PARSING_ERROR;
+                } catch (JbmnplsLoggedOutException e) {
+                    e.printStackTrace();
+                    return FORCED_LOGGEDOUT;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return NETWORK_ERROR;
+                }
+            } else {
+                // Is in offline mode
+                sw.start();
+                int[] ids = pageDataSource.getJobsIds(pageName);
+                allJobs.clear();
+
+                if (ids != null) {
+                    ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
+                    for (Job job : jobs) {
+                        allJobs.add(job);
+                    }
+                }
+                sw.printElapsed("%s ms for 2 databasing gets");
                 return NO_PROBLEM;
-            } catch (HiddenColumnsException e) {
-                e.printStackTrace();
-                return HIDDEN_COLUMNS_ERROR;
-            } catch (JbmnplsParsingException e) {
-                e.printStackTrace();
-                return PARSING_ERROR;
-            } catch (JbmnplsLoggedOutException e) {
-                e.printStackTrace();
-                return FORCED_LOGGEDOUT;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return NETWORK_ERROR;
             }
         }
 

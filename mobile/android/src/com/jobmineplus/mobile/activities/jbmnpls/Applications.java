@@ -92,6 +92,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
                 (String)    jobData[2], (String)    jobData[3],
                 (Job.STATE) jobData[4],                 status,
                 (Date)      jobData[6], (Integer)   jobData[7]);
+
         if (outline.equals(ALL_OUTLINE)) {
             if (status == Job.STATUS.EMPLOYED) {
                 addJobToListByTabId(LISTS.ACTIVE_JOBS, job);

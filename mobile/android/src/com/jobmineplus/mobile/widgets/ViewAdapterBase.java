@@ -15,7 +15,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
     private ArrayList<TItem> entries;
     private int widgetLayout;
     private int[] resources;
-    
+
     public ViewAdapterBase(Activity a, int listViewResourceId, int widgetResourceLayout, int[] viewResourceIdListInWidget, ArrayList<TItem> list) {
         super(a, listViewResourceId, list);
         entries = list;
@@ -25,7 +25,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
     }
 
     protected abstract void setWidgetValues(TItem item, View[] elements);
-    
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View viewObj = convertView;

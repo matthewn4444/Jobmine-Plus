@@ -38,11 +38,18 @@ public final class PageDataSource extends DataSourceBase{
         dbHelper.close();
     }
 
+    // TODO: make this smarter to add array of job lists (for tabs)
     public synchronized void addPage(String pagename, ArrayList<Job> jobs,
             long timestamp) {
         internalAddPage(service.getUsername(), pagename, jobs, timestamp);
     }
 
+
+    /**
+     * Returns all the ids of jobs from this user of the page specified
+     * @param pagename
+     * @return list of ids, null if empty
+     */
     public synchronized int[] getJobsIds(String pagename) {
         Cursor cursor = database.rawQuery(String.format(
                 "select * from %s where %s='%s' and %s='%s'",
@@ -66,6 +73,9 @@ public final class PageDataSource extends DataSourceBase{
 
     private void internalAddPage(String username, String pagename,
             ArrayList<Job> jobs, long timestamp) {
+        if (jobs.isEmpty()) {
+            return;
+        }
 
         // Make list of jobs as string, remove last comma
         StringBuilder sb = new StringBuilder();
