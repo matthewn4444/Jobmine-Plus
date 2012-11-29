@@ -5,15 +5,15 @@ import java.util.Date;
 import android.app.Application;
 
 public class DebugApplication extends Application{
-    
+
     final public int OFFLINE_TIME = 24;     //24 hour clock
     final public int ONLINE_TIME = 7;        //Opens at 6am
-    
+
     public boolean isOffline () {
         Date now = new Date();
         // hehe I am in Japan :P
         int hour = now.getHours();
-        hour -= 13;
+        hour -= 14;
         now.setHours(hour);
         hour = now.getHours();
         int day = now.getDay();

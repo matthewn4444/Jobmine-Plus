@@ -48,17 +48,18 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
                 R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
     }
 
-    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getList().get(arg2).getId();
-        goToDescription(jobId);
-    }
-
     @Override
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.shortlist);
         pageName = "Shortlist";
         return JbmnplsHttpService.GET_LINKS.SHORTLIST;
     }
+
+    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        int jobId = getList().get(arg2).getId();
+        goToDescription(jobId);
+    }
+
 
     public void onRowParse(TableParsingOutline outline, Object... jobData) {
         Job job = new Job(  // Shortlist constructor

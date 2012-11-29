@@ -1,7 +1,6 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
-
 import android.os.Bundle;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -121,6 +120,19 @@ public class Description extends JbmnplsTabActivityBase {
     @Override
     protected void onRequestComplete() {
         fillInDescription();
+    }
+
+    @Override
+    protected void doOffine() {
+//        int[] ids = pageDataSource.getJobsIds(pageName);
+//        allJobs.clear();
+//
+//        if (ids != null) {
+//            ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
+//            for (Job job : jobs) {
+//                allJobs.add(job);
+//            }
+//        }
     }
 
     // =====================

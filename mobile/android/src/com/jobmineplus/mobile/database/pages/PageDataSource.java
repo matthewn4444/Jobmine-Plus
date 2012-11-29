@@ -1,6 +1,8 @@
 package com.jobmineplus.mobile.database.pages;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -41,9 +43,38 @@ public final class PageDataSource extends DataSourceBase{
     // TODO: make this smarter to add array of job lists (for tabs)
     public synchronized void addPage(String pagename, ArrayList<Job> jobs,
             long timestamp) {
-        internalAddPage(service.getUsername(), pagename, jobs, timestamp);
+        if (jobs.isEmpty()) {
+            return;
+        }
+
+        // Make list of jobs as string, remove last comma
+        StringBuilder sb = new StringBuilder();
+        for (Job job : jobs) {
+            sb.append(job.getId()).append(',');
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        internalAddPage(service.getUsername(), pagename, sb.toString(), timestamp);
     }
 
+    public synchronized void addPage(String pagename, HashMap<String, ArrayList<Job>> jobMap,
+            long timestamp) {
+        if (jobMap.isEmpty()) {
+            return;
+        }
+
+        // Build the string
+        StringBuilder sb = new StringBuilder();
+        for (String key : jobMap.keySet()) {
+            ArrayList<Job> jobs = jobMap.get(key);
+            sb.append(key).append(':');
+            for (Job job : jobs) {
+                sb.append(job.getId()).append(',');
+            }
+            sb.deleteCharAt(sb.length() - 1).append('|');
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        internalAddPage(service.getUsername(), pagename, sb.toString(), timestamp);
+    }
 
     /**
      * Returns all the ids of jobs from this user of the page specified
@@ -72,22 +103,12 @@ public final class PageDataSource extends DataSourceBase{
     }
 
     private void internalAddPage(String username, String pagename,
-            ArrayList<Job> jobs, long timestamp) {
-        if (jobs.isEmpty()) {
-            return;
-        }
-
-        // Make list of jobs as string, remove last comma
-        StringBuilder sb = new StringBuilder();
-        for (Job job : jobs) {
-            sb.append(job.getId()).append(',');
-        }
-        sb.deleteCharAt(sb.length() - 1);
+            String jobsString, long timestamp) {
 
         ContentValues values = new ContentValues();
         addNonNullValue(values, PageTable.COLUMN_USER, username);
         addNonNullValue(values, PageTable.COLUMN_PAGENAME, pagename);
-        addNonNullValue(values, PageTable.COLUMN_JOBLIST, sb.toString());
+        addNonNullValue(values, PageTable.COLUMN_JOBLIST, jobsString);
         addNonNullValue(values, PageTable.COLUMN_TIME, timestamp);
 
         // Where statement

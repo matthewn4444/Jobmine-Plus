@@ -59,6 +59,19 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         jobsToDatabase();
     }
 
+    @Override
+    protected void doOffine() {
+//        int[] ids = pageDataSource.getJobsIds(pageName);
+//        allJobs.clear();
+//
+//        if (ids != null) {
+//            ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
+//            for (Job job : jobs) {
+//                allJobs.add(job);
+//            }
+//        }
+    }
+
     //====================================
     //  Class Public/Protected Methods
     //====================================

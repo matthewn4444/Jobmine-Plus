@@ -86,6 +86,9 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
      */
     protected abstract void onRequestComplete();
 
+    protected abstract void doOffine();
+
+
     // ====================
     // Override Methods
     // ====================
@@ -256,13 +259,13 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
 
         @Override
         protected Integer doInBackground(String... params) {
+            JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
             if (JbmnplsActivityBase.IS_ONLINE_MODE) {
                 // We are in online mode
                 if (!verifyLogin()) {
                     return FORCED_LOGGEDOUT;
                 }
                 sw.start();
-                JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
                 try {
                     String html = activity.onRequestData(params);
                     timestamp = System.currentTimeMillis();
@@ -287,15 +290,7 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
             } else {
                 // Is in offline mode
                 sw.start();
-                int[] ids = pageDataSource.getJobsIds(pageName);
-                allJobs.clear();
-
-                if (ids != null) {
-                    ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
-                    for (Job job : jobs) {
-                        allJobs.add(job);
-                    }
-                }
+                activity.doOffine();
                 sw.printElapsed("%s ms for 2 databasing gets");
                 return NO_PROBLEM;
             }
