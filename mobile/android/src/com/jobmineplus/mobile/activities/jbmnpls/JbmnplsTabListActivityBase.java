@@ -2,12 +2,16 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase implements OnItemClickListener{
 
@@ -59,17 +63,45 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         jobsToDatabase();
     }
 
+    /**
+     * Instead of running a request to get a job list for each tab, we ask the data source
+     * to do it for us (1 database request). Look at getJobsMap for more info.
+     */
     @Override
     protected void doOffine() {
-//        int[] ids = pageDataSource.getJobsIds(pageName);
-//        allJobs.clear();
-//
-//        if (ids != null) {
-//            ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
-//            for (Job job : jobs) {
-//                allJobs.add(job);
-//            }
-//        }
+        HashMap<String, ArrayList<Integer>> idMap = pageDataSource.getJobsIdMap(pageName);
+        if (idMap != null) {
+            HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
+            if (lists != null) {
+                lists = retList;
+
+                // Make the job list
+                HashSet<Integer> ids = new HashSet<Integer>();
+                for (String tag : lists.keySet()) {
+                    ArrayList<Job> jobs = lists.get(tag);
+                    if (!jobs.isEmpty()) {
+                        for (Job job : jobs) {
+                            if (!ids.contains(job.getId())) {
+                                ids.add(job.getId());
+                                allJobs.add(job);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void jobsToDatabase() {
+        if (IS_ONLINE_MODE) {
+            StopWatch sw = new StopWatch(true);
+            jobDataSource.addJobs(allJobs);
+            if (pageName != null) {
+                pageDataSource.addPage(pageName, lists, timestamp);
+            }
+            Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
+        }
     }
 
     //====================================

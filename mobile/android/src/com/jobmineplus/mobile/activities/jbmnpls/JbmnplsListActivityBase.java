@@ -42,7 +42,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 
     @Override
     protected void doOffine() {
-        int[] ids = pageDataSource.getJobsIds(pageName);
+        ArrayList<Integer> ids = pageDataSource.getJobsIds(pageName);
         allJobs.clear();
 
         if (ids != null) {

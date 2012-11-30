@@ -81,7 +81,7 @@ public final class PageDataSource extends DataSourceBase{
      * @param pagename
      * @return list of ids, null if empty
      */
-    public synchronized int[] getJobsIds(String pagename) {
+    public synchronized ArrayList<Integer> getJobsIds(String pagename) {
         Cursor cursor = database.rawQuery(String.format(
                 "select * from %s where %s='%s' and %s='%s'",
                 PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
@@ -94,12 +94,46 @@ public final class PageDataSource extends DataSourceBase{
         }
 
         String[] idStrings = cursor.getString(3).split(",");
-        int[] ids = new int[idStrings.length];
+        ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
         for (int i = 0; i < idStrings.length; i++) {
-            ids[i] = Integer.parseInt(idStrings[i]);
+            ids.add(Integer.parseInt(idStrings[i]));
         }
         cursor.close();
         return ids;
+    }
+
+    public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String pagename) {
+        Cursor cursor = database.rawQuery(String.format(
+                "select * from %s where %s='%s' and %s='%s'",
+                PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
+                PageTable.COLUMN_USER, service.getUsername()), null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        if (cursor.isAfterLast()) {
+            return null;
+        }
+
+        String tabt = cursor.getString(3);
+        String[] tabString = tabt.split("\\|");
+
+        HashMap<String, ArrayList<Integer>> jobMap = new HashMap<String, ArrayList<Integer>>();
+
+        for (String str : tabString) {
+            int colonPos =  str.indexOf(':');
+            if (colonPos == -1) {
+                continue;
+            }
+            String tag = str.substring(0, colonPos);
+            String[] idStrings = str.substring(colonPos + 1).split(",");
+            ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
+            for (int i = 0; i < idStrings.length; i++) {
+                ids.add(Integer.parseInt(idStrings[i]));
+            }
+            jobMap.put(tag, ids);
+        }
+        cursor.close();
+        return jobMap;
     }
 
     private void internalAddPage(String username, String pagename,

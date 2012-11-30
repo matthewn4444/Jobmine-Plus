@@ -2,7 +2,7 @@ package com.jobmineplus.mobile.database.jobs;
 
 import java.util.ArrayList;
 import java.util.Date;
-
+import java.util.HashMap;
 import com.jobmineplus.mobile.database.DataSourceBase;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -10,6 +10,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.util.Pair;
+import android.util.SparseArray;
 
 public final class JobDataSource extends DataSourceBase {
 
@@ -58,6 +59,9 @@ public final class JobDataSource extends DataSourceBase {
         dbHelper.close();
     }
 
+    // =================
+    //  Additions
+    // =================
     public synchronized void addJob(Job job) {
         internalAddJob(job);
     }
@@ -81,6 +85,10 @@ public final class JobDataSource extends DataSourceBase {
         }
     }
 
+    // =================
+    //  Accessors
+    // =================
+
     public synchronized Job getJob(int id) {
         Cursor cursor = getCursorByJobId(id);
         if (cursor == null) {
@@ -91,6 +99,93 @@ public final class JobDataSource extends DataSourceBase {
         cursor.close();
         return job;
     }
+
+    public synchronized ArrayList<Job> getJobsByIdList(String idList) {
+        return cursorToJobListAndClose(getCursorJobsByIdList(idList));
+    }
+
+    public synchronized ArrayList<Job> getJobsByIdList(Iterable<Integer> ids) {
+        // Join the ids
+        String idList = "";
+        for (int id : ids) {
+            idList += id + ",";
+        }
+        idList = idList.substring(0, idList.length() - 1);
+
+        return getJobsByIdList(idList);
+    }
+
+    /**
+     * This does its own get job map from id map. The thing is we need to do one database transaction
+     * instead of one for each tab. Therefore we build our sql string, execute it and then add the jobs
+     * into a hashmap. Because the tabs have a mix of jobs, it would be inefficient to get and create the
+     * same job multiple time, we do it once here for the expensive of slightly more loops. Loops should be
+     * faster than more than one transaction.
+     *
+     * @param idMap
+     * @return
+     */
+    public synchronized HashMap<String, ArrayList<Job>> getJobsMap(HashMap<String, ArrayList<Integer>> idMap) {
+        HashMap<String, ArrayList<Job>> jobTabs = new HashMap<String, ArrayList<Job>>();
+
+        // Build the ids String to get joblist
+        SparseArray<Job> jobs = new SparseArray<Job>();
+        StringBuilder sb = new StringBuilder();
+        for (String tag : idMap.keySet()) {
+            for (int id : idMap.get(tag)) {
+                if (jobs.indexOfKey(id) < 0) {
+                    jobs.put(id, null);
+                    sb.append(id).append(',');
+                }
+            }
+        }
+        if (sb.length() == 0) {
+            return null;
+        }
+        sb.deleteCharAt(sb.length() - 1);       // Remove last comma
+
+        // Get all the jobs
+        Cursor cursor = getCursorJobsByIdList(sb.toString());
+        if (cursor.moveToFirst()) {
+            while (cursor.isAfterLast() == false) {
+                Job job = cursorToJob(cursor);
+                jobs.put(job.getId(), job);
+                cursor.moveToNext();
+            }
+        }
+        cursor.close();
+
+        // Finally build the map
+        for (String tag : idMap.keySet()) {
+            ArrayList<Job> list = new ArrayList<Job>();
+            for (int id : idMap.get(tag)) {
+                list.add(jobs.get(id));
+            }
+            jobTabs.put(tag, list);
+        }
+
+        return jobTabs;
+    }
+
+    public synchronized ArrayList<Job> getAllJobs() {
+        Cursor cursor = database.rawQuery("select * from " + JobTable.TABLE_JOB, null);
+        return cursorToJobListAndClose(cursor);
+    }
+
+    // =================
+    //  Deletions
+    // =================
+    public synchronized void deleteJob(int id) {
+        database.delete(JobTable.TABLE_JOB, JobTable.COLUMN_ID + "=?", new String[] { id + "" });
+    }
+
+    public synchronized void deleteJob(Job job) {
+        deleteJob(job.getId());
+    }
+
+    // =================
+    //  Private
+    // =================
 
     private Cursor getCursorByJobId(int id) {
         Cursor cursor = database.query(JobTable.TABLE_JOB,
@@ -107,34 +202,9 @@ public final class JobDataSource extends DataSourceBase {
         return cursor;
     }
 
-    public synchronized void deleteJob(int id) {
-        database.delete(JobTable.TABLE_JOB, JobTable.COLUMN_ID + "=?", new String[] { id + "" });
-    }
-
-    public synchronized void deleteJob(Job job) {
-        deleteJob(job.getId());
-    }
-
-    public synchronized ArrayList<Job> getJobsByIdList(String idList) {
+    private Cursor getCursorJobsByIdList(String idList) {
         // Do query
-        Cursor cursor = database.rawQuery(String.format("select * from %s where %s in (%s)", JobTable.TABLE_JOB, JobTable.COLUMN_ID, idList), null);
-        return cursorToJobListAndClose(cursor);
-    }
-
-    public synchronized ArrayList<Job> getJobsByIdList(int[] ids) {
-        // Join the ids
-        String idList = "";
-        for (int id : ids) {
-            idList += id + ",";
-        }
-        idList = idList.substring(0, idList.length() - 1);
-
-        return getJobsByIdList(idList);
-    }
-
-    public synchronized ArrayList<Job> getAllJobs() {
-        Cursor cursor = database.rawQuery("select * from " + JobTable.TABLE_JOB, null);
-        return cursorToJobListAndClose(cursor);
+        return database.rawQuery(String.format("select * from %s where %s in (%s)", JobTable.TABLE_JOB, JobTable.COLUMN_ID, idList), null);
     }
 
     private void internalAddJob(Job job) {
