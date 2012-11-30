@@ -97,7 +97,9 @@ public final class JbmnplsHttpService {
     //=========================
     //  Singleton Definition
     //=========================
-    private JbmnplsHttpService() {}
+    private JbmnplsHttpService() {
+        reset();
+    }
 
     public static JbmnplsHttpService getInstance() {
         if (instance == null) {
