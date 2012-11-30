@@ -72,7 +72,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
         HashMap<String, ArrayList<Integer>> idMap = pageDataSource.getJobsIdMap(pageName);
         if (idMap != null) {
             HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
-            if (lists != null) {
+            if (retList != null) {
                 lists = retList;
 
                 // Make the job list

@@ -17,14 +17,6 @@ public final class PageDataSource extends DataSourceBase{
     private PageDatabaseHelper dbHelper;
     private JbmnplsHttpService service;
 
-    private final String[] allColumns = {
-            PageTable.COLUMN_ID,
-            PageTable.COLUMN_USER,
-            PageTable.COLUMN_PAGENAME,
-            PageTable.COLUMN_JOBLIST,
-            PageTable.COLUMN_TIME
-    };
-
     public PageDataSource(Context context) {
         dbHelper = new PageDatabaseHelper(context);
         service = JbmnplsHttpService.getInstance();
@@ -90,6 +82,7 @@ public final class PageDataSource extends DataSourceBase{
             cursor.moveToFirst();
         }
         if (cursor.isAfterLast()) {
+            cursor.close();
             return null;
         }
 
