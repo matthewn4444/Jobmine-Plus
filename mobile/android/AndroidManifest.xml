@@ -10,12 +10,10 @@
     <uses-sdk android:minSdkVersion="8" />
 
     <!--
-    If you want to use the real application use this instead of the 
-    debug one
-    
-            android:name=".Applications" 
+    If you want to run debug mode (like autologin and stuff) remove
+    the android:name="...."
             
-            Debug one
+    To run in debug mode, add this to application's attributes below
             
             android:name=".debug.DebugApplication"
     -->

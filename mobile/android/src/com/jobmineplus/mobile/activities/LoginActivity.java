@@ -14,11 +14,16 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.database.users.UserDataSource;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.services.JbmnplsHttpService.LOGGED;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
-public class LoginActivity extends AlertActivity implements OnClickListener, TextWatcher{
+public class LoginActivity extends AlertActivity implements OnClickListener, TextWatcher {
+    protected JbmnplsHttpService service;
+    private UserDataSource userDataSource;
+    private StopWatch sw;
 
     //UI objects
     protected Button loginBtn;
@@ -28,7 +33,28 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
+        service = JbmnplsHttpService.getInstance();
+        userDataSource = new UserDataSource(this);
+        userDataSource.open();
         defindUiAndAttachEvents();
+    }
+
+    @Override
+    protected void onResume() {
+        userDataSource.open();
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        userDataSource.close();
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        userDataSource.close();
+        super.onDestroy();
     }
 
     private void defindUiAndAttachEvents() {
@@ -70,7 +96,21 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
             inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
                     .getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
-        new AsyncLoginTask(this).execute(username, password);
+        doLogin(username, password);
+    }
+
+    protected void doLogin(String username, String password) {
+        sw = new StopWatch(true);
+        if (IS_ONLINE_MODE) {
+            new AsyncLoginTask(this).execute(username, password);
+        } else {
+            log("offline login");
+            boolean loggedIn = userDataSource.checkCredentials(username, password);
+            if (loggedIn) {
+                service.setLoginCredentials(username, password);
+            }
+            postExecuteLogin(loggedIn ? LOGGED.IN : LOGGED.OUT);
+        }
     }
 
     protected void goToHomeActivity() {
@@ -79,37 +119,40 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         finish();
     }
 
-    protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpService.LOGGED> {
-        protected JbmnplsHttpService service;
-        private StopWatch sw;
+    protected void postExecuteLogin(LOGGED loginState) {
+        if (loginState == JbmnplsHttpService.LOGGED.IN) {
+            Toast.makeText(this, "You are logged in! " + sw.elapsed() + " ms",
+                    Toast.LENGTH_SHORT).show();
+            goToHomeActivity();
+        } else if (loginState == JbmnplsHttpService.LOGGED.OUT) {
+            Toast.makeText(this, getString(R.string.login_fail_message),
+                    Toast.LENGTH_SHORT).show();
+        } else {    // LOGGED.OFFLINE
+            Toast.makeText(this, getString(R.string.login_not_available),
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
 
+    protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpService.LOGGED> {
         public AsyncLoginTask(Activity activity) {
             super(activity, activity.getString(R.string.login_message));
-            service = JbmnplsHttpService.getInstance();
         }
 
         @Override
         protected JbmnplsHttpService.LOGGED doInBackground(String... args) {
-            sw = new StopWatch(true);
+            StopWatch sw = new StopWatch(true);
             JbmnplsHttpService.LOGGED result = service.login(args[0], args[1]);
+            sw.printElapsed();
+            if (result == LOGGED.IN) {
+               userDataSource.putUser(args[0], args[1]);
+            }
             return result;
         }
 
         @Override
         protected void onPostExecute(JbmnplsHttpService.LOGGED loginState){
-            Activity activity = getActivity();
             super.onPostExecute(loginState);
-            if (loginState == JbmnplsHttpService.LOGGED.IN) {
-                Toast.makeText(activity, "You are logged in! " + sw.elapsed() + " ms",
-                        Toast.LENGTH_SHORT).show();
-                goToHomeActivity();
-            } else if (loginState == JbmnplsHttpService.LOGGED.OUT) {
-                Toast.makeText(activity, activity.getString(R.string.login_fail_message),
-                        Toast.LENGTH_SHORT).show();
-            } else {    // LOGGED.OFFLINE
-                Toast.makeText(activity, activity.getString(R.string.login_not_available),
-                        Toast.LENGTH_SHORT).show();
-            }
+            ((LoginActivity)getActivity()).postExecuteLogin(loginState);
         }
     }
 }

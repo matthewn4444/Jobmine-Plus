@@ -32,12 +32,13 @@ public final class PageDataSource extends DataSourceBase{
         dbHelper.close();
     }
 
-    // TODO: make this smarter to add array of job lists (for tabs)
     public synchronized void addPage(String pagename, ArrayList<Job> jobs,
             long timestamp) {
         if (jobs.isEmpty()) {
             return;
         }
+        String username = service.getUsername();
+        if (username == "") { return; }
 
         // Make list of jobs as string, remove last comma
         StringBuilder sb = new StringBuilder();
@@ -45,7 +46,8 @@ public final class PageDataSource extends DataSourceBase{
             sb.append(job.getId()).append(',');
         }
         sb.deleteCharAt(sb.length() - 1);
-        internalAddPage(service.getUsername(), pagename, sb.toString(), timestamp);
+
+        internalAddPage(username, pagename, sb.toString(), timestamp);
     }
 
     public synchronized void addPage(String pagename, HashMap<String, ArrayList<Job>> jobMap,
@@ -53,6 +55,8 @@ public final class PageDataSource extends DataSourceBase{
         if (jobMap.isEmpty()) {
             return;
         }
+        String username = service.getUsername();
+        if (username == "") { return; }
 
         // Build the string
         StringBuilder sb = new StringBuilder();
@@ -65,7 +69,7 @@ public final class PageDataSource extends DataSourceBase{
             sb.deleteCharAt(sb.length() - 1).append('|');
         }
         sb.deleteCharAt(sb.length() - 1);
-        internalAddPage(service.getUsername(), pagename, sb.toString(), timestamp);
+        internalAddPage(username, pagename, sb.toString(), timestamp);
     }
 
     /**
@@ -74,10 +78,13 @@ public final class PageDataSource extends DataSourceBase{
      * @return list of ids, null if empty
      */
     public synchronized ArrayList<Integer> getJobsIds(String pagename) {
+        String username = service.getUsername();
+        if (username == "") { return null; }
+
         Cursor cursor = database.rawQuery(String.format(
                 "select * from %s where %s='%s' and %s='%s'",
                 PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
-                PageTable.COLUMN_USER, service.getUsername()), null);
+                PageTable.COLUMN_USERNAME, username), null);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -96,10 +103,13 @@ public final class PageDataSource extends DataSourceBase{
     }
 
     public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String pagename) {
+        String username = service.getUsername();
+        if (username == "") { return null; }
+
         Cursor cursor = database.rawQuery(String.format(
                 "select * from %s where %s='%s' and %s='%s'",
                 PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
-                PageTable.COLUMN_USER, service.getUsername()), null);
+                PageTable.COLUMN_USERNAME, username), null);
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -133,7 +143,7 @@ public final class PageDataSource extends DataSourceBase{
             String jobsString, long timestamp) {
 
         ContentValues values = new ContentValues();
-        addNonNullValue(values, PageTable.COLUMN_USER, username);
+        addNonNullValue(values, PageTable.COLUMN_USERNAME, username);
         addNonNullValue(values, PageTable.COLUMN_PAGENAME, pagename);
         addNonNullValue(values, PageTable.COLUMN_JOBLIST, jobsString);
         addNonNullValue(values, PageTable.COLUMN_TIME, timestamp);
@@ -141,7 +151,7 @@ public final class PageDataSource extends DataSourceBase{
         // Where statement
         ArrayList<Pair<String, Object>> where = new ArrayList<Pair<String,Object>>();
         where.add(new Pair<String, Object>(PageTable.COLUMN_PAGENAME, pagename));
-        where.add(new Pair<String, Object>(PageTable.COLUMN_USER, username));
+        where.add(new Pair<String, Object>(PageTable.COLUMN_USERNAME, username));
 
         updateElseInsert(PageTable.TABLE_PAGE, where, values);
     }

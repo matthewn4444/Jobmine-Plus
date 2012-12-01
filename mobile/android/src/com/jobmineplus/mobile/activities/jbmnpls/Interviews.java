@@ -89,6 +89,13 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     //  Override Methods
     //====================
     @Override
+    protected String setUp(Bundle savedInstanceState) {
+        setContentView(R.layout.interviews);
+        pageName = Interviews.class.getName();
+        return JbmnplsHttpService.GET_LINKS.INTERVIEWS;
+    }
+
+    @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         INTERVIEWS_OUTLINE.setOnTableRowParse(this);
@@ -132,12 +139,6 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
         int jobId = getList().get(arg2).getId();
         pageName = "Interviews";
         goToDescription(jobId);
-    }
-
-    @Override
-    protected String setUp(Bundle savedInstanceState) {
-        setContentView(R.layout.interviews);
-        return JbmnplsHttpService.GET_LINKS.INTERVIEWS;
     }
 
     @Override

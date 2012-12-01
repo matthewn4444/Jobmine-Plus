@@ -51,7 +51,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     @Override
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.shortlist);
-        pageName = "Shortlist";
+        pageName = Shortlist.class.getName();
         return JbmnplsHttpService.GET_LINKS.SHORTLIST;
     }
 

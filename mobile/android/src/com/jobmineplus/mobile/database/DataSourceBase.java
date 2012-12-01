@@ -19,7 +19,7 @@ public abstract class DataSourceBase {
     // ======================
     // Protected Methods
     // ======================
-    protected void updateElseInsert(String table, ArrayList<Pair<String, Object>> where, ContentValues values) {
+    protected long updateElseInsert(String table, ArrayList<Pair<String, Object>> where, ContentValues values) {
         // Unlike insert, update does not throw any errors and it will be faster
         String whereStr = "";
         int i = 0;
@@ -28,10 +28,11 @@ public abstract class DataSourceBase {
         }
         whereStr += where.get(i).first + "=?";
 
-        int affected = database.update(table, values, whereStr, new String[]{where.get(i).second + ""});
+        long affected = database.update(table, values, whereStr, new String[]{where.get(i).second + ""});
         if (affected == 0) {
-            database.insertOrThrow(table, null, values);
+            affected = database.insertOrThrow(table, null, values);
         }
+        return affected;
     }
 
     protected void addNonNullValue(ContentValues values, String column, String value) {

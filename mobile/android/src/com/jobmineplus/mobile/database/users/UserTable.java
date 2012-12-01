@@ -1,35 +1,29 @@
-package com.jobmineplus.mobile.database.pages;
+package com.jobmineplus.mobile.database.users;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
-public class PageTable {
-    public static final String TAG = PageTable.class.getName();
-    public static final String TABLE_PAGE = "page";
+public class UserTable {
+    public static final String TAG = UserTable.class.getName();
+    public static final String TABLE_USER = "user";
 
     public static final String COLUMN_ID = "_id";
-    public static final String COLUMN_PAGENAME = "pagename";
     public static final String COLUMN_USERNAME = "username";
-    public static final String COLUMN_JOBLIST = "joblist";
-    public static final String COLUMN_TIME = "timestamp";
-
+    public static final String COLUMN_PASSWORD = "password";
 
     private static final String DATABASE_CREATE = "create table "
-            + TABLE_PAGE
+            + TABLE_USER
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
-            + COLUMN_PAGENAME + " text not null, "
             + COLUMN_USERNAME + " text not null, "
-            + COLUMN_JOBLIST + " text, "
-            + COLUMN_TIME + " integer default 0 "
+            + COLUMN_PASSWORD + " text not null "
             + ");";
-
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);
     }
 
     public static void dropTable(SQLiteDatabase database) {
-        database.execSQL("DROP TABLE IF EXISTS " + TABLE_PAGE);
+        database.execSQL("DROP TABLE IF EXISTS " + TABLE_USER);
     }
 
     public static void onUpgrade(SQLiteDatabase database, int oldVersion,
@@ -40,5 +34,4 @@ public class PageTable {
         dropTable(database);
         onCreate(database);
     }
-
 }

@@ -79,8 +79,8 @@ public final class JbmnplsHttpService {
     private static final String LOGIN_INVALID_CRED      = "Your User ID and/or Password are invalid.";
     private static final String DEFAULT_HTML_ENCODER    = "UTF-8";
     private static final String FAILED_URL              = "Invalid URL - no Node found in";
-    private static final int    LOGIN_READ_LENGTH       = 300;
-    private static final int    LOGIN_ERROR_MSG_SKIP    = 3500;
+    private static final int    LOGIN_READ_LENGTH       = 400;
+    private static final int    LOGIN_ERROR_MSG_SKIP    = 3200;
     private static final int    MAX_LOGIN_ATTEMPTS = 3;
 
 

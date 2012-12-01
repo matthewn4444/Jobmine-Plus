@@ -122,6 +122,13 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
         super.onPause();
     }
 
+    @Override
+    protected void onDestroy() {
+        jobDataSource.close();
+        pageDataSource.close();
+        super.onDestroy();
+    }
+
     // ========================
     // Login/Logout Methods
     // ========================
