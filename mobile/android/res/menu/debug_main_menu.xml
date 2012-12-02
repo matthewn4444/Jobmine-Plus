@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:id="@+id/menuitem_online_mode" android:title="Go Offline"></item>
+    <item android:id="@+id/menuitem_real_site" android:title="Go Fake"></item>
     
 
 </menu>

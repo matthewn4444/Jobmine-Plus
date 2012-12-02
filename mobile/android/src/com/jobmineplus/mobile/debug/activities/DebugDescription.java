@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.util.Date;
 
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
+import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.Description;
 import com.jobmineplus.mobile.debug.DebugApplication;
 import com.jobmineplus.mobile.debug.DebugHomeActivity;
@@ -20,7 +24,7 @@ public class DebugDescription extends Description {
         super.setUp(savedInstanceState);
         app = (DebugApplication) getApplication();
 
-        if (!job.hasDescriptionData() && app.isOffline()) {
+        if (!job.hasDescriptionData() && !app.isOnline()) {
             LEVEL[] levels = {LEVEL.BACHELOR};
             String[] disc = {"System Design"};
 
@@ -50,7 +54,7 @@ public class DebugDescription extends Description {
 
     @Override
     protected String onRequestData(String[] args) throws IOException {
-        if (app.isOffline()) {
+        if (!app.isOnline()) {
             return "<html></html>";
         }
         return super.onRequestData(args);
@@ -69,10 +73,46 @@ public class DebugDescription extends Description {
 
     @Override
     protected boolean verifyLogin() {
-        if (app.isOffline()) {
+        if (!app.isOnline()) {
             return true;
         } else {
             return super.verifyLogin();
+        }
+    }
+
+    // =================
+    //  Menu buttons
+    // =================
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater mInflater = getMenuInflater();
+        mInflater.inflate(R.menu.debug_main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem item = menu.findItem(R.id.menuitem_real_site);
+        if (app.isOnline()) {
+            item.setTitle("Go Fake Site");
+        } else {
+            item.setTitle("Go Real Site");
+        }
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.menuitem_online_mode:
+                IS_ONLINE_MODE = !IS_ONLINE_MODE;
+                return true;
+            case R.id.menuitem_real_site:
+                app.toggleOnline();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
     }
 }
