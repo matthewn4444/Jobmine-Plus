@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.HashMap;
 import com.jobmineplus.mobile.database.DataSourceBase;
 import com.jobmineplus.mobile.widgets.Job;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -89,7 +88,7 @@ public final class JobDataSource extends DataSourceBase {
     //  Accessors
     // =================
 
-    public synchronized Job getJob(int id) {
+    public Job getJob(int id) {
         Cursor cursor = getCursorByJobId(id);
         if (cursor == null) {
             return null;
@@ -100,11 +99,11 @@ public final class JobDataSource extends DataSourceBase {
         return job;
     }
 
-    public synchronized ArrayList<Job> getJobsByIdList(String idList) {
+    public ArrayList<Job> getJobsByIdList(String idList) {
         return cursorToJobListAndClose(getCursorJobsByIdList(idList));
     }
 
-    public synchronized ArrayList<Job> getJobsByIdList(Iterable<Integer> ids) {
+    public ArrayList<Job> getJobsByIdList(Iterable<Integer> ids) {
         // Join the ids
         String idList = "";
         for (int id : ids) {
@@ -125,7 +124,7 @@ public final class JobDataSource extends DataSourceBase {
      * @param idMap
      * @return
      */
-    public synchronized HashMap<String, ArrayList<Job>> getJobsMap(HashMap<String, ArrayList<Integer>> idMap) {
+    public HashMap<String, ArrayList<Job>> getJobsMap(HashMap<String, ArrayList<Integer>> idMap) {
         HashMap<String, ArrayList<Job>> jobTabs = new HashMap<String, ArrayList<Job>>();
 
         // Build the ids String to get joblist
@@ -167,8 +166,11 @@ public final class JobDataSource extends DataSourceBase {
         return jobTabs;
     }
 
-    public synchronized ArrayList<Job> getAllJobs() {
-        Cursor cursor = database.rawQuery("select * from " + JobTable.TABLE_JOB, null);
+    public ArrayList<Job> getAllJobs() {
+        Cursor cursor;
+        synchronized (this) {
+            cursor = database.rawQuery("select * from " + JobTable.TABLE_JOB, null);
+        }
         return cursorToJobListAndClose(cursor);
     }
 
@@ -188,9 +190,12 @@ public final class JobDataSource extends DataSourceBase {
     // =================
 
     private Cursor getCursorByJobId(int id) {
-        Cursor cursor = database.query(JobTable.TABLE_JOB,
-                allColumns, JobTable.COLUMN_ID + " = " + id, null,
-                null, null, null);
+        Cursor cursor = null;
+        synchronized (this) {
+            cursor = database.query(JobTable.TABLE_JOB,
+                    allColumns, JobTable.COLUMN_ID + " = " + id, null,
+                    null, null, null);
+        }
         if (cursor != null) {
             cursor.moveToFirst();
         }
@@ -202,7 +207,7 @@ public final class JobDataSource extends DataSourceBase {
         return cursor;
     }
 
-    private Cursor getCursorJobsByIdList(String idList) {
+    private synchronized Cursor getCursorJobsByIdList(String idList) {
         // Do query
         return database.rawQuery(String.format("select * from %s where %s in (%s)", JobTable.TABLE_JOB, JobTable.COLUMN_ID, idList), null);
     }
@@ -258,6 +263,9 @@ public final class JobDataSource extends DataSourceBase {
     }
 
     private ArrayList<Job> cursorToJobListAndClose(Cursor cursor) {
+        if (cursor == null) {
+            return null;
+        }
         ArrayList<Job> jobs = new ArrayList<Job>(cursor.getCount());
         if (cursor.moveToFirst()) {
             while (cursor.isAfterLast() == false) {

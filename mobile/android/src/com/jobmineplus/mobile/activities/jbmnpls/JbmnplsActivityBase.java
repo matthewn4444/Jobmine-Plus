@@ -222,12 +222,11 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
     // ====================================
 
     protected void requestData() throws RuntimeException {
-        task = new GetHtmlTask(this, LOADING_MESSAGE);
         if (dataUrl == null) {
             throw new RuntimeException(
                     "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
-        // TODO: if offline mode, do not execute
+        task = new GetHtmlTask(this, LOADING_MESSAGE);
         task.execute(dataUrl);
     }
 
@@ -260,7 +259,7 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
         protected Activity a;
 
         public GetHtmlTask(Activity activity, String dialogueMessage) {
-            super(activity, dialogueMessage);
+            super(activity, dialogueMessage, IS_ONLINE_MODE);
             a = activity;
         }
 
