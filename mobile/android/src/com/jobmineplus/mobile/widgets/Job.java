@@ -101,10 +101,10 @@ public class Job {
      * you have already applied and you are getting an interview for this job.
      *
      * @param jId
-     * @param jTitle
      * @param jEmployer
+     * @param jTitle
      */
-    public Job(int jId, String jTitle, String jEmployer) {
+    public Job(int jId, String jEmployer, String jTitle) {
         setId(jId);
         title = jTitle;
         employer = jEmployer;

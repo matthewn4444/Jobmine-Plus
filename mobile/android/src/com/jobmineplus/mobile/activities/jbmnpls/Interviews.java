@@ -66,7 +66,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     // Third Table
     protected final TableParsingOutline SPECIAL_OUTLINE = new TableParsingOutline(
             "UW_CO_NSCHD_JOB$scroll$0", 5,
-            COLUMN_1_INFO_ID,                              // Job Id
+            COLUMN_1_INFO_ID,                               // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT,                             // Title
             new ColumnInfo(4, ColumnInfo.TEXT));            // Instruction
@@ -74,7 +74,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     // Fourth Table
     protected final TableParsingOutline CANCELLED_OUTLINE = new TableParsingOutline(
             "UW_CO_SINT_CANC$scroll$0", 4,
-            COLUMN_1_INFO_ID,                              // Job Id
+            COLUMN_1_INFO_ID,                               // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT);                            // Title
 
