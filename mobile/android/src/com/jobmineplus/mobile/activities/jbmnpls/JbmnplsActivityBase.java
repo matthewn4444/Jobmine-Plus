@@ -22,17 +22,19 @@ import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Alert;
+import com.jobmineplus.mobile.widgets.DatabaseTask;
+import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
+import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
-public abstract class JbmnplsActivityBase extends SimpleActivityBase {
+public abstract class JbmnplsActivityBase extends SimpleActivityBase implements IDatabaseTask<Void> {
 
     // =================
     // Declarations
     // =================
-    protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat(
-            "MMM d, yyyy");
+    protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
 
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
@@ -45,6 +47,7 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
     protected long timestamp;
     protected String pageName;
     private Alert alert;
+    private DatabaseTask<Void> databaseTask;
 
     // ====================
     // Abstract Methods
@@ -99,6 +102,7 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
         allJobs = new ArrayList<Job>();
         jobDataSource = new JobDataSource(this);
         pageDataSource = new PageDataSource(this);
+        databaseTask = new DatabaseTask<Void>(this);
         jobDataSource.open();
         pageDataSource.open();
         alert = new Alert(this);
@@ -176,18 +180,35 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
         startActivity(in);
     }
 
+    // ======================
+    // Database Task Members
+    // ======================
+    public Void doPutTask() {
+        jobDataSource.addJobs(allJobs);
+        if (pageName != null) {
+            pageDataSource.addPage(pageName, allJobs, timestamp);
+        }
+        return null;
+    }
+
+    public Void doGetTask() {
+        doOffine();
+        return null;
+    }
+
+    public void finishedTask(Void result, DatabaseTask.Action action) {
+        if (action == Action.GET) {
+            onRequestComplete();
+        }
+    }
+
     // =================
     // Miscellaneous
     // =================
 
     protected void jobsToDatabase() {
         if (IS_ONLINE_MODE) {
-            StopWatch sw = new StopWatch(true);
-            jobDataSource.addJobs(allJobs);
-            if (pageName != null) {
-                pageDataSource.addPage(pageName, allJobs, timestamp);
-            }
-            Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
+            databaseTask.executePut();
         }
     }
 
@@ -226,8 +247,12 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
             throw new RuntimeException(
                     "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
-        task = new GetHtmlTask(this, LOADING_MESSAGE);
-        task.execute(dataUrl);
+        if (IS_ONLINE_MODE) {
+            task = new GetHtmlTask(this, LOADING_MESSAGE);
+            task.execute(dataUrl);
+        } else {
+            databaseTask.executeGet();
+        }
     }
 
     /**
@@ -266,39 +291,31 @@ public abstract class JbmnplsActivityBase extends SimpleActivityBase {
         @Override
         protected Integer doInBackground(String... params) {
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
-            if (JbmnplsActivityBase.IS_ONLINE_MODE) {
-                // We are in online mode
-                if (!verifyLogin()) {
-                    return FORCED_LOGGEDOUT;
-                }
-                sw.start();
-                try {
-                    String html = activity.onRequestData(params);
-                    timestamp = System.currentTimeMillis();
-                    if (html == null) {
-                        return PARSING_ERROR;
-                    }
-                    activity.parseWebpage(html);
-                    return NO_PROBLEM;
-                } catch (HiddenColumnsException e) {
-                    e.printStackTrace();
-                    return HIDDEN_COLUMNS_ERROR;
-                } catch (JbmnplsParsingException e) {
-                    e.printStackTrace();
+            // We are in online mode
+            if (!verifyLogin()) {
+                return FORCED_LOGGEDOUT;
+            }
+            sw.start();
+            try {
+                String html = activity.onRequestData(params);
+                timestamp = System.currentTimeMillis();
+                if (html == null) {
                     return PARSING_ERROR;
-                } catch (JbmnplsLoggedOutException e) {
-                    e.printStackTrace();
-                    return FORCED_LOGGEDOUT;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    return NETWORK_ERROR;
                 }
-            } else {
-                // Is in offline mode
-                sw.start();
-                activity.doOffine();
-                sw.printElapsed("%s ms for 2 databasing gets");
+                activity.parseWebpage(html);
                 return NO_PROBLEM;
+            } catch (HiddenColumnsException e) {
+                e.printStackTrace();
+                return HIDDEN_COLUMNS_ERROR;
+            } catch (JbmnplsParsingException e) {
+                e.printStackTrace();
+                return PARSING_ERROR;
+            } catch (JbmnplsLoggedOutException e) {
+                e.printStackTrace();
+                return FORCED_LOGGEDOUT;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return NETWORK_ERROR;
             }
         }
 

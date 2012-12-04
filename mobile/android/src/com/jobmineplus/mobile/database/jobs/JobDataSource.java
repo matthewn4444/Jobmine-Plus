@@ -65,7 +65,7 @@ public final class JobDataSource extends DataSourceBase {
         internalAddJob(job);
     }
 
-    public void addJobs(ArrayList<Job> jobs) {
+    public synchronized void addJobs(ArrayList<Job> jobs) {
         if (!jobs.isEmpty()) {
             try {
                 database.setLockingEnabled(false);

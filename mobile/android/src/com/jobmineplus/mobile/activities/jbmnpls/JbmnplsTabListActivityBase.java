@@ -8,10 +8,7 @@ import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase implements OnItemClickListener{
 
@@ -93,15 +90,12 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     }
 
     @Override
-    protected void jobsToDatabase() {
-        if (IS_ONLINE_MODE) {
-            StopWatch sw = new StopWatch(true);
-            jobDataSource.addJobs(allJobs);
-            if (pageName != null) {
-                pageDataSource.addPage(pageName, lists, timestamp);
-            }
-            Toast.makeText(this, sw.elapsed() + " ms for db", Toast.LENGTH_SHORT).show();
+    public Void doPutTask() {
+        jobDataSource.addJobs(allJobs);
+        if (pageName != null) {
+            pageDataSource.addPage(pageName, lists, timestamp);
         }
+        return null;
     }
 
     //====================================

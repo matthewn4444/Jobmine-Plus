@@ -107,7 +107,6 @@ public class Description extends JbmnplsTabActivityBase {
     @Override
     protected String onRequestData(String[] args) throws IOException {
         String descriptionData = job.grabDescriptionData();
-        log(job.hasDescriptionData(), "Write to job");
         jobDataSource.addJob(job);      // updates with the description data
         return descriptionData;
     }
@@ -124,15 +123,7 @@ public class Description extends JbmnplsTabActivityBase {
 
     @Override
     protected void doOffine() {
-//        int[] ids = pageDataSource.getJobsIds(pageName);
-//        allJobs.clear();
-//
-//        if (ids != null) {
-//            ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
-//            for (Job job : jobs) {
-//                allJobs.add(job);
-//            }
-//        }
+        // Not needed because we get the job from the database already
     }
 
     // =====================
