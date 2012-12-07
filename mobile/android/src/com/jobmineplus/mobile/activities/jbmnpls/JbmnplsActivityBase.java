@@ -13,8 +13,8 @@ import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
+import com.jobmineplus.mobile.activities.LoggedInActivityBase;
 import com.jobmineplus.mobile.activities.LoginActivity;
-import com.jobmineplus.mobile.activities.SimpleActivityBase;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
@@ -29,7 +29,7 @@ import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
-public abstract class JbmnplsActivityBase extends SimpleActivityBase implements IDatabaseTask<Void> {
+public abstract class JbmnplsActivityBase extends LoggedInActivityBase implements IDatabaseTask<Void> {
 
     // =================
     // Declarations

@@ -9,18 +9,18 @@ import android.widget.Button;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
 
-public class HomeActivity extends AlertActivity implements OnClickListener{
+public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
     protected JbmnplsHttpService service;
-    
-    
+
+
     protected int[] buttonLayouts = {
             R.id.apps_button,
             R.id.shortlist_button,
             R.id.interviews_button
     };
-    
+
     private final String PREFIX_PATH = "com.jobmineplus.mobile";
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +28,7 @@ public class HomeActivity extends AlertActivity implements OnClickListener{
         service = JbmnplsHttpService.getInstance();
         connectUI();
     }
-    
+
     protected void connectUI() {
         Button button;
         for (int i = 0; i < buttonLayouts.length; i++) {
@@ -36,7 +36,7 @@ public class HomeActivity extends AlertActivity implements OnClickListener{
             button.setOnClickListener(this);
         }
     }
-    
+
     public boolean goToActivity(String activityName) {
         Class<?> name = null;
         try {
