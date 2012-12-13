@@ -15,9 +15,10 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
-import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
+import com.jobmineplus.mobile.widgets.table.TableParser;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
-public class Applications extends JbmnplsTabListActivityBase implements TableParsingOutline.OnTableParseListener{
+public class Applications extends JbmnplsTabListActivityBase implements TableParser.OnTableParseListener{
 
     //======================
     //  Declaration Objects
@@ -28,26 +29,27 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
         final public static String REJECTED_JOBS = "rejected";
     }
 
-    protected final String DATE_FORMAT = "d-MMM-yyyy";
+    protected final static String DATE_FORMAT = "d-MMM-yyyy";
+    private final TableParser parser = new TableParser();
 
-    protected final ColumnInfo COLUMNID = new ColumnInfo(0, ColumnInfo.ID);
-    protected final ColumnInfo COLUMN1  = new ColumnInfo(1, ColumnInfo.TEXT);
-    protected final ColumnInfo COLUMN2  = new ColumnInfo(2, ColumnInfo.TEXT);
-    protected final ColumnInfo COLUMN4  = new ColumnInfo(4, ColumnInfo.TEXT);
-    protected final ColumnInfo COLUMN5  = new ColumnInfo(5, ColumnInfo.STATE);
-    protected final ColumnInfo COLUMN6  = new ColumnInfo(6, ColumnInfo.STATUS);
-    protected final ColumnInfo COLUMN8  = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
-    protected final ColumnInfo COLUMN9  = new ColumnInfo(9, ColumnInfo.NUMERIC);
+    protected final static ColumnInfo COLUMNID = new ColumnInfo(0, ColumnInfo.ID);
+    protected final static ColumnInfo COLUMN1  = new ColumnInfo(1, ColumnInfo.TEXT);
+    protected final static ColumnInfo COLUMN2  = new ColumnInfo(2, ColumnInfo.TEXT);
+    protected final static ColumnInfo COLUMN4  = new ColumnInfo(4, ColumnInfo.TEXT);
+    protected final static ColumnInfo COLUMN5  = new ColumnInfo(5, ColumnInfo.STATE);
+    protected final static ColumnInfo COLUMN6  = new ColumnInfo(6, ColumnInfo.STATUS);
+    protected final static ColumnInfo COLUMN8  = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
+    protected final static ColumnInfo COLUMN9  = new ColumnInfo(9, ColumnInfo.NUMERIC);
 
-    protected final TableParsingOutline ACTIVE_OUTLINE =
-            new TableParsingOutline("UW_CO_STU_APPSV$scroll$0", 10,
+    public static final TableParserOutline ACTIVE_OUTLINE =
+            new TableParserOutline("UW_CO_STU_APPSV$scroll$0", 10,
                     COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
 
-    protected final TableParsingOutline ALL_OUTLINE =
-            new TableParsingOutline("UW_CO_APPS_VW2$scrolli$0", 12,
+    public static final TableParserOutline ALL_OUTLINE =
+            new TableParserOutline("UW_CO_APPS_VW2$scrolli$0", 12,
                     COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
 
-    protected final int[] WIDGET_RESOURCE_LIST = {
+    protected static final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
             R.id.job_status,R.id.job_last_day, R.id.job_apps };
 
@@ -64,8 +66,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-        ACTIVE_OUTLINE.setOnTableRowParse(this);
-        ALL_OUTLINE.setOnTableRowParse(this);
+        parser.setOnTableRowParse(this);
 
         createTab(LISTS.ALL_JOBS, "All");
         createTab(LISTS.ACTIVE_JOBS, "Active");
@@ -80,11 +81,11 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     @Override
     protected void parseWebpage(String html) {
         clearAllLists();
-        ACTIVE_OUTLINE.execute(html);
-        ALL_OUTLINE.execute(html);
+        parser.execute(ACTIVE_OUTLINE, html);
+        parser.execute(ALL_OUTLINE, html);
     }
 
-    public void onRowParse(TableParsingOutline outline, Object... jobData) {
+    public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job.STATUS status = (Job.STATUS)jobData[5];
         int id = (Integer) jobData[0];
         //Applications constructor

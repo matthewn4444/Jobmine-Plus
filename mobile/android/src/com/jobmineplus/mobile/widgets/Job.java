@@ -10,6 +10,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
 
 public class Job {
     // ================

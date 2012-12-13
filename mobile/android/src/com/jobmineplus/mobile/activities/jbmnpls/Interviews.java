@@ -18,27 +18,29 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
-import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
+import com.jobmineplus.mobile.widgets.table.TableParser;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
-public class Interviews extends JbmnplsListActivityBase implements TableParsingOutline.OnTableParseListener {
+public class Interviews extends JbmnplsListActivityBase implements TableParser.OnTableParseListener {
 
     //======================
     //  Declaration Objects
     //======================
-    protected final String DATE_FORMAT = "d MMM yyyy";
-    protected final SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
+    protected final static String DATE_FORMAT = "d MMM yyyy";
+    protected final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
+    private final TableParser parser = new TableParser();
 
     //======================
     // Table Definitions
     //======================
-    private final ColumnInfo COLUMN_1_INFO_ID   = new ColumnInfo(1, ColumnInfo.ID);
-    private final ColumnInfo COLUMN_2_INFO_TEXT = new ColumnInfo(2, ColumnInfo.TEXT);
-    private final ColumnInfo COLUMN_3_INFO_TEXT = new ColumnInfo(3, ColumnInfo.TEXT);
-    private final ColumnInfo COLUMN_4_INFO_DATE = new ColumnInfo(4, ColumnInfo.DATE, DATE_FORMAT);
-    private final ColumnInfo COLUMN_7_INFO_DATE = new ColumnInfo(7, ColumnInfo.TEXT);
+    private final static ColumnInfo COLUMN_1_INFO_ID   = new ColumnInfo(1, ColumnInfo.ID);
+    private final static ColumnInfo COLUMN_2_INFO_TEXT = new ColumnInfo(2, ColumnInfo.TEXT);
+    private final static ColumnInfo COLUMN_3_INFO_TEXT = new ColumnInfo(3, ColumnInfo.TEXT);
+    private final static ColumnInfo COLUMN_4_INFO_DATE = new ColumnInfo(4, ColumnInfo.DATE, DATE_FORMAT);
+    private final static ColumnInfo COLUMN_7_INFO_DATE = new ColumnInfo(7, ColumnInfo.TEXT);
 
     // First Table
-    protected final TableParsingOutline INTERVIEWS_OUTLINE = new TableParsingOutline(
+    public static final TableParserOutline INTERVIEWS_OUTLINE = new TableParserOutline(
             "UW_CO_STUD_INTV$scroll$0", 13,
             COLUMN_1_INFO_ID,                              // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
@@ -52,7 +54,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
             new ColumnInfo(11, ColumnInfo.TEXT));           // Interviewer
 
     // Second Table
-    protected final TableParsingOutline GROUPS_OUTLINE = new TableParsingOutline(
+    public static final TableParserOutline GROUPS_OUTLINE = new TableParserOutline(
             "UW_CO_GRP_STU_V$scroll$0", 9,
             COLUMN_1_INFO_ID,                              // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
@@ -64,7 +66,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
             new ColumnInfo(8, ColumnInfo.TEXT));            // Instruction
 
     // Third Table
-    protected final TableParsingOutline SPECIAL_OUTLINE = new TableParsingOutline(
+    public static final TableParserOutline SPECIAL_OUTLINE = new TableParserOutline(
             "UW_CO_NSCHD_JOB$scroll$0", 5,
             COLUMN_1_INFO_ID,                               // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
@@ -72,7 +74,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
             new ColumnInfo(4, ColumnInfo.TEXT));            // Instruction
 
     // Fourth Table
-    protected final TableParsingOutline CANCELLED_OUTLINE = new TableParsingOutline(
+    public static final TableParserOutline CANCELLED_OUTLINE = new TableParserOutline(
             "UW_CO_SINT_CANC$scroll$0", 4,
             COLUMN_1_INFO_ID,                               // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
@@ -98,16 +100,12 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-        INTERVIEWS_OUTLINE.setOnTableRowParse(this);
-        GROUPS_OUTLINE.setOnTableRowParse(this);
-        SPECIAL_OUTLINE.setOnTableRowParse(this);
-        CANCELLED_OUTLINE.setOnTableRowParse(this);
-
+        parser.setOnTableRowParse(this);
         setAdapter(new InterviewsAdapter(this, android.R.id.list,
                 R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
     }
 
-    public void onRowParse(TableParsingOutline outline, Object... jobData) {
+    public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = null;
         int id = (Integer) jobData[0];
         String employer = (String) jobData[1];
@@ -144,10 +142,10 @@ public class Interviews extends JbmnplsListActivityBase implements TableParsingO
     @Override
     protected void parseWebpage(String html) {
         clearList();
-        INTERVIEWS_OUTLINE.execute(html);
-        GROUPS_OUTLINE.execute(html);
-        SPECIAL_OUTLINE.execute(html);
-        CANCELLED_OUTLINE.execute(html);
+        parser.execute(INTERVIEWS_OUTLINE, html);
+        parser.execute(GROUPS_OUTLINE, html);
+        parser.execute(SPECIAL_OUTLINE, html);
+        parser.execute(CANCELLED_OUTLINE, html);
     }
 
     //===================

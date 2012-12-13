@@ -14,17 +14,19 @@ import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
-import com.jobmineplus.mobile.widgets.table.TableParsingOutline;
+import com.jobmineplus.mobile.widgets.table.TableParser;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
-public class Shortlist extends JbmnplsListActivityBase implements TableParsingOutline.OnTableParseListener {
+public class Shortlist extends JbmnplsListActivityBase implements TableParser.OnTableParseListener {
 
     //======================
     //  Declaration Objects
     //======================
-    protected final String DATE_FORMAT = "d MMM yyyy";
+    protected final static String DATE_FORMAT = "d MMM yyyy";
+    private final TableParser parser = new TableParser();
 
-    protected final TableParsingOutline SHORTLIST_OUTLINE =
-            new TableParsingOutline("UW_CO_STUJOBLST$scrolli$0", 9,
+    public static final TableParserOutline SHORTLIST_OUTLINE =
+            new TableParserOutline("UW_CO_STUJOBLST$scrolli$0", 9,
                     new ColumnInfo(0, ColumnInfo.ID),
                     new ColumnInfo(1, ColumnInfo.TEXT),
                     new ColumnInfo(2, ColumnInfo.TEXT),
@@ -43,7 +45,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-        SHORTLIST_OUTLINE.setOnTableRowParse(this);
+        parser.setOnTableRowParse(this);
         setAdapter(new ShortlistAdapter(this, android.R.id.list,
                 R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
     }
@@ -61,7 +63,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     }
 
 
-    public void onRowParse(TableParsingOutline outline, Object... jobData) {
+    public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = new Job(  // Shortlist constructor
                 (Integer)   jobData[0],     (String)jobData[1],
                 (String)    jobData[2],     (String)jobData[3],
@@ -73,7 +75,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParsingOu
     @Override
     protected void parseWebpage(String html) {
         clearList();
-        SHORTLIST_OUTLINE.execute(html);
+        parser.execute(SHORTLIST_OUTLINE, html);
     }
 
     //=================

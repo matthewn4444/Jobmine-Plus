@@ -8,7 +8,6 @@ import java.util.Locale;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.SimpleHtmlParser;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
 /**
@@ -22,33 +21,14 @@ import com.jobmineplus.mobile.widgets.StopWatch;
  * @author matthewn4444
  *
  */
-public class TableParsingOutline {
+public class TableParser {
     private final int INFINITE_LOOP_LIMIT = 300;
-
-    private final String tableId;
-    private final int numOfColumns;
-    private final ColumnInfo[] columnInfo;
     private OnTableParseListener listener;
 
     //===============
     //  Constructor
     //===============
-    /**
-     * This should be used with final keyword to describe the table
-     * @param tableId: the DOM id (eg. css #element_id)
-     * @param numOfColumns: number of expected columns, will throw an exception if failed
-     *                      when executed
-     * @param columnInfo: multi-arguments of column info (one per each column that is of
-     *                    interest for job arguments)
-     */
-    public TableParsingOutline(String tableId, int numOfColumns, ColumnInfo ...columnInfo) {
-        this.tableId = tableId;
-        this.columnInfo = columnInfo;
-        this.numOfColumns = numOfColumns;
-
-        // ColumnInfo.ID must be the first one on the list
-        assert columnInfo[0].getType() != ColumnInfo.ID :
-            "TabeParsingOutline is set wrong, the ColumnInfo.ID is not set first.";
+    public TableParser () {
     }
 
     //==================
@@ -71,7 +51,7 @@ public class TableParsingOutline {
      * the html and serve it to parseTable.
      * @param html
      */
-    public void execute(String html) {
+    public void execute(TableParserOutline outline, String html) {
         if (listener == null) {
             throw new JbmnplsParsingException(
                     "You did not attach a listener to the table parsing function.");
@@ -80,6 +60,8 @@ public class TableParsingOutline {
         StopWatch sw = new StopWatch(true);
 
         // Grab the table data, variations of quotes
+        String tableId = outline.getTableId();
+        int numOfColumns = outline.columnLength();
         int start = html.indexOf("id='" + tableId + "'");
         if (start == -1) {
             start = html.indexOf("id=\"" + tableId + "\"");
@@ -100,7 +82,7 @@ public class TableParsingOutline {
         html =  html.substring(thEnd, end);
 
         // Parse the table now
-        parseTable(html);
+        parseTable(outline, html);
 
         sw.printElapsed();
     }
@@ -113,7 +95,9 @@ public class TableParsingOutline {
      * return mid-code.
      * @param html
      */
-    private void parseTable(String html) {
+    private void parseTable(TableParserOutline outline, String html) {
+        ColumnInfo[] columnInfo = outline.getColumnInfo();
+        int numOfColumns = outline.columnLength();
         SimpleHtmlParser parser = new SimpleHtmlParser(html);
         int row = 0;
         Object[] passedObj = new Object[columnInfo.length];
@@ -190,7 +174,7 @@ public class TableParsingOutline {
             parser.skipColumns(numOfColumns - column);
 
             // Now we pass the values back to the activities to make jobs
-            listener.onRowParse(this, passedObj);
+            listener.onRowParse(outline, passedObj);
             row++;
         }
 
@@ -228,6 +212,6 @@ public class TableParsingOutline {
          * the same as the table columns
          * @param data: the parameters for a job shown from TableParsingOutline class
          */
-        public void onRowParse(TableParsingOutline outline, Object ...jobData);
+        public void onRowParse(TableParserOutline outline, Object ...jobData);
     }
 }

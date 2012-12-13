@@ -1,4 +1,4 @@
-package com.jobmineplus.mobile.widgets;
+package com.jobmineplus.mobile.widgets.table;
 
 import android.util.Pair;
 
