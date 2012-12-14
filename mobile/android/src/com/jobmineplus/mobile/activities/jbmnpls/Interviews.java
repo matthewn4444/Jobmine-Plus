@@ -26,6 +26,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     //======================
     //  Declaration Objects
     //======================
+    public final static String PAGE_NAME = Interviews.class.getName();
     protected final static String DATE_FORMAT = "d MMM yyyy";
     protected final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
     private final TableParser parser = new TableParser();
@@ -87,25 +88,11 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
             R.id.job_title, R.id.job_employer, R.id.date, R.id.type, R.id.time,
             R.id.interviewer, R.id.room, R.id.instructions};
 
-    //====================
-    //  Override Methods
-    //====================
-    @Override
-    protected String setUp(Bundle savedInstanceState) {
-        setContentView(R.layout.interviews);
-        pageName = Interviews.class.getName();
-        return JbmnplsHttpService.GET_LINKS.INTERVIEWS;
-    }
 
-    @Override
-    protected void defineUI(Bundle savedInstanceState) {
-        super.defineUI(savedInstanceState);
-        parser.setOnTableRowParse(this);
-        setAdapter(new InterviewsAdapter(this, android.R.id.list,
-                R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
-    }
-
-    public void onRowParse(TableParserOutline outline, Object... jobData) {
+    //============================
+    //  Static Public Methods
+    //============================
+    public static Job parseRowTableOutline(TableParserOutline outline, Object... jobData) {
         Job job = null;
         int id = (Integer) jobData[0];
         String employer = (String) jobData[1];
@@ -130,6 +117,30 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
                         (String) jobData[6], (String) jobData[7]);
             }
         }
+        return job;
+    }
+
+
+    //====================
+    //  Override Methods
+    //====================
+    @Override
+    protected String setUp(Bundle savedInstanceState) {
+        setContentView(R.layout.interviews);
+        pageName = PAGE_NAME;
+        return JbmnplsHttpService.GET_LINKS.INTERVIEWS;
+    }
+
+    @Override
+    protected void defineUI(Bundle savedInstanceState) {
+        super.defineUI(savedInstanceState);
+        parser.setOnTableRowParse(this);
+        setAdapter(new InterviewsAdapter(this, android.R.id.list,
+                R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
+    }
+
+    public void onRowParse(TableParserOutline outline, Object... jobData) {
+        Job job = parseRowTableOutline(outline, jobData);
         addJob(job);
     }
 
@@ -151,7 +162,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     //===================
     //  Private Methods
     //===================
-    private Date getDateFromDateWithTimeString(Date date, String timeString,
+    private static Date getDateFromDateWithTimeString(Date date, String timeString,
             int minutesOffset) throws JbmnplsParsingException{
         Date retDate = (Date)date.clone();
         Date timeDate;

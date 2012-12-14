@@ -82,7 +82,11 @@ public class TableParser {
         html =  html.substring(thEnd, end);
 
         // Parse the table now
-        parseTable(outline, html);
+        try {
+            parseTable(outline, html);
+        } catch(NumberFormatException e) {
+            throw new JbmnplsParsingException(e.getMessage());
+        }
 
         sw.printElapsed();
     }
