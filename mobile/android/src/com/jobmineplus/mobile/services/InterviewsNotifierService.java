@@ -10,9 +10,12 @@ import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Bundle;
 import android.os.IBinder;
 
 public class InterviewsNotifierService extends Service {
@@ -28,7 +31,7 @@ public class InterviewsNotifierService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         GetInterviewsTask task = new GetInterviewsTask();
-        task.execute("");
+        task.execute(intent.getIntExtra(InterviewsAlarm.BUNDLE_TIMEOUT, 0));
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -37,17 +40,33 @@ public class InterviewsNotifierService extends Service {
         return null;
     }
 
-    private class GetInterviewsTask extends AsyncTask<String, Void, Integer>
+    private void scheduleNextAlarm(int timeoutSeconds) {
+        // Bundle the next time inside the intent
+        long triggerTime = System.currentTimeMillis() + timeoutSeconds * 1000;
+        Bundle bundle = new Bundle();
+        Intent in = new Intent(this, InterviewsAlarm.class);
+        bundle.putInt(InterviewsAlarm.BUNDLE_TIMEOUT, timeoutSeconds);
+        in.putExtra(InterviewsAlarm.BUNDLE_NAME, bundle);
+
+        // Start the next alarm
+        PendingIntent pi = PendingIntent.getBroadcast(this, 0, in, PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager am = (AlarmManager) getSystemService(ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, triggerTime, pi);
+    }
+
+    private class GetInterviewsTask extends AsyncTask<Integer, Void, Boolean>
         implements TableParser.OnTableParseListener {
         private final TableParser parser = new TableParser();
         private ArrayList<Job> pulledJobs;
+        private int nextTimeout = 0;
 
         public GetInterviewsTask() {
             parser.setOnTableRowParse(this);
         }
 
         @Override
-        protected Integer doInBackground(String... params) {
+        protected Boolean doInBackground(Integer... params) {
+            nextTimeout = params[0];
             pageSource.open();
             pulledJobs = new ArrayList<Job>();
             ArrayList<Job> newInterviews = new ArrayList<Job>();
@@ -62,13 +81,11 @@ public class InterviewsNotifierService extends Service {
                 html = service.getJobmineHtml("http://10.0.2.2:20840/test");        // Fix for debugging
 //                html = service.getJobmineHtml(JbmnplsHttpService.GET_LINKS.INTERVIEWS);        // Fix for debugging
             } catch (JbmnplsLoggedOutException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-                return 0;
+                return false;
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
-                return 0;
+                return false;
             }
 
             // Parse the html into jobs
@@ -79,7 +96,7 @@ public class InterviewsNotifierService extends Service {
                 parser.execute(Interviews.CANCELLED_OUTLINE, html);
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
-                return 0;
+                return false;
             }
             long timestamp = System.currentTimeMillis();
 
@@ -87,7 +104,7 @@ public class InterviewsNotifierService extends Service {
             if (ids != null) {
                 // Both empty
                 if (pulledJobs.isEmpty() && ids.isEmpty()) {
-                    return 0;
+                    return true;
                 }
 
                 // Parse the new interviews; remove all jobs that are already existing
@@ -101,28 +118,28 @@ public class InterviewsNotifierService extends Service {
 
                 // Same jobs as last time
                 if (newInterviews.isEmpty()) {
-                    return 0;
+                    return true;
                 }
 
                 // TODO throw notification
             }
             pageSource.addPage(Interviews.PAGE_NAME, pulledJobs, timestamp);
-            return 0;
+            return true;
         }
 
         @Override
-        protected void onPostExecute(Integer result) {
+        protected void onPostExecute(Boolean shouldScheduleAlarm) {
             pageSource.close();
-            super.onPostExecute(result);
+            if (shouldScheduleAlarm && nextTimeout != 0) {
+//                scheduleNextAlarm(nextTimeout);   // TODO should enable when not testing
+            }
+            super.onPostExecute(shouldScheduleAlarm);
         }
 
         public void onRowParse(TableParserOutline outline, Object... jobData) {
             Job job = Interviews.parseRowTableOutline(outline, jobData);
             pulledJobs.add(job);
         }
-
-
-
     }
 
     protected void log(Object... txt) {
