@@ -17,11 +17,7 @@ public class DebugApplication extends Application{
 
     private boolean internalIsOnline() {
         Date now = new Date();
-        // hehe I am in Japan :P
         int hour = now.getHours();
-        hour -= 14;
-        now.setHours(hour);
-        hour = now.getHours();
         int day = now.getDay();
         boolean isOnline = (day == 6 && hour >= ONLINE_TIME || day == 0) || (hour >= ONLINE_TIME && hour < OFFLINE_TIME);
         System.out.println("Is offline: " + (!isOnline));
