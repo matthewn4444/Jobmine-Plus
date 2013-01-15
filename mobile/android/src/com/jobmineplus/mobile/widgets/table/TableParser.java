@@ -8,7 +8,6 @@ import java.util.Locale;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.StopWatch;
 
 /**
  * For this class, you need to have one for each table you are parsing
@@ -57,8 +56,6 @@ public class TableParser {
                     "You did not attach a listener to the table parsing function.");
         }
 
-        StopWatch sw = new StopWatch(true);
-
         // Grab the table data, variations of quotes
         String tableId = outline.getTableId();
         int numOfColumns = outline.columnLength();
@@ -87,8 +84,6 @@ public class TableParser {
         } catch(NumberFormatException e) {
             throw new JbmnplsParsingException(e.getMessage());
         }
-
-        sw.printElapsed();
     }
 
     /**

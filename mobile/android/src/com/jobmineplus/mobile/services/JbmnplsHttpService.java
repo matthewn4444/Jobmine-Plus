@@ -262,13 +262,11 @@ public final class JbmnplsHttpService {
             }
 
             // Successfully logged in
-            StopWatch sw = new StopWatch(true);
             StringBuilder str = new StringBuilder();
             String line = null;
             while ((line = reader.readLine()) != null) {
                 str.append(line);
             }
-            sw.printElapsed();
             updateTimestamp();
             return str.toString();
         } catch (IOException e) {

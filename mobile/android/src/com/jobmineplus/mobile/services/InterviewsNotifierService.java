@@ -111,49 +111,50 @@ public class InterviewsNotifierService extends Service {
                 return false;
             }
 
-            // Parse the html into jobs
+            // Parse the html into jobs (except the
             try {
                 parser.execute(Interviews.INTERVIEWS_OUTLINE, html);
                 parser.execute(Interviews.GROUPS_OUTLINE, html);
                 parser.execute(Interviews.SPECIAL_OUTLINE, html);
-                parser.execute(Interviews.CANCELLED_OUTLINE, html);
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
                 return false;
             }
-            long timestamp = System.currentTimeMillis();
 
             // Parse out which are the new interviews
-            if (ids != null) {
-                // Both empty
-                if (pulledJobs.isEmpty() && ids.isEmpty()) {
-                    return true;
-                }
+            if (pulledJobs.isEmpty()) {
+                return true;
+            }
 
-                // Parse the new interviews; remove all jobs that are already existing
+            // Parse the new interviews; remove all jobs that are already existing
+            int newCount = 0;
+            if (ids != null) {
                 for (int i = 0; i < pulledJobs.size(); i++) {
                     if (!ids.contains(pulledJobs.get(i).getId())) {
-                        newInterviews.add(pulledJobs.get(i));
+                        newCount++;
                     }
                 }
-
-                // Same jobs as last time
-                if (newInterviews.isEmpty()) {
-                    return true;
-                }
-                String message = newInterviews.size() + " new interview"
-                        + (newInterviews.size()==1?"":"s");
-                showNotification("Jobmine Plus", message);
+            } else {
+                // No previous jobs
+                newCount = pulledJobs.size();
             }
-            pageSource.addPage(Interviews.PAGE_NAME, pulledJobs, timestamp);
+
+            // No new jobs
+            if (newCount == 0) {
+                return true;
+            }
+            String message = newCount + " new interview"
+                    + (newCount==1?"":"s");
+            showNotification("Jobmine Plus", message);
             return true;
         }
 
         @Override
         protected void onPostExecute(Boolean shouldScheduleAlarm) {
             pageSource.close();
+            log("finished grabbing");
             if (shouldScheduleAlarm && nextTimeout != 0) {
-//                scheduleNextAlarm(nextTimeout);   // TODO should enable when not testing
+                scheduleNextAlarm(nextTimeout);   // TODO should enable when not testing
             }
             super.onPostExecute(shouldScheduleAlarm);
         }

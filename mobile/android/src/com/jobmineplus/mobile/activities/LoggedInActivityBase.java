@@ -7,7 +7,7 @@ import com.jobmineplus.mobile.services.InterviewsAlarm;
 public abstract class LoggedInActivityBase extends SimpleActivityBase {
     protected static InterviewsAlarm interviewsAlarm = null;
 
-    protected static final int INTERVIEWS_ALARM_TIMEOUT = 4;
+    protected static final int INTERVIEWS_ALARM_TIMEOUT = 10;
 
     @Override
     protected void onCreate(Bundle arg0) {
