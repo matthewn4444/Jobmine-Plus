@@ -2,6 +2,8 @@ package com.jobmineplus.mobile.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
+import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
@@ -11,8 +13,11 @@ import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
 import android.app.AlarmManager;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +27,9 @@ public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
     private final JbmnplsHttpService service = JbmnplsHttpService.getInstance();
 
+    private final int INTERVIEW_NOTIFICATION_ID = 1;
+
+    private Notification notification;
 
     @Override
     public void onCreate() {
@@ -54,6 +62,22 @@ public class InterviewsNotifierService extends Service {
         am.set(AlarmManager.RTC_WAKEUP, triggerTime, pi);
     }
 
+    private void showNotification(String title, String content) {
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notification == null) {
+            notification = new Notification(R.drawable.ic_launcher,
+                    getString(R.string.interviews_ticket_text), System.currentTimeMillis());
+        } else {
+            notification.when = System.currentTimeMillis();
+        }
+        Intent resultIntent = new Intent(this, Interviews.class);
+        PendingIntent pin = PendingIntent.getActivity(this, 0, resultIntent, 0);
+        notification.setLatestEventInfo(this, title, content, pin);
+        mNotificationManager.notify(INTERVIEW_NOTIFICATION_ID, notification);
+        log("Sent");
+    }
+
     private class GetInterviewsTask extends AsyncTask<Integer, Void, Boolean>
         implements TableParser.OnTableParseListener {
         private final TableParser parser = new TableParser();
@@ -70,7 +94,6 @@ public class InterviewsNotifierService extends Service {
             pageSource.open();
             pulledJobs = new ArrayList<Job>();
             ArrayList<Job> newInterviews = new ArrayList<Job>();
-
             // Get interviews data from the database
             ArrayList<Integer> ids = pageSource.getJobsIds(Interviews.PAGE_NAME);
 
@@ -78,7 +101,7 @@ public class InterviewsNotifierService extends Service {
             String html;
             try {
 //                html = service.getJobmineHtml(DebugInterviews.FAKE_INTERVIEWS);        // Fix for debugging
-                html = service.getJobmineHtml("http://10.0.2.2:20840/test");        // Fix for debugging
+                html = service.getJobmineHtml("http://10.0.2.2/test/Interviews.html");        // Fix for debugging
 //                html = service.getJobmineHtml(JbmnplsHttpService.GET_LINKS.INTERVIEWS);        // Fix for debugging
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
@@ -114,14 +137,13 @@ public class InterviewsNotifierService extends Service {
                     }
                 }
 
-                log(newInterviews.size() + " of new items");
-
                 // Same jobs as last time
                 if (newInterviews.isEmpty()) {
                     return true;
                 }
-
-                // TODO throw notification
+                String message = newInterviews.size() + " new interview"
+                        + (newInterviews.size()==1?"":"s");
+                showNotification("Jobmine Plus", message);
             }
             pageSource.addPage(Interviews.PAGE_NAME, pulledJobs, timestamp);
             return true;

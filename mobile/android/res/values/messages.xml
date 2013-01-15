@@ -8,4 +8,5 @@
         <string name="hidden_column_message">Jobmine Plus cannot display data because you have hidden columns. Please go to the Jobmine website and show all columns you have hid under customize.</string>
         <string name="parsing_error_message">This page is incompatible with the current site. Please report it to jobmineplus@gmail.com.</string>
         <string name="network_error">There was an error getting the webpage. Please try again.</string>
+        <string name="interviews_ticket_text">You have a new interview!</string>
     </resources>
