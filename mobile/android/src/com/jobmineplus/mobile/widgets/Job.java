@@ -305,6 +305,7 @@ public class Job {
     static public enum STATUS {
         APPLY("Apply", 3),
         APPLIED("Applied", 3),
+        NOT_POSTED("Not Posted", 2),
         ALREADY_APPLIED("Already Applied", 3),
         CANNOT_APPLY("Not Authorized to Apply", 8),
         NOT_SELECTED("Not Selected", 10),

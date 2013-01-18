@@ -82,7 +82,7 @@ public final class PageDataSource extends DataSourceBase{
         if (username == "") { return null; }
 
         Cursor cursor = database.rawQuery(String.format(
-                "select * from %s where %s='%s' and %s='%s'",
+                "select " + PageTable.COLUMN_JOBLIST + " from %s where %s='%s' and %s='%s'",
                 PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
                 PageTable.COLUMN_USERNAME, username), null);
         if (cursor != null) {
@@ -93,7 +93,7 @@ public final class PageDataSource extends DataSourceBase{
             return null;
         }
 
-        String[] idStrings = cursor.getString(3).split(",");
+        String[] idStrings = cursor.getString(0).split(",");
         ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
         for (int i = 0; i < idStrings.length; i++) {
             ids.add(Integer.parseInt(idStrings[i]));
@@ -107,7 +107,7 @@ public final class PageDataSource extends DataSourceBase{
         if (username == "") { return null; }
 
         Cursor cursor = database.rawQuery(String.format(
-                "select * from %s where %s='%s' and %s='%s'",
+                "select " + PageTable.COLUMN_JOBLIST + " from %s where %s='%s' and %s='%s'",
                 PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
                 PageTable.COLUMN_USERNAME, username), null);
         if (cursor != null) {
@@ -117,7 +117,7 @@ public final class PageDataSource extends DataSourceBase{
             return null;
         }
 
-        String tabt = cursor.getString(3);
+        String tabt = cursor.getString(0);
         String[] tabString = tabt.split("\\|");
 
         HashMap<String, ArrayList<Integer>> jobMap = new HashMap<String, ArrayList<Integer>>();

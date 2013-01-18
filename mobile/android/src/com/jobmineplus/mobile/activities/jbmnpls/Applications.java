@@ -23,6 +23,8 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     //======================
     //  Declaration Objects
     //======================
+    public final static String PAGE_NAME = Applications.class.getName();
+
     private final static class LISTS {
         final public static String ALL_JOBS = "all";
         final public static String ACTIVE_JOBS = "active";
