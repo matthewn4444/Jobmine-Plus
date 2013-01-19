@@ -38,7 +38,7 @@ public final class PageDataSource extends DataSourceBase{
             return;
         }
         String username = service.getUsername();
-        if (username == "") { return; }
+        if (username == null) { return; }
 
         // Make list of jobs as string, remove last comma
         StringBuilder sb = new StringBuilder();
@@ -56,7 +56,7 @@ public final class PageDataSource extends DataSourceBase{
             return;
         }
         String username = service.getUsername();
-        if (username == "") { return; }
+        if (username == null) { return; }
 
         // Build the string
         StringBuilder sb = new StringBuilder();
@@ -78,20 +78,8 @@ public final class PageDataSource extends DataSourceBase{
      * @return list of ids, null if empty
      */
     public synchronized ArrayList<Integer> getJobsIds(String pagename) {
-        String username = service.getUsername();
-        if (username == "") { return null; }
-
-        Cursor cursor = database.rawQuery(String.format(
-                "select " + PageTable.COLUMN_JOBLIST + " from %s where %s='%s' and %s='%s'",
-                PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
-                PageTable.COLUMN_USERNAME, username), null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-        }
-        if (cursor.isAfterLast()) {
-            cursor.close();
-            return null;
-        }
+        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
+        if (cursor == null) { return null; }
 
         String[] idStrings = cursor.getString(0).split(",");
         ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
@@ -103,19 +91,8 @@ public final class PageDataSource extends DataSourceBase{
     }
 
     public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String pagename) {
-        String username = service.getUsername();
-        if (username == "") { return null; }
-
-        Cursor cursor = database.rawQuery(String.format(
-                "select " + PageTable.COLUMN_JOBLIST + " from %s where %s='%s' and %s='%s'",
-                PageTable.TABLE_PAGE, PageTable.COLUMN_PAGENAME, pagename,
-                PageTable.COLUMN_USERNAME, username), null);
-        if (cursor != null) {
-            cursor.moveToFirst();
-        }
-        if (cursor.isAfterLast()) {
-            return null;
-        }
+        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
+        if (cursor == null) { return null; }
 
         String tabt = cursor.getString(0);
         String[] tabString = tabt.split("\\|");
@@ -137,6 +114,35 @@ public final class PageDataSource extends DataSourceBase{
         }
         cursor.close();
         return jobMap;
+    }
+
+    private Cursor getCursorFromPage(String pagename, String... columns) {
+        String username = service.getUsername();
+        if (username == null) { return null; }
+
+        // Build query
+        StringBuilder sb = new StringBuilder();
+        sb.append("select ");
+        for (String column : columns) {
+            sb.append(column).append(',');
+        }
+        sb.deleteCharAt(sb.length() - 1);       // Remove last comma
+
+        // select <columns> from <table> where pageCol='page' and userCol='username'
+        sb.append(" from ").append(PageTable.TABLE_PAGE).append(' ')
+        .append(" where ").append(PageTable.COLUMN_PAGENAME).append("='")
+        .append(pagename).append("' and ").append(PageTable.COLUMN_USERNAME)
+        .append("='").append(username).append('\'');
+
+        // Run query
+        Cursor cursor = database.rawQuery(sb.toString(), null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        }
+        if (cursor.isAfterLast()) {
+            return null;
+        }
+        return cursor;
     }
 
     private void internalAddPage(String username, String pagename,

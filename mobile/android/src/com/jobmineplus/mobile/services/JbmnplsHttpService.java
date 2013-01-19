@@ -121,10 +121,16 @@ public final class JbmnplsHttpService {
     }
 
     public synchronized String getUsername() {
+        if (username == "") {
+            return null;
+        }
         return username;
     }
 
     public synchronized String getPassword() {
+        if (password == "") {
+            return null;
+        }
         return password;
     }
 
