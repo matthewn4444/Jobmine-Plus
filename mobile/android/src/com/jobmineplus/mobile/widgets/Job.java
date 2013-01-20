@@ -307,6 +307,7 @@ public class Job {
         APPLIED("Applied", 3),
         NOT_POSTED("Not Posted", 2),
         ALREADY_APPLIED("Already Applied", 3),
+        NO_RESUME("No Resumes Available", 2),
         CANNOT_APPLY("Not Authorized to Apply", 8),
         NOT_SELECTED("Not Selected", 10),
         EMPLOYED("Employed", 11),
