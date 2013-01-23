@@ -257,7 +257,7 @@ public class Job {
 
     static public enum STATE {
         CANCELLED("Cancelled", 9),
-        AVAILABLE("Applications Avaliable", 2),
+        AVAILABLE("Applications Available", 2),
         FILLED("Filled", 6),
         POSTED("Posted", 1),
         SCREENED("Screened", 4),
