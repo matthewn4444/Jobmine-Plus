@@ -131,10 +131,13 @@ public final class JobDataSource extends DataSourceBase {
         SparseArray<Job> jobs = new SparseArray<Job>();
         StringBuilder sb = new StringBuilder();
         for (String tag : idMap.keySet()) {
-            for (int id : idMap.get(tag)) {
-                if (jobs.indexOfKey(id) < 0) {
-                    jobs.put(id, null);
-                    sb.append(id).append(',');
+           ArrayList<Integer> ids = idMap.get(tag);
+            if (ids != null && !ids.isEmpty()) {
+                for (int id : ids) {
+                    if (jobs.indexOfKey(id) < 0) {
+                        jobs.put(id, null);
+                        sb.append(id).append(',');
+                    }
                 }
             }
         }
@@ -157,8 +160,11 @@ public final class JobDataSource extends DataSourceBase {
         // Finally build the map
         for (String tag : idMap.keySet()) {
             ArrayList<Job> list = new ArrayList<Job>();
-            for (int id : idMap.get(tag)) {
-                list.add(jobs.get(id));
+            ArrayList<Integer> ids = idMap.get(tag);
+            if (ids != null && !ids.isEmpty()) {
+                for (int id : ids) {
+                    list.add(jobs.get(id));
+                }
             }
             jobTabs.put(tag, list);
         }

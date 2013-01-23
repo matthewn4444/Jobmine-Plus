@@ -34,27 +34,26 @@ public final class PageDataSource extends DataSourceBase{
 
     public synchronized void addPage(String pagename, ArrayList<Job> jobs,
             long timestamp) {
-        if (jobs.isEmpty()) {
-            return;
-        }
         String username = service.getUsername();
         if (username == null) { return; }
 
-        // Make list of jobs as string, remove last comma
-        StringBuilder sb = new StringBuilder();
-        for (Job job : jobs) {
-            sb.append(job.getId()).append(',');
+        String joblist = "";
+        if (!jobs.isEmpty()) {
+            // Make list of jobs as string, remove last comma
+            StringBuilder sb = new StringBuilder();
+            for (Job job : jobs) {
+                sb.append(job.getId()).append(',');
+            }
+            if (sb.charAt(sb.length() - 1) == ',') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            joblist = sb.toString();
         }
-        sb.deleteCharAt(sb.length() - 1);
-
-        internalAddPage(username, pagename, sb.toString(), timestamp);
+        internalAddPage(username, pagename, joblist, timestamp);
     }
 
     public synchronized void addPage(String pagename, HashMap<String, ArrayList<Job>> jobMap,
             long timestamp) {
-        if (jobMap.isEmpty()) {
-            return;
-        }
         String username = service.getUsername();
         if (username == null) { return; }
 
@@ -66,7 +65,10 @@ public final class PageDataSource extends DataSourceBase{
             for (Job job : jobs) {
                 sb.append(job.getId()).append(',');
             }
-            sb.deleteCharAt(sb.length() - 1).append('|');
+            if (sb.charAt(sb.length() - 1) == ',') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            sb.append('|');
         }
         sb.deleteCharAt(sb.length() - 1);
         internalAddPage(username, pagename, sb.toString(), timestamp);
@@ -80,8 +82,39 @@ public final class PageDataSource extends DataSourceBase{
     public synchronized ArrayList<Integer> getJobsIds(String pagename) {
         Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
         if (cursor == null) { return null; }
+        return cursorToJobIds(cursor);
+    }
 
-        String[] idStrings = cursor.getString(0).split(",");
+    public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String pagename) {
+        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
+        if (cursor == null) { return null; }
+        return cursorToJobsMap(cursor);
+    }
+
+    public synchronized PageResult getPageData(String pagename) {
+        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST, PageTable.COLUMN_TIME);
+        if (cursor == null) { return null; }
+
+        long time = cursor.getLong(1);
+        return new PageResult(cursorToJobIds(cursor), time);
+    }
+
+    public synchronized PageMapResult getPageDataMap(String pagename) {
+        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST, PageTable.COLUMN_TIME);
+        if (cursor == null) { return null; }
+
+        long time = cursor.getLong(1);
+        log(time);
+        return new PageMapResult(cursorToJobsMap(cursor), time);
+    }
+
+    public synchronized ArrayList<Integer> cursorToJobIds(Cursor cursor) {
+        String retStr = cursor.getString(0);
+        if (retStr.length() == 0) {
+            cursor.close();
+            return null;
+        }
+        String[] idStrings = retStr.split(",");
         ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
         for (int i = 0; i < idStrings.length; i++) {
             ids.add(Integer.parseInt(idStrings[i]));
@@ -90,10 +123,7 @@ public final class PageDataSource extends DataSourceBase{
         return ids;
     }
 
-    public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String pagename) {
-        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
-        if (cursor == null) { return null; }
-
+    private HashMap<String, ArrayList<Integer>> cursorToJobsMap(Cursor cursor) {
         String tabt = cursor.getString(0);
         String[] tabString = tabt.split("\\|");
 
@@ -105,7 +135,12 @@ public final class PageDataSource extends DataSourceBase{
                 continue;
             }
             String tag = str.substring(0, colonPos);
-            String[] idStrings = str.substring(colonPos + 1).split(",");
+            String retStr = str.substring(colonPos + 1);
+            if (retStr.length() == 0) {
+                jobMap.put(tag, null);
+                continue;
+            }
+            String[] idStrings = retStr.split(",");
             ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
             for (int i = 0; i < idStrings.length; i++) {
                 ids.add(Integer.parseInt(idStrings[i]));
