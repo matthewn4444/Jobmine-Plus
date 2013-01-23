@@ -123,7 +123,12 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
 
     protected boolean listContainsId(String tag, int id) {
         ArrayList<Job> theList = lists.get(tag);
-        return theList.contains(id);
+        for (Job job: theList) {
+            if (job.getId() == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     protected boolean isListEmpty(String tag) {
