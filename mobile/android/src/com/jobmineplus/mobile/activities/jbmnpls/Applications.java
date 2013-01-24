@@ -25,7 +25,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     //======================
     public final static String PAGE_NAME = Applications.class.getName();
 
-    private final static class LISTS {
+    public final static class LISTS {
         final public static String ALL_JOBS = "all";
         final public static String ACTIVE_JOBS = "active";
         final public static String REJECTED_JOBS = "rejected";
@@ -54,6 +54,19 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     protected static final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
             R.id.job_status,R.id.job_last_day, R.id.job_apps };
+
+    //============================
+    //  Static Public Methods
+    //============================
+    public static Job parseRowTableOutline(TableParserOutline outline, Object... jobData) {
+        Job.STATUS status = (Job.STATUS)jobData[5];
+        int id = (Integer) jobData[0];
+        //Applications constructor
+        return new Job(          id, (String)    jobData[1],
+                (String)    jobData[2], (String)    jobData[3],
+                (Job.STATE) jobData[4],                 status,
+                (Date)      jobData[6], (Integer)   jobData[7]);
+    }
 
     //====================
     //  Override Methods
@@ -88,13 +101,8 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     }
 
     public void onRowParse(TableParserOutline outline, Object... jobData) {
-        Job.STATUS status = (Job.STATUS)jobData[5];
-        int id = (Integer) jobData[0];
-        //Applications constructor
-        Job job = new Job(          id, (String)    jobData[1],
-                (String)    jobData[2], (String)    jobData[3],
-                (Job.STATE) jobData[4],                 status,
-                (Date)      jobData[6], (Integer)   jobData[7]);
+        Job job = parseRowTableOutline(outline, jobData);
+        Job.STATUS status = job.getStatus();
 
         if (outline.equals(ALL_OUTLINE)) {
             if (status == Job.STATUS.EMPLOYED) {
@@ -102,7 +110,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
             } else {
                 //  If this job id is not contained inside Active, then we can
                 //  put it in rejected
-                if (!listContainsId(LISTS.ACTIVE_JOBS, id)) {
+                if (!listContainsId(LISTS.ACTIVE_JOBS, job.getId())) {
                     addJobToListByTabId(LISTS.REJECTED_JOBS, job);
                 }
             }
@@ -111,6 +119,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
         } else {
             addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
         }
+        addJob(job);
     }
 
     @Override

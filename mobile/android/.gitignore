@@ -27,3 +27,4 @@ local.properties
 #Ignored personal files
 hidden_strings.xml
 lint.xml
+~$*
