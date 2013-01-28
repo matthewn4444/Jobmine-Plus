@@ -312,6 +312,7 @@ public class Job {
         NOT_SELECTED("Not Selected", 10),
         EMPLOYED("Employed", 11),
         SELECTED("Selected", 10),
+        SCHEDULED("Scheduled", 10),
         ALTERNATE("Alternate", 5),
         BLANK("", 0);
 
