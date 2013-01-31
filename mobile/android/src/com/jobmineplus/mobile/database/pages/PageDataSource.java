@@ -175,6 +175,7 @@ public final class PageDataSource extends DataSourceBase{
             cursor.moveToFirst();
         }
         if (cursor.isAfterLast()) {
+            cursor.close();
             return null;
         }
         return cursor;
