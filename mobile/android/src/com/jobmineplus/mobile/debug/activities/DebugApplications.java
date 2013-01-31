@@ -18,8 +18,8 @@ public class DebugApplications extends Applications implements Debuggable {
 
     private DebugApplication app;
 
-    public static final String FAKE_APPLICATIONS =
-            "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
+    public static final String FAKE_APPLICATIONS = "http://10.0.2.2:1111/applications/";
+        // "http://eatthis.iblogger.org/jobmineplusmobile/Applications.html";
 
     @Override
     protected String setUp(Bundle savedInstanceState) {

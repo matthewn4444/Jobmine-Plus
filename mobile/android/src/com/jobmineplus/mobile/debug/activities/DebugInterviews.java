@@ -16,8 +16,8 @@ import com.jobmineplus.mobile.debug.DebugLoginActivity;
 public class DebugInterviews extends Interviews{
     private DebugApplication app;
 
-    public static final String FAKE_INTERVIEWS =
-            "http://eatthis.iblogger.org/jobmineplusmobile/Interviews.html";
+    public static final String FAKE_INTERVIEWS = "http://10.0.2.2:1111/interviews/";
+        //"http://eatthis.iblogger.org/jobmineplusmobile/Interviews.html"
 
     @Override
     protected String setUp(Bundle savedInstanceState) {
