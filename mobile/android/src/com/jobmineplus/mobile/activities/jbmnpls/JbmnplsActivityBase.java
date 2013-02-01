@@ -207,7 +207,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // =================
 
     protected void jobsToDatabase() {
-        if (IS_ONLINE_MODE) {
+        if (isOnline()) {
             databaseTask.executePut();
         }
     }
@@ -247,7 +247,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             throw new RuntimeException(
                     "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
-        if (IS_ONLINE_MODE) {
+        if (isOnline()) {
             task = new GetHtmlTask(this, LOADING_MESSAGE);
             task.execute(dataUrl);
         } else {
@@ -284,7 +284,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         protected Activity a;
 
         public GetHtmlTask(Activity activity, String dialogueMessage) {
-            super(activity, dialogueMessage, IS_ONLINE_MODE);
+            super(activity, dialogueMessage, isOnline());
             a = activity;
         }
 

@@ -16,7 +16,6 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
                 if (interviewsAlarm == null) {
                     interviewsAlarm = new InterviewsAlarm(this, arg0);
 
-                    // TODO: Get the applications from db and see if we need to crawl
                     // Make sure there is at least one active app with no employed included
                     interviewsAlarm.scheduleNextAlarm(INTERVIEWS_ALARM_TIMEOUT);
                 }

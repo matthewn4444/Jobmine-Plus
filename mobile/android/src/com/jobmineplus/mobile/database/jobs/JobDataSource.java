@@ -222,7 +222,6 @@ public final class JobDataSource extends DataSourceBase {
         int jobId = job.getId();
         ContentValues values = new ContentValues();
 
-        // TODO fix this up and match the job merge function
         Date lastDateToApply = job.getLastDateToApply();
         long lastDateTimestamp = lastDateToApply == null ? 0 : lastDateToApply.getTime();
         Date openDateToApply = job.getOpenDateToApply();

@@ -8,7 +8,19 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 public abstract class SimpleActivityBase extends FragmentActivity {
-    protected static boolean IS_ONLINE_MODE = true;
+    private static boolean isOnlineMode = true;
+
+    synchronized protected void setOnlineMode(boolean flag) {
+        isOnlineMode = flag;
+        onlineModeChanged(flag);
+    }
+
+    protected boolean isOnline() {
+        return isOnlineMode;
+    }
+
+    // Override this function to detect online status change, call super as well
+    protected void onlineModeChanged(boolean isOnline){}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -20,7 +32,7 @@ public abstract class SimpleActivityBase extends FragmentActivity {
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         MenuItem item = menu.findItem(R.id.menuitem_online_mode);
-        if (IS_ONLINE_MODE) {
+        if (isOnline()) {
             item.setTitle("Go Offline");
         } else {
             item.setTitle("Go Online");
@@ -33,7 +45,7 @@ public abstract class SimpleActivityBase extends FragmentActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menuitem_online_mode:
-                IS_ONLINE_MODE = !IS_ONLINE_MODE;
+                setOnlineMode(!isOnlineMode);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

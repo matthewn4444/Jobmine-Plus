@@ -83,7 +83,7 @@ public class DebugShortlist extends Shortlist{
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menuitem_online_mode:
-                IS_ONLINE_MODE = !IS_ONLINE_MODE;
+                setOnlineMode(!isOnline());
                 return true;
             case R.id.menuitem_real_site:
                 app.toggleOnline();

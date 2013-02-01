@@ -106,7 +106,7 @@ public class DebugDescription extends Description {
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.menuitem_online_mode:
-                IS_ONLINE_MODE = !IS_ONLINE_MODE;
+                setOnlineMode(!isOnline());
                 return true;
             case R.id.menuitem_real_site:
                 app.toggleOnline();

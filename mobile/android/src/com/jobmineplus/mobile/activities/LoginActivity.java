@@ -101,7 +101,7 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
 
     protected void doLogin(String username, String password) {
         sw = new StopWatch(true);
-        if (IS_ONLINE_MODE) {
+        if (isOnline()) {
             new AsyncLoginTask(this).execute(username, password);
         } else {
             log("offline login");

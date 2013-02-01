@@ -174,7 +174,6 @@ public class InterviewsNotifierService extends Service {
             }
         }
 
-        // TODO check if this if statement works with all cases
         private int checkApplications() throws JbmnplsLoggedOutException, IOException {
             PageMapResult result = pageSource.getPageDataMap(Applications.PAGE_NAME);
 
@@ -308,7 +307,7 @@ public class InterviewsNotifierService extends Service {
             pageSource.close();
             jobSource.close();
             if (shouldScheduleAlarm && nextTimeout != 0) {
-                scheduleNextAlarm(nextTimeout);   // TODO should enable when not testing
+                scheduleNextAlarm(nextTimeout);
             }
             super.onPostExecute(shouldScheduleAlarm);
         }
