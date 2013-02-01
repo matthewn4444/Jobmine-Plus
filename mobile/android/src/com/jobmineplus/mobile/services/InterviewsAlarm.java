@@ -73,6 +73,7 @@ public class InterviewsAlarm extends BroadcastReceiver {
         Toast.makeText(context, "Alarm went off", Toast.LENGTH_SHORT).show();
 
         // Start the next timeout
+        // TODO remove below and get the default timeout via settings
         int nextTimeout = intent.getBundleExtra(BUNDLE_NAME).getInt(BUNDLE_TIMEOUT);
         if (nextTimeout == 0) {
             nextTimeout = DEFAULT_TIMEOUT;
@@ -82,6 +83,6 @@ public class InterviewsAlarm extends BroadcastReceiver {
         Intent interviewsService = new Intent(context,
                 InterviewsNotifierService.class);
         interviewsService.putExtra(BUNDLE_TIMEOUT, nextTimeout);
-        context.startService(interviewsService);
+        context.startService(interviewsService);        // TODO try catch here
     }
 }
