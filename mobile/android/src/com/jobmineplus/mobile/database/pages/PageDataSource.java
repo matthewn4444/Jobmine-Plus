@@ -104,7 +104,6 @@ public final class PageDataSource extends DataSourceBase{
         if (cursor == null) { return null; }
 
         long time = cursor.getLong(1);
-        log(time);
         return new PageMapResult(cursorToJobsMap(cursor), time);
     }
 

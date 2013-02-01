@@ -2,6 +2,7 @@ package com.jobmineplus.mobile.services;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import com.jobmineplus.mobile.R;
@@ -69,11 +70,29 @@ public class InterviewsNotifierService extends Service {
         return null;
     }
 
-    private void scheduleNextAlarm(int timeoutSeconds) {
-        // TODO check if timeout appears in offline time, if so, then move to next day
+    private long validateScheduleTime(long timestamp) {
+        // This is the next scheduled time
+        Calendar nextTime = Calendar.getInstance();
+        nextTime.setTimeInMillis(timestamp);
 
+        // Only apply next day if the time is during 12am->9am or if the day is not Sunday or Monday
+        int day = nextTime.get(Calendar.DAY_OF_WEEK);
+        int hour = nextTime.get(Calendar.HOUR_OF_DAY);
+        if (day != Calendar.MONDAY && day != Calendar.SUNDAY && hour < 9) {
+            // Return tomorrow at 9am for the next schedule
+            Calendar nextDay = Calendar.getInstance();
+            nextDay.add(Calendar.DAY_OF_MONTH, 1);
+            nextDay.set(Calendar.HOUR_OF_DAY, 9);
+            nextDay.set(Calendar.MINUTE, 0);
+            return nextDay.getTimeInMillis();
+        }
+        return timestamp;
+    }
+
+    private void scheduleNextAlarm(int timeoutSeconds) {
         // Bundle the next time inside the intent
-        long triggerTime = System.currentTimeMillis() + timeoutSeconds * 1000;
+        long now = System.currentTimeMillis();
+        long triggerTime = validateScheduleTime(now + timeoutSeconds * 1000);
 
         // Pass back the original timeout
         Bundle bundle = new Bundle();
@@ -132,7 +151,7 @@ public class InterviewsNotifierService extends Service {
                     result = checkApplications();
                 } catch (JbmnplsLoggedOutException e) {
                     e.printStackTrace();
-                    return false;
+                    return true;
                 } catch (IOException e) {
                     e.printStackTrace();
                     return false;

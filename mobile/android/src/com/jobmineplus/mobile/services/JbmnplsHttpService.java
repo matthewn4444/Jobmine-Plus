@@ -146,7 +146,6 @@ public final class JbmnplsHttpService {
     public boolean verifyLogin() {
         if (!isLoggedIn()) {
             for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-                System.out.println("Login attempt: " + i);
                 JbmnplsHttpService.LOGGED result = login();
                 if (result == JbmnplsHttpService.LOGGED.IN) {
                     return true;
@@ -237,7 +236,6 @@ public final class JbmnplsHttpService {
             // Attempt 3 times if logged out
             boolean loggedIn = false;
             for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
-                System.out.println("login attempt " + i);
                 if (in != null) {
                     in.close();
                     in = null;
