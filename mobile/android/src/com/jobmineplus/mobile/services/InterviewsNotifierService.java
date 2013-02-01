@@ -38,6 +38,7 @@ public class InterviewsNotifierService extends Service {
     private final JbmnplsHttpService service = JbmnplsHttpService.getInstance();
     ConnectivityManager connManager;
     NotificationManager mNotificationManager;
+
     // Nofication values
     private final int INTERVIEW_NOTIFICATION_ID = 1;
     private Notification notification;
@@ -45,6 +46,8 @@ public class InterviewsNotifierService extends Service {
     // Time constants
     public final int CRAWL_APPLICATIONS_TIMEOUT = 3 * 60 * 60;  // 3 hours
     public final int NO_DATA_RESCHEDULE_TIME    = 5 * 60 * 60;  // 5 hours
+
+    private int originalTimeout;
 
     @Override
     public void onCreate() {
@@ -56,7 +59,8 @@ public class InterviewsNotifierService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         GetInterviewsTask task = new GetInterviewsTask();
-        task.execute(intent.getIntExtra(InterviewsAlarm.BUNDLE_TIMEOUT, 0));
+        originalTimeout = intent.getIntExtra(InterviewsAlarm.BUNDLE_TIMEOUT, 0);
+        task.execute(originalTimeout);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -71,10 +75,10 @@ public class InterviewsNotifierService extends Service {
         // Bundle the next time inside the intent
         long triggerTime = System.currentTimeMillis() + timeoutSeconds * 1000;
 
-        // TODO remove the bundling of timeout
+        // Pass back the original timeout
         Bundle bundle = new Bundle();
         Intent in = new Intent(this, InterviewsAlarm.class);
-        bundle.putInt(InterviewsAlarm.BUNDLE_TIMEOUT, timeoutSeconds);
+        bundle.putInt(InterviewsAlarm.BUNDLE_TIMEOUT, originalTimeout);
         in.putExtra(InterviewsAlarm.BUNDLE_NAME, bundle);
 
         // Start the next alarm

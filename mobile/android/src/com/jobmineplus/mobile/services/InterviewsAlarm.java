@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 public class InterviewsAlarm extends BroadcastReceiver {
     private final int SEC_TO_MILLISEC = 1000;
-    private final int DEFAULT_TIMEOUT = 10;
+    private final int MINIMUM_TIMEOUT = 10;
     public static final String BUNDLE_TIMEOUT = "InterviewAlarm.timeout";
     public static final String BUNDLE_NAME = "InterviewAlarm.bundle";
 
@@ -72,11 +72,10 @@ public class InterviewsAlarm extends BroadcastReceiver {
         ctx = context;
         Toast.makeText(context, "Alarm went off", Toast.LENGTH_SHORT).show();
 
-        // Start the next timeout
-        // TODO remove below and get the default timeout via settings
+        // Get the stored timeout
         int nextTimeout = intent.getBundleExtra(BUNDLE_NAME).getInt(BUNDLE_TIMEOUT);
         if (nextTimeout == 0) {
-            nextTimeout = DEFAULT_TIMEOUT;
+            nextTimeout = MINIMUM_TIMEOUT;
         }
 
         // Start the service
