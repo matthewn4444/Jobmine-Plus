@@ -26,6 +26,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,7 +36,8 @@ public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
     private final JobDataSource jobSource = new JobDataSource(this);
     private final JbmnplsHttpService service = JbmnplsHttpService.getInstance();
-
+    ConnectivityManager connManager;
+    NotificationManager mNotificationManager;
     // Nofication values
     private final int INTERVIEW_NOTIFICATION_ID = 1;
     private Notification notification;
@@ -46,6 +49,8 @@ public class InterviewsNotifierService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -79,8 +84,6 @@ public class InterviewsNotifierService extends Service {
     }
 
     private void showNotification(String title, String content) {
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         if (notification == null) {
             notification = new Notification(R.drawable.ic_launcher,
                     getString(R.string.interviews_ticket_text), System.currentTimeMillis());
@@ -115,29 +118,36 @@ public class InterviewsNotifierService extends Service {
             pageSource.open();
             jobSource.open();
 
-            // TODO check wifi
-
-            // Check the applications to then see if we need to crawl interviews
-            int result = NO_SCHEDULE;
-            try {
-                result = checkApplications();
-            } catch (JbmnplsLoggedOutException e) {
-                e.printStackTrace();
-                return false;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return false;
-            }
-
-            // Parse the results
-            if (result == NO_SCHEDULE) {
-                return false;
-            } else {
-                if (result == DO_SCHEDULE) {
-                    return crawlInterviews();
-                } else {    // Do not run interviews but will schedule
-                    return true;
+            // Check wifi and data
+            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            if (mWifi.isConnected() || mMobile.isConnected()) {
+                // Check the applications to then see if we need to crawl interviews
+                int result = NO_SCHEDULE;
+                try {
+                    result = checkApplications();
+                } catch (JbmnplsLoggedOutException e) {
+                    e.printStackTrace();
+                    return false;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return false;
                 }
+
+                // Parse the results
+                if (result == NO_SCHEDULE) {
+                    return false;
+                } else {
+                    if (result == DO_SCHEDULE) {
+                        return crawlInterviews();
+                    } else {    // Do not run interviews but will schedule
+                        return true;
+                    }
+                }
+            } else {
+                // Try again later
+                log("No wifi, try later");
+                return true;
             }
         }
 
@@ -170,9 +180,11 @@ public class InterviewsNotifierService extends Service {
             if (activeList == null) {
                 // Both lists are empty so we don't do anything or schedule anything
                 if (allList == null) {
+                    log("nothing");
                     return NO_SCHEDULE;
                 } else {
                     // No active apps and now we reschedule at a later time
+                    log("not now");
                     nextTimeout = NO_DATA_RESCHEDULE_TIME;
                     return DO_SCHEDULE_NO_INTERVIEW;
                 }
@@ -182,9 +194,11 @@ public class InterviewsNotifierService extends Service {
                 for (Job j : jobs) {
                     if (j.getStatus() == Job.STATUS.EMPLOYED) {
                         // We are employed, no need to check interviews at all
+                        log("already employed");
                         return NO_SCHEDULE;
                     }
                 }
+                log("continuing");
                 return DO_SCHEDULE;
             }
         }
@@ -208,69 +222,68 @@ public class InterviewsNotifierService extends Service {
 
         private Boolean crawlInterviews() {
             // Get interviews data from the database
-               ArrayList<Integer> ids = pageSource.getJobsIds(Interviews.PAGE_NAME);
-               pulledJobs = new ArrayList<Job>();
+           ArrayList<Integer> ids = pageSource.getJobsIds(Interviews.PAGE_NAME);
+           pulledJobs = new ArrayList<Job>();
 
-               // Pull the interview data off the website
-               String html;
-               try {
-                   html = service.getJobmineHtml(DebugInterviews.FAKE_INTERVIEWS);        // Fix for debugging
-//                   html = service.getJobmineHtml("http://10.0.2.2/test/Interviews.html");        // Fix for debugging
+           // Pull the interview data off the website
+           String html;
+           try {
+               html = service.getJobmineHtml(DebugInterviews.FAKE_INTERVIEWS);
 //                   html = service.getJobmineHtml(JbmnplsHttpService.GET_LINKS.INTERVIEWS);        // Fix for debugging
-               } catch (JbmnplsLoggedOutException e) {
-                   e.printStackTrace();
-                   return false;
-               } catch (IOException e) {
-                   e.printStackTrace();
-                   return false;
-               }
-
-               // Parse the html into jobs (except the canncelled jobs)
-               try {
-                   parser.execute(Interviews.INTERVIEWS_OUTLINE, html);
-                   parser.execute(Interviews.GROUPS_OUTLINE, html);
-                   parser.execute(Interviews.SPECIAL_OUTLINE, html);
-               } catch (JbmnplsParsingException e) {
-                   e.printStackTrace();
-                   return false;
-               }
-
-               // Check to see if this is first time checking interviews on device
-               if (ids == null) {
-                   // First time getting interviews, so we need to add it to the database
-                   jobSource.addJobs(pulledJobs);
-                   pageSource.addPage(Interviews.PAGE_NAME, pulledJobs, System.currentTimeMillis());
-               } else {
-                   // Parse out which are the new interviews
-                   if (pulledJobs.isEmpty()) {
-                       return true;
-                   }
-
-                   // Parse the new interviews; remove all jobs that are already existing
-                   int newCount = 0;
-                   for (int i = 0; i < pulledJobs.size(); i++) {
-                       if (!ids.contains(pulledJobs.get(i).getId())) {
-                           newCount++;
-                       }
-                   }
-
-                   // No new jobs
-                   if (newCount == 0) {
-                       return true;
-                   }
-
-                   String message = newCount + " new interview"
-                           + (newCount==1?"":"s");
-                   showNotification("Jobmine Plus", message);
-               }
-               return true;
+           } catch (JbmnplsLoggedOutException e) {
+               e.printStackTrace();
+               return false;
+           } catch (IOException e) {
+               e.printStackTrace();
+               return false;
            }
+
+           // Parse the html into jobs (except the canncelled jobs)
+           try {
+               parser.execute(Interviews.INTERVIEWS_OUTLINE, html);
+               parser.execute(Interviews.GROUPS_OUTLINE, html);
+               parser.execute(Interviews.SPECIAL_OUTLINE, html);
+           } catch (JbmnplsParsingException e) {
+               e.printStackTrace();
+               return false;
+           }
+
+           // Check to see if this is first time checking interviews on device
+           if (ids == null) {
+               // First time getting interviews, so we need to add it to the database
+               jobSource.addJobs(pulledJobs);
+               pageSource.addPage(Interviews.PAGE_NAME, pulledJobs, System.currentTimeMillis());
+           } else {
+               // Parse out which are the new interviews
+               if (pulledJobs.isEmpty()) {
+                   return true;
+               }
+
+               // Parse the new interviews; remove all jobs that are already existing
+               int newCount = 0;
+               for (int i = 0; i < pulledJobs.size(); i++) {
+                   if (!ids.contains(pulledJobs.get(i).getId())) {
+                       newCount++;
+                   }
+               }
+
+               // No new jobs
+               if (newCount == 0) {
+                   return true;
+               }
+
+               String message = newCount + " new interview"
+                       + (newCount==1?"":"s");
+               showNotification("Jobmine Plus", message);
+           }
+           return true;
+       }
 
         @Override
         protected void onPostExecute(Boolean shouldScheduleAlarm) {
+            log("finished grabbing", shouldScheduleAlarm);
             pageSource.close();
             jobSource.close();
-            log("finished grabbing");
             if (shouldScheduleAlarm && nextTimeout != 0) {
                 scheduleNextAlarm(nextTimeout);   // TODO should enable when not testing
             }
