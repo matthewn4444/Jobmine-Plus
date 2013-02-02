@@ -10,8 +10,10 @@ import android.view.MenuItem;
 public abstract class SimpleActivityBase extends FragmentActivity {
     private static boolean isOnlineMode = true;
 
-    synchronized protected void setOnlineMode(boolean flag) {
-        isOnlineMode = flag;
+    protected void setOnlineMode(boolean flag) {
+        synchronized (this) {
+            isOnlineMode = flag;
+        }
         onlineModeChanged(flag);
     }
 

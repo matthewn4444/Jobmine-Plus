@@ -14,7 +14,6 @@ public class InterviewsAlarm extends BroadcastReceiver {
     public static final String BUNDLE_TIMEOUT = "InterviewAlarm.timeout";
     public static final String BUNDLE_NAME = "InterviewAlarm.bundle";
 
-    private boolean isActive = false;
     private Context ctx;
 
     // Calls by alarm manager
@@ -32,22 +31,14 @@ public class InterviewsAlarm extends BroadcastReceiver {
     }
 
     public void scheduleNextAlarm(int timeoutSeconds) {
-        if (!isActive) {
-            long triggerTime = System.currentTimeMillis() + timeoutSeconds * SEC_TO_MILLISEC;
-            Bundle bundle = new Bundle();
-            bundle.putInt(BUNDLE_TIMEOUT, timeoutSeconds);
-            getAlarmManager().set(AlarmManager.RTC_WAKEUP, triggerTime, getPendingIntent(bundle));
-            isActive = true;
-        }
-    }
-
-    public boolean isAlarmActive() {
-        return isActive;
+        long triggerTime = System.currentTimeMillis() + timeoutSeconds * SEC_TO_MILLISEC;
+        Bundle bundle = new Bundle();
+        bundle.putInt(BUNDLE_TIMEOUT, timeoutSeconds);
+        getAlarmManager().set(AlarmManager.RTC_WAKEUP, triggerTime, getPendingIntent(bundle));
     }
 
     public void cancel() {
         getAlarmManager().cancel(getPendingIntent());
-        isActive = false;
     }
 
     private PendingIntent getPendingIntent() {
@@ -68,12 +59,16 @@ public class InterviewsAlarm extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        isActive = false;
         ctx = context;
         Toast.makeText(context, "Alarm went off", Toast.LENGTH_SHORT).show();
 
         // Get the stored timeout
-        int nextTimeout = intent.getBundleExtra(BUNDLE_NAME).getInt(BUNDLE_TIMEOUT);
+        Bundle bundle = intent.getBundleExtra(BUNDLE_NAME);
+        if (bundle == null) {
+            // If there is no bundle, then the service scheduled next crawl but we cancelled it
+            return;
+        }
+        int nextTimeout = bundle.getInt(BUNDLE_TIMEOUT);
         if (nextTimeout == 0) {
             nextTimeout = MINIMUM_TIMEOUT;
         }

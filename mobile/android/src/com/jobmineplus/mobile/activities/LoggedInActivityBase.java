@@ -7,7 +7,17 @@ import com.jobmineplus.mobile.services.InterviewsAlarm;
 public abstract class LoggedInActivityBase extends SimpleActivityBase {
     protected static InterviewsAlarm interviewsAlarm = null;
 
-    protected static final int INTERVIEWS_ALARM_TIMEOUT = 10;
+    protected static final int MINIMUM_ALARM_TIMEOUT = 10;       // TODO change this to 10 min
+
+    @Override
+    protected void onlineModeChanged(boolean isOnline){
+        if (!isOnline) {
+            cancelInterviewsAlarm();
+        } else {
+            startInterviewsAlarm();
+        }
+        super.onlineModeChanged(isOnline);
+    }
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -16,8 +26,9 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
                 if (interviewsAlarm == null) {
                     interviewsAlarm = new InterviewsAlarm(this, arg0);
 
-                    // Make sure there is at least one active app with no employed included
-                    interviewsAlarm.scheduleNextAlarm(INTERVIEWS_ALARM_TIMEOUT);
+                    if (isOnline()) {
+                        startInterviewsAlarm();
+                    }
                 }
             }
         }
@@ -25,26 +36,10 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
     }
 
     protected void cancelInterviewsAlarm() {
-        if (!interviewsAlarm.isAlarmActive()) {
-            synchronized (this) {
-                if (!interviewsAlarm.isAlarmActive()) {
-                    interviewsAlarm.cancel();
-                }
-            }
-        }
+        interviewsAlarm.cancel();
     }
 
     protected void startInterviewsAlarm() {
-        startInterviewsAlarm(null);
-    }
-
-    protected void startInterviewsAlarm(Bundle arg0) {
-        if (!interviewsAlarm.isAlarmActive()) {
-            synchronized (this) {
-                if (!interviewsAlarm.isAlarmActive()) {
-                    interviewsAlarm.scheduleNextAlarm(INTERVIEWS_ALARM_TIMEOUT);
-                }
-            }
-        }
+        interviewsAlarm.scheduleNextAlarm(MINIMUM_ALARM_TIMEOUT);
     }
 }
