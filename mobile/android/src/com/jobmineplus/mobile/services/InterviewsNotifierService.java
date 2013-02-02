@@ -25,7 +25,6 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -54,7 +53,7 @@ public class InterviewsNotifierService extends Service {
     public void onCreate() {
         super.onCreate();
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-        mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
     }
 
     @Override
@@ -140,7 +139,7 @@ public class InterviewsNotifierService extends Service {
             pageSource.open();
             jobSource.open();
 
-            // Check wifi and data
+            // Check wifi and data  // TODO if user suggests not to crawl on mobile signal and only wifi, then change here
             NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
             if (mWifi.isConnected() || mMobile.isConnected()) {
