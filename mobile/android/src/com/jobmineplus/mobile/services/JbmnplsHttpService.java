@@ -27,18 +27,11 @@ import com.jobmineplus.mobile.widgets.StopWatch;
 public final class JbmnplsHttpService {
 
     /*
-     * Bugs:
-     *  There is a problem with logging back in when leaving the app and coming back
-     *      Might be that this class is recreated?
-     *      Might be that it thought it was logged in and failed to parse?
+     * TODO make this class called JbmnplsHttpClient inherits DefaultHttpClient (maybe)
+     *      So this class will not be a singleton anymore but it will be a static variable in
+     *      simpleActivity class
      *
-     *
-     *
-     * New stuff
-     *      Signin HTML for JobMine. <--- this is for
-     *      not authorized for this time period
-     *      Invalid URL - no Node found in <--- broken url
-     *      Invalid signon time for user
+     *      After place this class in the interviews notifier services
      */
 
     //================
@@ -135,7 +128,7 @@ public final class JbmnplsHttpService {
     }
 
     public synchronized boolean isLoggedIn() {
-        long timeNow = System.nanoTime() / 1000000;
+        long timeNow = System.currentTimeMillis();
         return loginTimeStamp != 0 && (timeNow - loginTimeStamp) < AUTO_LOGOUT_TIME;
     }
 
