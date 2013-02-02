@@ -75,10 +75,9 @@ public class InterviewsNotifierService extends Service {
         Calendar nextTime = Calendar.getInstance();
         nextTime.setTimeInMillis(timestamp);
 
-        // Only apply next day if the time is during 12am->9am or if the day is not Sunday or Monday
-        int day = nextTime.get(Calendar.DAY_OF_WEEK);
+        // Only apply next day if the time is during 12am->9am (offline times)
         int hour = nextTime.get(Calendar.HOUR_OF_DAY);
-        if (day != Calendar.MONDAY && day != Calendar.SUNDAY && hour < 9) {
+        if (hour < 9) {
             // Return tomorrow at 9am for the next schedule
             Calendar nextDay = Calendar.getInstance();
             nextDay.add(Calendar.DAY_OF_MONTH, 1);
