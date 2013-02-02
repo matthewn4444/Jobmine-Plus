@@ -20,7 +20,6 @@ import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Alert;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
 import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
@@ -38,7 +37,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
-    private JbmnplsHttpService service;
     protected ArrayList<Job> allJobs;
     protected GetHtmlTask task = null;
     protected JobDataSource jobDataSource;
@@ -98,7 +96,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        service = JbmnplsHttpService.getInstance();
         allJobs = new ArrayList<Job>();
         jobDataSource = new JobDataSource(this);
         pageDataSource = new PageDataSource(this);
@@ -137,7 +134,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Login/Logout Methods
     // ========================
     protected boolean verifyLogin() {
-        return service.verifyLogin();
+        return client.verifyLogin();
     }
 
     // ======================
@@ -186,7 +183,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     public Void doPutTask() {
         jobDataSource.addJobs(allJobs);
         if (pageName != null) {
-            pageDataSource.addPage(pageName, allJobs, timestamp);
+            pageDataSource.addPage(client.getUsername(), pageName, allJobs, timestamp);
         }
         return null;
     }
@@ -267,7 +264,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected String onRequestData(String[] args)
             throws JbmnplsLoggedOutException, IOException {
         String url = args[0];
-        return service.getJobmineHtml(url);
+        return client.getJobmineHtml(url);
     }
 
     private class GetHtmlTask extends

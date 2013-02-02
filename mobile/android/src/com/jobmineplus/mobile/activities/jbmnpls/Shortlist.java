@@ -10,7 +10,7 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
@@ -54,7 +54,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.shortlist);
         pageName = Shortlist.class.getName();
-        return JbmnplsHttpService.GET_LINKS.SHORTLIST;
+        return JbmnplsHttpClient.GET_LINKS.SHORTLIST;
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {

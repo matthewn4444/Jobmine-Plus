@@ -11,7 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
@@ -76,7 +76,7 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.applications);
         pageName = Applications.class.getName();
-        return JbmnplsHttpService.GET_LINKS.APPLICATIONS;
+        return JbmnplsHttpClient.GET_LINKS.APPLICATIONS;
     }
     @Override
     protected void defineUI(Bundle savedInstanceState) {

@@ -15,13 +15,12 @@ import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.users.UserDataSource;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
-import com.jobmineplus.mobile.services.JbmnplsHttpService.LOGGED;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient.LOGGED;
 
 public class LoginActivity extends AlertActivity implements OnClickListener, TextWatcher {
-    protected JbmnplsHttpService service;
     private UserDataSource userDataSource;
     private StopWatch sw;
 
@@ -33,7 +32,6 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
-        service = JbmnplsHttpService.getInstance();
         userDataSource = new UserDataSource(this);
         userDataSource.open();
         defindUiAndAttachEvents();
@@ -107,7 +105,7 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
             log("offline login");
             boolean loggedIn = userDataSource.checkCredentials(username, password);
             if (loggedIn) {
-                service.setLoginCredentials(username, password);
+                client.setLoginCredentials(username, password);
             }
             postExecuteLogin(loggedIn ? LOGGED.IN : LOGGED.OUT);
         }
@@ -120,11 +118,11 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
     }
 
     protected void postExecuteLogin(LOGGED loginState) {
-        if (loginState == JbmnplsHttpService.LOGGED.IN) {
+        if (loginState == JbmnplsHttpClient.LOGGED.IN) {
             Toast.makeText(this, "You are logged in! " + sw.elapsed() + " ms",
                     Toast.LENGTH_SHORT).show();
             goToHomeActivity();
-        } else if (loginState == JbmnplsHttpService.LOGGED.OUT) {
+        } else if (loginState == JbmnplsHttpClient.LOGGED.OUT) {
             Toast.makeText(this, getString(R.string.login_fail_message),
                     Toast.LENGTH_SHORT).show();
         } else {    // LOGGED.OFFLINE
@@ -133,14 +131,14 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         }
     }
 
-    protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpService.LOGGED> {
+    protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpClient.LOGGED> {
         public AsyncLoginTask(Activity activity) {
             super(activity, activity.getString(R.string.login_message));
         }
 
         @Override
-        protected JbmnplsHttpService.LOGGED doInBackground(String... args) {
-            JbmnplsHttpService.LOGGED result = service.login(args[0], args[1]);
+        protected JbmnplsHttpClient.LOGGED doInBackground(String... args) {
+            JbmnplsHttpClient.LOGGED result = client.login(args[0], args[1]);
             if (result == LOGGED.IN) {
                userDataSource.putUser(args[0], args[1]);
             }
@@ -148,7 +146,7 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         }
 
         @Override
-        protected void onPostExecute(JbmnplsHttpService.LOGGED loginState){
+        protected void onPostExecute(JbmnplsHttpClient.LOGGED loginState){
             super.onPostExecute(loginState);
             ((LoginActivity)getActivity()).postExecuteLogin(loginState);
         }

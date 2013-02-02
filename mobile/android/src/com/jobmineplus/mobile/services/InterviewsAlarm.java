@@ -10,8 +10,10 @@ import android.widget.Toast;
 
 public class InterviewsAlarm extends BroadcastReceiver {
     private final int SEC_TO_MILLISEC = 1000;
-    private final int MINIMUM_TIMEOUT = 10;
+    public static final int MINIMUM_TIMEOUT = 10;         // TODO change this to 10 min
     public static final String BUNDLE_TIMEOUT = "InterviewAlarm.timeout";
+    public static final String BUNDLE_USERNAME = "InterviewAlarm.username";
+    public static final String BUNDLE_PASSWORD = "InterviewAlarm.password";
     public static final String BUNDLE_NAME = "InterviewAlarm.bundle";
 
     private Context ctx;
@@ -30,10 +32,12 @@ public class InterviewsAlarm extends BroadcastReceiver {
         ctx = context;
     }
 
-    public void scheduleNextAlarm(int timeoutSeconds) {
+    public void scheduleNextAlarm(int timeoutSeconds, String username, String password) {
         long triggerTime = System.currentTimeMillis() + timeoutSeconds * SEC_TO_MILLISEC;
         Bundle bundle = new Bundle();
         bundle.putInt(BUNDLE_TIMEOUT, timeoutSeconds);
+        bundle.putString(BUNDLE_USERNAME, username);
+        bundle.putString(BUNDLE_PASSWORD, password);
         getAlarmManager().set(AlarmManager.RTC_WAKEUP, triggerTime, getPendingIntent(bundle));
     }
 
@@ -68,15 +72,14 @@ public class InterviewsAlarm extends BroadcastReceiver {
             // If there is no bundle, then the service scheduled next crawl but we cancelled it
             return;
         }
-        int nextTimeout = bundle.getInt(BUNDLE_TIMEOUT);
-        if (nextTimeout == 0) {
-            nextTimeout = MINIMUM_TIMEOUT;
-        }
+        int nextTimeout = Math.max(bundle.getInt(BUNDLE_TIMEOUT), MINIMUM_TIMEOUT);
 
         // Start the service
-        Intent interviewsService = new Intent(context,
-                InterviewsNotifierService.class);
+        Intent interviewsService = new Intent(context, InterviewsNotifierService.class);
         interviewsService.putExtra(BUNDLE_TIMEOUT, nextTimeout);
+        interviewsService.putExtra(BUNDLE_USERNAME, bundle.getString(BUNDLE_USERNAME));
+        interviewsService.putExtra(BUNDLE_PASSWORD, bundle.getString(BUNDLE_PASSWORD));
+
         context.startService(interviewsService);        // TODO try catch here
     }
 }

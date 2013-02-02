@@ -7,8 +7,6 @@ import com.jobmineplus.mobile.services.InterviewsAlarm;
 public abstract class LoggedInActivityBase extends SimpleActivityBase {
     protected static InterviewsAlarm interviewsAlarm = null;
 
-    protected static final int MINIMUM_ALARM_TIMEOUT = 10;       // TODO change this to 10 min
-
     @Override
     protected void onlineModeChanged(boolean isOnline){
         if (!isOnline) {
@@ -26,6 +24,7 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
                 if (interviewsAlarm == null) {
                     interviewsAlarm = new InterviewsAlarm(this, arg0);
 
+                    // TODO read database for setting to turn this feature on
                     if (isOnline()) {
                         startInterviewsAlarm();
                     }
@@ -40,6 +39,7 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
     }
 
     protected void startInterviewsAlarm() {
-        interviewsAlarm.scheduleNextAlarm(MINIMUM_ALARM_TIMEOUT);
+        interviewsAlarm.scheduleNextAlarm(InterviewsAlarm.MINIMUM_TIMEOUT,
+                client.getUsername(), client.getPassword());
     }
 }

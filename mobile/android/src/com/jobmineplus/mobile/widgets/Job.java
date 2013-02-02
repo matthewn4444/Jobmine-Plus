@@ -9,7 +9,6 @@ import java.util.Locale;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
 
 public class Job {
@@ -47,7 +46,6 @@ public class Job {
         status = jStatus;
         lastToApply = jLastDate;
         numApps = jNumApps;
-        service = JbmnplsHttpService.getInstance();
     }
 
     /**
@@ -71,7 +69,6 @@ public class Job {
         status = jStatus;
         lastToApply = jLastDate;
         numApps = jNumApps;
-        service = JbmnplsHttpService.getInstance();
     }
 
     /**
@@ -94,7 +91,6 @@ public class Job {
         openings = jOpenings;
         lastToApply = jLastDate;
         numApps = jNumApps;
-        service = JbmnplsHttpService.getInstance();
     }
 
     /**
@@ -109,7 +105,6 @@ public class Job {
         setId(jId);
         title = jTitle;
         employer = jEmployer;
-        service = JbmnplsHttpService.getInstance();
     }
 
    /**
@@ -176,7 +171,6 @@ public class Job {
         room = jRoom;
         instructions = jInstructions;
         interviewer = jInterviewer;
-        service = JbmnplsHttpService.getInstance();
     }
 
     //==========================
@@ -425,8 +419,6 @@ public class Job {
     private final String REQUIRED_TEXT = "Required";
     private final String TAG = "span";
     private final int NUM_OF_TAGS = 32;
-
-    protected JbmnplsHttpService service;
 
     // ===========================
     // Long list of properties
@@ -780,11 +772,11 @@ public class Job {
     // ===========
     //  Methods
     // ===========
-    public String grabDescriptionData() throws IOException {
+    public String grabDescriptionData(JbmnplsHttpClient client) throws IOException {
         // Get the html
         String html;
         try {
-            html = service.getJobmineHtml(url);
+            html = client.getJobmineHtml(url);
         } catch (JbmnplsLoggedOutException e) {
             e.printStackTrace();
             return null;

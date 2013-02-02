@@ -23,7 +23,7 @@ public class DebugLoginActivity extends LoginActivity implements Debuggable {
         if (app.isOnline()) {
             doLogin(username, password);
         } else {
-            service.setLoginCredentials(username, password);
+            client.setLoginCredentials(username, password);
             goToHomeActivity();
         }
     }

@@ -9,17 +9,14 @@ import android.database.Cursor;
 import android.util.Pair;
 
 import com.jobmineplus.mobile.database.DataSourceBase;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
 import com.jobmineplus.mobile.widgets.Job;
 
 public final class PageDataSource extends DataSourceBase{
     // Database fields
     private PageDatabaseHelper dbHelper;
-    private JbmnplsHttpService service;
 
     public PageDataSource(Context context) {
         dbHelper = new PageDatabaseHelper(context);
-        service = JbmnplsHttpService.getInstance();
     }
 
     @Override
@@ -32,11 +29,8 @@ public final class PageDataSource extends DataSourceBase{
         dbHelper.close();
     }
 
-    public synchronized void addPage(String pagename, ArrayList<Job> jobs,
+    public synchronized void addPage(String username, String pagename, ArrayList<Job> jobs,
             long timestamp) {
-        String username = service.getUsername();
-        if (username == null) { return; }
-
         String joblist = "";
         if (!jobs.isEmpty()) {
             // Make list of jobs as string, remove last comma
@@ -52,11 +46,8 @@ public final class PageDataSource extends DataSourceBase{
         internalAddPage(username, pagename, joblist, timestamp);
     }
 
-    public synchronized void addPage(String pagename, HashMap<String, ArrayList<Job>> jobMap,
+    public synchronized void addPage(String username, String pagename, HashMap<String, ArrayList<Job>> jobMap,
             long timestamp) {
-        String username = service.getUsername();
-        if (username == null) { return; }
-
         // Build the string
         StringBuilder sb = new StringBuilder();
         for (String key : jobMap.keySet()) {
@@ -79,28 +70,28 @@ public final class PageDataSource extends DataSourceBase{
      * @param pagename
      * @return list of ids, null if empty
      */
-    public synchronized ArrayList<Integer> getJobsIds(String pagename) {
-        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
+    public synchronized ArrayList<Integer> getJobsIds(String username, String pagename) {
+        Cursor cursor = getCursorFromPage(username, pagename, PageTable.COLUMN_JOBLIST);
         if (cursor == null) { return null; }
         return cursorToJobIds(cursor);
     }
 
-    public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String pagename) {
-        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST);
+    public synchronized HashMap<String, ArrayList<Integer>> getJobsIdMap(String username, String pagename) {
+        Cursor cursor = getCursorFromPage(username, pagename, PageTable.COLUMN_JOBLIST);
         if (cursor == null) { return null; }
         return cursorToJobsMap(cursor);
     }
 
-    public synchronized PageResult getPageData(String pagename) {
-        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST, PageTable.COLUMN_TIME);
+    public synchronized PageResult getPageData(String username, String pagename) {
+        Cursor cursor = getCursorFromPage(username, pagename, PageTable.COLUMN_JOBLIST, PageTable.COLUMN_TIME);
         if (cursor == null) { return null; }
 
         long time = cursor.getLong(1);
         return new PageResult(cursorToJobIds(cursor), time);
     }
 
-    public synchronized PageMapResult getPageDataMap(String pagename) {
-        Cursor cursor = getCursorFromPage(pagename, PageTable.COLUMN_JOBLIST, PageTable.COLUMN_TIME);
+    public synchronized PageMapResult getPageDataMap(String username, String pagename) {
+        Cursor cursor = getCursorFromPage(username, pagename, PageTable.COLUMN_JOBLIST, PageTable.COLUMN_TIME);
         if (cursor == null) { return null; }
 
         long time = cursor.getLong(1);
@@ -150,10 +141,10 @@ public final class PageDataSource extends DataSourceBase{
         return jobMap;
     }
 
-    private Cursor getCursorFromPage(String pagename, String... columns) {
-        String username = service.getUsername();
-        if (username == null) { return null; }
-
+    private Cursor getCursorFromPage(String username, String pagename, String... columns) {
+        if (username == null) {
+            throw new NullPointerException("Username is null trying to get cursor from page.");
+        }
         // Build query
         StringBuilder sb = new StringBuilder();
         sb.append("select ");

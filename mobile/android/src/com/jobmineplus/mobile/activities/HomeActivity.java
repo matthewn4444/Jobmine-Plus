@@ -7,12 +7,8 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
-    protected JbmnplsHttpService service;
-
-
     protected int[] buttonLayouts = {
             R.id.apps_button,
             R.id.shortlist_button,
@@ -25,7 +21,6 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
-        service = JbmnplsHttpService.getInstance();
         connectUI();
     }
 

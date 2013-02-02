@@ -1,6 +1,7 @@
 package com.jobmineplus.mobile.activities;
 
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 import android.support.v4.app.FragmentActivity;
 import android.view.Menu;
@@ -9,6 +10,7 @@ import android.view.MenuItem;
 
 public abstract class SimpleActivityBase extends FragmentActivity {
     private static boolean isOnlineMode = true;
+    protected static JbmnplsHttpClient client = new JbmnplsHttpClient();
 
     protected void setOnlineMode(boolean flag) {
         synchronized (this) {

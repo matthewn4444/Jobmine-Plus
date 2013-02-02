@@ -106,7 +106,7 @@ public class Description extends JbmnplsTabActivityBase {
 
     @Override
     protected String onRequestData(String[] args) throws IOException {
-        String descriptionData = job.grabDescriptionData();
+        String descriptionData = job.grabDescriptionData(client);
         jobDataSource.addJob(job);      // updates with the description data
         return descriptionData;
     }

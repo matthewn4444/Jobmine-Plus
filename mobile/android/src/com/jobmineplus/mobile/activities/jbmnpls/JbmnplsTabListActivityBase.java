@@ -66,7 +66,8 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
      */
     @Override
     protected void doOffine() {
-        HashMap<String, ArrayList<Integer>> idMap = pageDataSource.getJobsIdMap(pageName);
+        HashMap<String, ArrayList<Integer>> idMap =
+                pageDataSource.getJobsIdMap(client.getUsername(), pageName);
         if (idMap != null) {
             HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
             if (retList != null) {
@@ -93,7 +94,7 @@ public abstract class JbmnplsTabListActivityBase extends JbmnplsTabActivityBase 
     public Void doPutTask() {
         jobDataSource.addJobs(allJobs);
         if (pageName != null) {
-            pageDataSource.addPage(pageName, lists, timestamp);
+            pageDataSource.addPage(client.getUsername(), pageName, lists, timestamp);
         }
         return null;
     }

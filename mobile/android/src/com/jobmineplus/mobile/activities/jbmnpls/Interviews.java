@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.services.JbmnplsHttpService;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
@@ -128,7 +128,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     protected String setUp(Bundle savedInstanceState) {
         setContentView(R.layout.interviews);
         pageName = PAGE_NAME;
-        return JbmnplsHttpService.GET_LINKS.INTERVIEWS;
+        return JbmnplsHttpClient.GET_LINKS.INTERVIEWS;
     }
 
     @Override

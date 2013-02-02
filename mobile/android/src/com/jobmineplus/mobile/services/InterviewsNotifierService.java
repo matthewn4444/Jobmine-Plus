@@ -11,11 +11,10 @@ import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.database.pages.PageMapResult;
-import com.jobmineplus.mobile.debug.activities.DebugApplications;
-import com.jobmineplus.mobile.debug.activities.DebugInterviews;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -35,7 +34,7 @@ import android.os.IBinder;
 public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
     private final JobDataSource jobSource = new JobDataSource(this);
-    private final JbmnplsHttpService service = JbmnplsHttpService.getInstance();
+    private JbmnplsHttpClient client;
     ConnectivityManager connManager;
     NotificationManager mNotificationManager;
 
@@ -54,12 +53,32 @@ public class InterviewsNotifierService extends Service {
         super.onCreate();
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        client = new JbmnplsHttpClient();
+        log("Created");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         GetInterviewsTask task = new GetInterviewsTask();
         originalTimeout = intent.getIntExtra(InterviewsAlarm.BUNDLE_TIMEOUT, 0);
+
+        // Handle logging in with username and password
+        String username = intent.getStringExtra(InterviewsAlarm.BUNDLE_USERNAME);
+        String password = intent.getStringExtra(InterviewsAlarm.BUNDLE_PASSWORD);
+        if (username == null || password == null) {
+            return START_STICKY;
+        }
+
+        // If the username or password has changed, we will make a new client
+        String oldUsername = client.getUsername();
+        String oldPassword = client.getPassword();
+        if (!username.equals(oldUsername) || !password.equals(oldPassword)) {
+            client = new JbmnplsHttpClient();
+            client.setLoginCredentials(username, password);
+        }
+        if (!client.verifyLogin()) {
+            return START_STICKY;
+        }
         task.execute(originalTimeout);
         return super.onStartCommand(intent, flags, startId);
     }
@@ -96,6 +115,8 @@ public class InterviewsNotifierService extends Service {
         Bundle bundle = new Bundle();
         Intent in = new Intent(this, InterviewsAlarm.class);
         bundle.putInt(InterviewsAlarm.BUNDLE_TIMEOUT, originalTimeout);
+        bundle.putString(InterviewsAlarm.BUNDLE_USERNAME, client.getUsername());
+        bundle.putString(InterviewsAlarm.BUNDLE_PASSWORD, client.getPassword());
         in.putExtra(InterviewsAlarm.BUNDLE_NAME, bundle);
 
         // Start the next alarm
@@ -136,6 +157,7 @@ public class InterviewsNotifierService extends Service {
         @Override
         protected Boolean doInBackground(Integer... params) {
             nextTimeout = params[0];
+
             pageSource.open();
             jobSource.open();
 
@@ -149,7 +171,7 @@ public class InterviewsNotifierService extends Service {
                     result = checkApplications();
                 } catch (JbmnplsLoggedOutException e) {
                     e.printStackTrace();
-                    return true;
+                    return false;
                 } catch (IOException e) {
                     e.printStackTrace();
                     return false;
@@ -173,12 +195,13 @@ public class InterviewsNotifierService extends Service {
         }
 
         private int checkApplications() throws JbmnplsLoggedOutException, IOException {
-            PageMapResult result = pageSource.getPageDataMap(Applications.PAGE_NAME);
+            String username = client.getUsername();
+            PageMapResult result = pageSource.getPageDataMap(username, Applications.PAGE_NAME);
 
             // If no results, get them then
             if (result == null) {
                 crawlApplications();
-                result = pageSource.getPageDataMap(Applications.PAGE_NAME);
+                result = pageSource.getPageDataMap(username, Applications.PAGE_NAME);
                 if (result == null) {
                     throw new JbmnplsException("Cannot grab any data from Applications.");
                 }
@@ -231,25 +254,26 @@ public class InterviewsNotifierService extends Service {
             pulledAppsJobs.put(Applications.LISTS.ALL_JOBS, new ArrayList<Job>());
 
             // Pull data from the application webpage
-            String html = service.getJobmineHtml(DebugApplications.FAKE_APPLICATIONS);
+//            String html = client.getJobmineHtml(DebugApplications.FAKE_APPLICATIONS);
+            String html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.APPLICATIONS);
             parser.execute(Applications.ACTIVE_OUTLINE, html);
             parser.execute(Applications.ALL_OUTLINE, html);
 
             // Put data into storage
             jobSource.addJobs(pulledJobs);
-            pageSource.addPage(Applications.PAGE_NAME, pulledAppsJobs, System.currentTimeMillis());
+            pageSource.addPage(client.getUsername(), Applications.PAGE_NAME, pulledAppsJobs, System.currentTimeMillis());
         }
 
         private Boolean crawlInterviews() {
             // Get interviews data from the database
-           ArrayList<Integer> ids = pageSource.getJobsIds(Interviews.PAGE_NAME);
+           ArrayList<Integer> ids = pageSource.getJobsIds(client.getUsername(), Interviews.PAGE_NAME);
            pulledJobs = new ArrayList<Job>();
 
            // Pull the interview data off the website
            String html;
            try {
-               html = service.getJobmineHtml(DebugInterviews.FAKE_INTERVIEWS);
-//                   html = service.getJobmineHtml(JbmnplsHttpService.GET_LINKS.INTERVIEWS);        // Fix for debugging
+//               html = client.getJobmineHtml(DebugInterviews.FAKE_INTERVIEWS);
+               html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.INTERVIEWS);
            } catch (JbmnplsLoggedOutException e) {
                e.printStackTrace();
                return false;
@@ -272,7 +296,7 @@ public class InterviewsNotifierService extends Service {
            if (ids == null) {
                // First time getting interviews, so we need to add it to the database
                jobSource.addJobs(pulledJobs);
-               pageSource.addPage(Interviews.PAGE_NAME, pulledJobs, System.currentTimeMillis());
+               pageSource.addPage(client.getUsername(), Interviews.PAGE_NAME, pulledJobs, System.currentTimeMillis());
            } else {
                // Parse out which are the new interviews
                if (pulledJobs.isEmpty()) {
