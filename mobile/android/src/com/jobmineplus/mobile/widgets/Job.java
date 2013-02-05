@@ -307,7 +307,7 @@ public class Job {
         EMPLOYED("Employed", 11),
         SELECTED("Selected", 10),
         SCHEDULED("Scheduled", 10),
-        ALTERNATE("Alternate", 5),
+        ALTERNATE("Alternate", 6),
         BLANK("", 0);
 
         public static STATUS getStatusfromString(String text)
