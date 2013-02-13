@@ -255,7 +255,7 @@ public class Job {
         FILLED("Filled", 6),
         POSTED("Posted", 1),
         SCREENED("Screened", 4),
-        RANKING_COMPLETE("Ranking Complete", 8),
+        RANKING_COMPLETED("Ranking Completed", 8),
         SCHEDULED("Scheduled", 5),
         APPROVED("Approved", 2),
         COMPLETE("Complete", 2);
@@ -389,6 +389,7 @@ public class Job {
         VIDEO       ("Video"),
         PHONE       ("Phone"),
         GROUP       ("Group"),
+        WEBCAM      ("Webcam"),
         SPECIAL     ("Special"),
         CANCELLED   ("Cancelled");
         public static INTERVIEW_TYPE getTypefromString(String text) throws JbmnplsParsingException {
