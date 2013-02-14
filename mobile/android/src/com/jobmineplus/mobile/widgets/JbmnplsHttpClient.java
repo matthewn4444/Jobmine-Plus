@@ -54,12 +54,12 @@ public final class JbmnplsHttpClient {
     //=============
     //  Constants
     //=============
-    private static final int AUTO_LOGOUT_TIME           = 1000 * 60 * 60 * 20;   //20 min
+    private static final int AUTO_LOGOUT_TIME           = 1000 * 60 * 20;   //20 min
     private static final int BUFFER_READER_SIZE         = 1024;
 
     // Login constants
     private static final String LOGIN_UNIQUE_STRING     = "Signin HTML for JobMine.";
-    private static final String LOGIN_INVALID_CRED      = "Your User ID and/or Password are invalid.";
+    private static final String LOGIN_OFFLINE_MESSAGE  = "Invalid signon time for user";
     private static final String DEFAULT_HTML_ENCODER    = "UTF-8";
     private static final String FAILED_URL              = "Invalid URL - no Node found in";
     private static final int    LOGIN_READ_LENGTH       = 400;
@@ -322,7 +322,6 @@ public final class JbmnplsHttpClient {
 
             // Validates the html to make sure we logged in
             if (validateLoginJobmine(reader) != LOGGED.IN) {
-                // TODO deal with logout and try to log back in if password is avaliable
                 return null;
            }
 
@@ -368,12 +367,10 @@ public final class JbmnplsHttpClient {
             text = new String(buffer);
 
             // Check for offline error
-            if (text.contains(LOGIN_INVALID_CRED)) {
-                // Failed login and password
-                return LOGGED.OUT;
+            if (text.contains(LOGIN_OFFLINE_MESSAGE)) {
+                return LOGGED.OFFLINE;
             }
-            // Offline or some error
-            return LOGGED.OFFLINE;
+            return LOGGED.OUT;
 
         } else if (text.contains(FAILED_URL)) {
             loginTimeStamp = 0;
