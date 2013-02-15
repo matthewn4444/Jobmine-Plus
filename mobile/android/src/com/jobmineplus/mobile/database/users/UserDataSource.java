@@ -33,8 +33,12 @@ public class UserDataSource extends DataSourceBase{
     //=========================
     //  Insertions
     //=========================
+    public long putUser(String username, String password, Boolean isLastUser) {
+        return internalPutUser(username, password, isLastUser);
+    }
+
     public synchronized long putUser(String username, String password) {
-        return internalPutUser(username, password);
+        return internalPutUser(username, password, false);
     }
 
     //=========================
@@ -53,20 +57,42 @@ public class UserDataSource extends DataSourceBase{
                 UserTable.COLUMN_PASSWORD, password), null);
         if (cursor != null) {
             cursor.moveToFirst();
+        } else {
+            return false;
         }
         boolean correct = !cursor.isAfterLast();
         cursor.close();
         return correct;
     }
 
+    // TODO when implement logout, please mark the last user to false (0)
+    public synchronized Pair<String, String> getLastUser() {
+        Cursor cursor = database.rawQuery(String.format(
+                "select %s, %s from %s where %s='%s'",
+                UserTable.COLUMN_USERNAME, UserTable.COLUMN_PASSWORD, UserTable.TABLE_USER,
+                UserTable.COLUMN_LAST_USER, 1), null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        } else {
+            return null;
+        }
+        Pair<String, String> p = new Pair<String, String>(cursor.getString(0), cursor.getString(1));
+        cursor.close();
+        return p;
+    }
+
     //=========================
     // Private Methods
     //=========================
 
-    private long internalPutUser(String username, String password) {
+    private long internalPutUser(String username, String password, Boolean isLastUser) {
         ContentValues values = new ContentValues();
         addNonNullValue(values, UserTable.COLUMN_USERNAME, username);
         addNonNullValue(values, UserTable.COLUMN_PASSWORD, password);
+
+        if (isLastUser) {
+            addNonNullValue(values, UserTable.COLUMN_LAST_USER, 1);
+        }
 
         // Where statement
         ArrayList<Pair<String, Object>> where = new ArrayList<Pair<String,Object>>();

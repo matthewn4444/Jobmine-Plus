@@ -10,13 +10,15 @@ public class UserTable {
     public static final String COLUMN_ID = "_id";
     public static final String COLUMN_USERNAME = "username";
     public static final String COLUMN_PASSWORD = "password";
+    public static final String COLUMN_LAST_USER = "last_user";
 
     private static final String DATABASE_CREATE = "create table "
             + TABLE_USER
             + "("
             + COLUMN_ID + " integer primary key autoincrement, "
             + COLUMN_USERNAME + " text not null, "
-            + COLUMN_PASSWORD + " text not null "
+            + COLUMN_PASSWORD + " text not null, "
+            + COLUMN_LAST_USER + " integer default 0 "
             + ");";
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);

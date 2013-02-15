@@ -9,6 +9,7 @@ import org.apache.http.message.BasicNameValuePair;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Pair;
 import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
@@ -17,6 +18,7 @@ import com.jobmineplus.mobile.activities.LoggedInActivityBase;
 import com.jobmineplus.mobile.activities.LoginActivity;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
+import com.jobmineplus.mobile.database.users.UserDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -134,6 +136,18 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Login/Logout Methods
     // ========================
     protected boolean verifyLogin() {
+
+        // TODO put this in a lower case so that Loginactivity can use it as well
+        if (client.getUsername() == null || client.getPassword() == null) {
+            UserDataSource userDataSource = new UserDataSource(this);
+            userDataSource.open();
+            Pair<String, String> credentials = userDataSource.getLastUser();
+            if (credentials != null) {
+                client.setLoginCredentials(credentials.first, credentials.second);
+            }
+            userDataSource.close();
+        }
+
         return client.verifyLogin();
     }
 
@@ -288,7 +302,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         @Override
         protected Integer doInBackground(String... params) {
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
-            // We are in online mode
+
             if (!verifyLogin()) {
                 return FORCED_LOGGEDOUT;
             }

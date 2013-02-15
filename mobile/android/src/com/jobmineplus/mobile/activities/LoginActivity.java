@@ -140,7 +140,7 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         protected JbmnplsHttpClient.LOGGED doInBackground(String... args) {
             JbmnplsHttpClient.LOGGED result = client.login(args[0], args[1]);
             if (result == LOGGED.IN) {
-               userDataSource.putUser(args[0], args[1]);
+               userDataSource.putUser(args[0], args[1], true);
             }
             return result;
         }

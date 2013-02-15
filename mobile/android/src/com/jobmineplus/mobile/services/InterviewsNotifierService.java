@@ -60,6 +60,10 @@ public class InterviewsNotifierService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         GetInterviewsTask task = new GetInterviewsTask();
+
+        if (intent == null) {
+            return START_STICKY;
+        }
         originalTimeout = intent.getIntExtra(InterviewsAlarm.BUNDLE_TIMEOUT, 0);
 
         // Handle logging in with username and password
@@ -73,8 +77,7 @@ public class InterviewsNotifierService extends Service {
         String oldUsername = client.getUsername();
         String oldPassword = client.getPassword();
         if (!username.equals(oldUsername) || !password.equals(oldPassword)) {
-            client = new JbmnplsHttpClient();
-            client.setLoginCredentials(username, password);
+            client = new JbmnplsHttpClient(username, password);
         }
         if (!client.verifyLogin()) {
             return START_STICKY;

@@ -10,7 +10,7 @@ import android.widget.Toast;
 
 public class InterviewsAlarm extends BroadcastReceiver {
     private final int SEC_TO_MILLISEC = 1000;
-    public static final int MINIMUM_TIMEOUT = 10;         // TODO change this to 10 min
+    public static final int MINIMUM_TIMEOUT = 30;         // TODO change this to 10 min
     public static final String BUNDLE_TIMEOUT = "InterviewAlarm.timeout";
     public static final String BUNDLE_USERNAME = "InterviewAlarm.username";
     public static final String BUNDLE_PASSWORD = "InterviewAlarm.password";

@@ -83,6 +83,12 @@ public final class JbmnplsHttpClient {
         reset();
     }
 
+    public JbmnplsHttpClient(String user, String pass) {
+        username = user;
+        password = pass;
+        reset();
+    }
+
     //==============
     //  Login Data
     //==============
@@ -142,6 +148,7 @@ public final class JbmnplsHttpClient {
         synchronized(lock) {
             reset();
             if (username.length() == 0 || password.length() == 0) {
+                System.out.println("Logged out no pass and user");
                 return LOGGED.OUT;
             }
 
