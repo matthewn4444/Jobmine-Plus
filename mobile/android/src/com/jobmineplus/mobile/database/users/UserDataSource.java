@@ -76,6 +76,10 @@ public class UserDataSource extends DataSourceBase{
         } else {
             return null;
         }
+        if (cursor.getCount() != 0) {
+            cursor.close();
+            return null;
+        }
         Pair<String, String> p = new Pair<String, String>(cursor.getString(0), cursor.getString(1));
         cursor.close();
         return p;
