@@ -1,3 +1,4 @@
+
 package com.jobmineplus.mobile.widgets;
 
 import java.io.IOException;
@@ -258,7 +259,8 @@ public class Job {
         RANKING_COMPLETED("Ranking Completed", 8),
         SCHEDULED("Scheduled", 5),
         APPROVED("Approved", 2),
-        COMPLETE("Complete", 2);
+        COMPLETE("Complete", 2),
+        PENDING("Pending", 4);
 
         public static STATE getStatefromString(String text)
                 throws JbmnplsParsingException {
