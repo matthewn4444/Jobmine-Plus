@@ -150,7 +150,10 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
 
         @Override
         protected Void doInBackground(String... params) {
+            // Do not allow this login to be aborted
+            client.canAbort(false);
             JbmnplsHttpClient.LOGGED result = client.login(params[0], params[1]);
+            client.canAbort(true);
             if (result != LOGGED.IN) {
                 throw new IllegalStateException("Prior logins credentials do not work or isOnline() does not work");
             }

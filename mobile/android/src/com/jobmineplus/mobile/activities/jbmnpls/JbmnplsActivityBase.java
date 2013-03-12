@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
@@ -171,6 +172,10 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         startActivityWithMessage(HomeActivity.class, reasonMsg);
     }
 
+    protected void goToHomeActivity() {
+        startActivity(HomeActivity.class);
+    }
+
     protected void goToDescription(int jobId) {
         BasicNameValuePair pass = new BasicNameValuePair("jobId",
                 Integer.toString(jobId));
@@ -322,6 +327,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 String html = activity.onRequestData(params);
                 timestamp = System.currentTimeMillis();
                 if (html == null) {
+                    backBtnDisabled = false;
                     return PARSING_ERROR;
                 }
 
@@ -340,6 +346,12 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 e.printStackTrace();
                 return NETWORK_ERROR;
             }
+        }
+
+        public void onCancel(DialogInterface dialog) {
+            super.onCancel(dialog);
+            client.abort();
+            finish();
         }
 
         @Override

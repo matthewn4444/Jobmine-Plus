@@ -15,6 +15,7 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
@@ -75,6 +76,9 @@ public final class JbmnplsHttpClient {
     private long loginTimeStamp = 0;
     private String username = "";
     private String password = "";
+    private HttpRequestBase currentRequest;
+    private boolean canAbort = true;
+    private boolean pendingAbort = false;
 
     //=========================
     //  Constructor
@@ -161,7 +165,7 @@ public final class JbmnplsHttpClient {
             BufferedReader reader = null;
             try {
                 StopWatch s = new StopWatch(true);
-                HttpResponse response = post(nameValuePairs, JbmnplsHttpClient.POST_LINKS.LOGIN);
+                HttpResponse response = internalPost(nameValuePairs, JbmnplsHttpClient.POST_LINKS.LOGIN);
                 System.out.println(s.elapsed() + " ms login post");
                 if (response == null || response.getStatusLine().getStatusCode() != 200) {
                     return LOGGED.OUT;
@@ -188,6 +192,10 @@ public final class JbmnplsHttpClient {
                 } catch(IOException e) {
                     e.printStackTrace();
                     return LOGGED.OUT;
+                } finally {
+                    if (canAbort && pendingAbort) {
+                        pendingAbort = false;
+                    }
                 }
             }
         }
@@ -204,13 +212,27 @@ public final class JbmnplsHttpClient {
     //  GET HTTP Requests
     //=====================
     public HttpResponse get(String url) {
+        HttpResponse result = internalGet(url);
+        if (canAbort && pendingAbort) {
+            pendingAbort = false;
+        }
+        return result;
+    }
+
+    private HttpResponse internalGet(String url) {
+        if (pendingAbort && canAbort) {
+            return null;
+        }
         synchronized(lock) {
             HttpResponse response = null;
             try {
-                HttpGet getRequest = new HttpGet(url);
+                if (pendingAbort && canAbort) {
+                    return null;
+                }
+                currentRequest = new HttpGet(url);
                 StopWatch s = new StopWatch(true);
-                response = client.execute(getRequest);
-                System.out.println(s.elapsed() + " ms get request");
+                response = client.execute(currentRequest);
+                currentRequest = null;
             } catch (Exception e) {
                 e.printStackTrace();
                 return null;
@@ -232,7 +254,7 @@ public final class JbmnplsHttpClient {
                         in = null;
                     }
 
-                    HttpResponse response = get(url);
+                    HttpResponse response = internalGet(url);
                     if (response != null) {
                         in = response.getEntity().getContent();
                         reader = new BufferedReader(new InputStreamReader(in,
@@ -247,6 +269,8 @@ public final class JbmnplsHttpClient {
                         } else if (result == LOGGED.OFFLINE) {
                             throw new JbmnplsLoggedOutException();
                         }
+                    } else {
+                        return null;
                     }
                     if (login() == LOGGED.OFFLINE) {
                         throw new JbmnplsLoggedOutException();
@@ -267,6 +291,9 @@ public final class JbmnplsHttpClient {
             } catch (IOException e) {
                 throw e;
             } finally {
+                if (canAbort && pendingAbort) {
+                    pendingAbort = false;
+                }
                 if (in != null) {
                     try {
                         in.close();
@@ -280,12 +307,27 @@ public final class JbmnplsHttpClient {
     //  POST HTTP Requests
     //======================
     public HttpResponse post(List<NameValuePair> postData, String url) {
+        HttpResponse result = internalPost(postData, url);
+        if (canAbort && pendingAbort) {
+            pendingAbort = false;
+        }
+        return result;
+    }
+
+    public HttpResponse internalPost(List<NameValuePair> postData, String url) {
+        if (canAbort && pendingAbort) {
+            return null;
+        }
         synchronized(lock) {
+            if (canAbort && pendingAbort) {
+                return null;
+            }
             HttpResponse response = null;
             try {
-                HttpPost postRequest = new HttpPost(url);
-                postRequest.setEntity(new UrlEncodedFormEntity(postData));
-                response = client.execute(postRequest);
+                currentRequest = new HttpPost(url);
+                ((HttpPost)currentRequest).setEntity(new UrlEncodedFormEntity(postData));
+                response = client.execute(currentRequest);
+                currentRequest = null;
                 return response;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -296,7 +338,7 @@ public final class JbmnplsHttpClient {
 
     public String postJobmineHtml (List<NameValuePair> postData, String url) throws JbmnplsLoggedOutException {
         synchronized(lock) {
-            HttpResponse response = post(postData, url);
+            HttpResponse response = internalPost(postData, url);
             String html;
             if (response == null) {
                 return null;
@@ -306,6 +348,10 @@ public final class JbmnplsHttpClient {
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new JbmnplsLoggedOutException();
+            } finally {
+                if (canAbort && pendingAbort) {
+                    pendingAbort = false;
+                }
             }
             return html;
         }
@@ -348,6 +394,25 @@ public final class JbmnplsHttpClient {
         }
         updateTimestamp();
         return str.toString();
+    }
+
+    //========================
+    //  Abort/Cancel Methods
+    //========================
+    public void abort() {
+        pendingAbort = true;
+        if (currentRequest != null && canAbort) {
+            currentRequest.abort();     // ignore the warning.
+            currentRequest = null;
+        }
+    }
+
+    public void canAbort(boolean flag) {
+        canAbort = flag;
+    }
+
+    public boolean isAbortPending() {
+        return pendingAbort;
     }
 
     //===================
