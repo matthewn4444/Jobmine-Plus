@@ -47,6 +47,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected long timestamp;
     protected String pageName;
     private Alert alert;
+    private Boolean backBtnDisabled = false;
     private DatabaseTask<Void> databaseTask;
 
     // ====================
@@ -132,6 +133,13 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         super.onDestroy();
     }
 
+    @Override
+    public void onBackPressed() {
+        if (!backBtnDisabled) {
+            super.onBackPressed();
+        }
+    }
+
     // ========================
     // Login/Logout Methods
     // ========================
@@ -195,10 +203,13 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Database Task Members
     // ======================
     public Void doPutTask() {
+        // Lock the back button is that emulator will not crash if you click back after request
+        backBtnDisabled = true;
         jobDataSource.addJobs(allJobs);
         if (pageName != null) {
             pageDataSource.addPage(client.getUsername(), pageName, allJobs, timestamp);
         }
+        backBtnDisabled = false;
         return null;
     }
 
@@ -246,7 +257,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     }
 
     protected void showMessage(String message) {
-        alert.show(message);
+        alert.show(message, true);
     }
 
     // ====================================
