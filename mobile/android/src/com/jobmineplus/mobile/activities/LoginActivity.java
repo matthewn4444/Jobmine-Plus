@@ -3,7 +3,6 @@ package com.jobmineplus.mobile.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -41,12 +40,7 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         // If this fails on startup, make a launcher activity instead to read credentials on thread
         Pair<String, String> credentials = userDataSource.getLastUser();
         if (credentials != null) {
-            if (isOnline()) {
-                new LoginTask().execute(credentials.first, credentials.second);
-            } else {
-                client.setLoginCredentials(credentials.first, credentials.second);
-            }
-            goToHomeActivity();
+            goToHomeActivityAndLogin(credentials.first, credentials.second);
         } else {
             defindUiAndAttachEvents();
         }
@@ -132,6 +126,14 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         finish();
     }
 
+    protected void goToHomeActivityAndLogin(String username, String password) {
+        Intent in = new Intent(this, HomeActivity.class);
+        in.putExtra("username", username);
+        in.putExtra("password", password);
+        startActivity(in);
+        finish();
+    }
+
     protected void postExecuteLogin(LOGGED loginState) {
         if (loginState == JbmnplsHttpClient.LOGGED.IN) {
             Toast.makeText(this, "You are logged in! " + sw.elapsed() + " ms",
@@ -144,22 +146,6 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
             Toast.makeText(this, getString(R.string.login_not_available),
                     Toast.LENGTH_SHORT).show();
         }
-    }
-
-    protected final class LoginTask extends AsyncTask<String, Void, Void> {
-
-        @Override
-        protected Void doInBackground(String... params) {
-            // Do not allow this login to be aborted
-            client.canAbort(false);
-            JbmnplsHttpClient.LOGGED result = client.login(params[0], params[1]);
-            client.canAbort(true);
-            if (result != LOGGED.IN) {
-                throw new IllegalStateException("Prior logins credentials do not work or isOnline() does not work");
-            }
-            return null;
-        }
-
     }
 
     protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpClient.LOGGED> {

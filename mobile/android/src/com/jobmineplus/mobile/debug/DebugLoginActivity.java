@@ -25,6 +25,15 @@ public class DebugLoginActivity extends LoginActivity implements Debuggable {
         finish();
     }
 
+    @Override
+    protected void goToHomeActivityAndLogin(String username, String password) {
+        Intent in = new Intent(this, DebugHomeActivity.class);
+        in.putExtra("username", username);
+        in.putExtra("password", password);
+        startActivity(in);
+        finish();
+    }
+
     // =================
     //  Menu buttons
     // =================

@@ -232,6 +232,7 @@ public final class JbmnplsHttpClient {
                 currentRequest = new HttpGet(url);
                 StopWatch s = new StopWatch(true);
                 response = client.execute(currentRequest);
+                s.printElapsed("%s ms to get");
                 currentRequest = null;
             } catch (Exception e) {
                 e.printStackTrace();
