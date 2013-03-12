@@ -76,7 +76,7 @@ public class UserDataSource extends DataSourceBase{
         } else {
             return null;
         }
-        if (cursor.getCount() != 0) {
+        if (cursor.getCount() == 0) {
             cursor.close();
             return null;
         }
