@@ -203,7 +203,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Database Task Members
     // ======================
     public Void doPutTask() {
-        // Lock the back button is that emulator will not crash if you click back after request
         backBtnDisabled = true;
         jobDataSource.addJobs(allJobs);
         if (pageName != null) {
@@ -319,11 +318,13 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             }
             sw.start();
             try {
+                backBtnDisabled = true;
                 String html = activity.onRequestData(params);
                 timestamp = System.currentTimeMillis();
                 if (html == null) {
                     return PARSING_ERROR;
                 }
+
                 activity.parseWebpage(html);
                 return NO_PROBLEM;
             } catch (HiddenColumnsException e) {
@@ -368,6 +369,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 }
                 finish();
             }
+            backBtnDisabled = false;
         }
     }
 }
