@@ -106,7 +106,9 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
 
         if (outline.equals(ALL_OUTLINE)) {
             if (status == Job.STATUS.EMPLOYED) {
-                addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
+                if (!listContainsId(LISTS.ACTIVE_JOBS, job.getId())) {
+                    addJobToListByTabId(LISTS.ACTIVE_JOBS, job);
+                }
             } else {
                 //  If this job id is not contained inside Active, then we can
                 //  put it in rejected
