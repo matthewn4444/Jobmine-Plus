@@ -260,7 +260,8 @@ public class Job {
         SCHEDULED("Scheduled", 5),
         APPROVED("Approved", 2),
         COMPLETE("Complete", 2),
-        PENDING("Pending", 4);
+        PENDING("Pending", 4),
+        UNFILLED("Unfilled", 8);
 
         public static STATE getStatefromString(String text)
                 throws JbmnplsParsingException {
@@ -306,6 +307,7 @@ public class Job {
         NO_RESUME("No Resumes Available", 2),
         CANNOT_APPLY("Not Authorized to Apply", 8),
         NOT_SELECTED("Not Selected", 10),
+        NOT_RANKED("Not Ranked", 7),
         EMPLOYED("Employed", 11),
         SELECTED("Selected", 10),
         SCHEDULED("Scheduled", 10),
