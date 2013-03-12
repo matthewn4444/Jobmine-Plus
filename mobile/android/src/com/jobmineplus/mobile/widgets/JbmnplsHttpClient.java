@@ -129,7 +129,6 @@ public final class JbmnplsHttpClient {
     }
 
     public boolean verifyLogin() {
-        // TODO real device gets kicked off every 20 min back to login, most likely html error
         if (!isLoggedIn()) {
             for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
                 JbmnplsHttpClient.LOGGED result = login();

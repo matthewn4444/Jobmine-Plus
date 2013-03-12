@@ -16,16 +16,6 @@ public class DebugLoginActivity extends LoginActivity implements Debuggable {
     protected void onStart() {
         super.onStart();
         app = (DebugApplication) getApplication();
-
-        String username = getString(R.string.username);
-        String password = getString(R.string.password);
-
-        if (app.isOnline()) {
-            doLogin(username, password);
-        } else {
-            client.setLoginCredentials(username, password);
-            goToHomeActivity();
-        }
     }
 
     @Override
