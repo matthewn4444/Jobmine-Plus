@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -29,7 +30,7 @@ import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
-public abstract class JbmnplsActivityBase extends LoggedInActivityBase implements IDatabaseTask<Void> {
+public abstract class JbmnplsActivityBase extends LoggedInActivityBase implements IDatabaseTask<Void>, DialogInterface.OnClickListener {
 
     // =================
     // Declarations
@@ -47,6 +48,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected String pageName;
     private Boolean backBtnDisabled = false;
     private DatabaseTask<Void> databaseTask;
+    private Builder confirm;
 
     // ====================
     // Abstract Methods
@@ -104,6 +106,9 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         jobDataSource.open();
         pageDataSource.open();
         pageName = null;
+        confirm = new Builder(this);
+        confirm.setPositiveButton("Yes", this).setNegativeButton("No", this)
+            .setMessage("JobMine is currently offline, would you like to go into offline mode?");
         dataUrl = setUp(savedInstanceState);
         defineUI(savedInstanceState);
         requestData();
@@ -134,6 +139,21 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     public void onBackPressed() {
         if (!backBtnDisabled) {
             super.onBackPressed();
+        }
+    }
+
+    // ========================
+    // Confirm dialogue click
+    // ========================
+    public void onClick(DialogInterface dialog, int which) {
+        switch (which){
+        case DialogInterface.BUTTON_POSITIVE:
+            setOnlineMode(false);
+            databaseTask.executeGet();
+            break;
+        case DialogInterface.BUTTON_NEGATIVE:
+            goToHomeActivity();
+            break;
         }
     }
 
@@ -338,7 +358,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             } else {
                 switch (reasonForFailure) {
                 case FORCED_LOGGEDOUT:
-                    // TODO ask user to go to offline mode
+                    confirm.show();
                     break;
                 case PARSING_ERROR:
                     goToHomeActivity(getString(R.string.parsing_error_message));
@@ -353,7 +373,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                     goToHomeActivity("");
                     break;
                 }
-                finish();
             }
             backBtnDisabled = false;
         }
