@@ -12,7 +12,6 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.Description;
 import com.jobmineplus.mobile.debug.DebugApplication;
 import com.jobmineplus.mobile.debug.DebugHomeActivity;
-import com.jobmineplus.mobile.debug.DebugLoginActivity;
 import com.jobmineplus.mobile.widgets.Job.LEVEL;
 
 public class DebugDescription extends Description {
@@ -58,12 +57,6 @@ public class DebugDescription extends Description {
             return "<html></html>";
         }
         return super.onRequestData(args);
-    }
-
-    //Must use this for every debug activity
-    @Override
-    protected void goToLoginActivity(String reasonMsg) {
-        startActivityWithMessage(DebugLoginActivity.class, reasonMsg);
     }
 
     @Override

@@ -16,14 +16,12 @@ import android.widget.Toast;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoggedInActivityBase;
-import com.jobmineplus.mobile.activities.LoginActivity;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.database.users.UserDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.Alert;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
 import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
 import com.jobmineplus.mobile.widgets.Job;
@@ -47,7 +45,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected final String LOADING_MESSAGE = "Fetching data...";
     protected long timestamp;
     protected String pageName;
-    private Alert alert;
     private Boolean backBtnDisabled = false;
     private DatabaseTask<Void> databaseTask;
 
@@ -106,7 +103,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         databaseTask = new DatabaseTask<Void>(this);
         jobDataSource.open();
         pageDataSource.open();
-        alert = new Alert(this);
         pageName = null;
         dataUrl = setUp(savedInstanceState);
         defineUI(savedInstanceState);
@@ -163,11 +159,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // ======================
     // Activity Movements
     // ======================
-
-    protected void goToLoginActivity(String reasonMsg) {
-        startActivityWithMessage(LoginActivity.class, reasonMsg);
-    }
-
     protected void goToHomeActivity(String reasonMsg) {
         startActivityWithMessage(HomeActivity.class, reasonMsg);
     }
@@ -244,10 +235,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     protected boolean isLoading() {
         return task != null && task.isRunning();
-    }
-
-    protected void showMessage(String message) {
-        alert.show(message, true);
     }
 
     // ====================================
@@ -343,14 +330,15 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         @Override
         protected void onPostExecute(Integer reasonForFailure) {
             super.onPostExecute(reasonForFailure);
-            log(sw.elapsed() + " ms to render");
-            Toast.makeText(a, sw.elapsed() + " to get", Toast.LENGTH_SHORT).show();
+            String renderMsg = sw.elapsed() + " ms to render";
+            log(renderMsg);
+            Toast.makeText(a, renderMsg, Toast.LENGTH_SHORT).show();
             if (reasonForFailure == NO_PROBLEM) {
                 onRequestComplete();
             } else {
                 switch (reasonForFailure) {
                 case FORCED_LOGGEDOUT:
-                    goToLoginActivity(getString(R.string.jobmine_offline_message));
+                    // TODO ask user to go to offline mode
                     break;
                 case PARSING_ERROR:
                     goToHomeActivity(getString(R.string.parsing_error_message));

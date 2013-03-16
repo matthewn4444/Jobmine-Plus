@@ -11,7 +11,6 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
 import com.jobmineplus.mobile.debug.DebugApplication;
 import com.jobmineplus.mobile.debug.DebugHomeActivity;
-import com.jobmineplus.mobile.debug.DebugLoginActivity;
 
 public class DebugInterviews extends Interviews{
     private DebugApplication app;
@@ -35,12 +34,6 @@ public class DebugInterviews extends Interviews{
         BasicNameValuePair pass = new BasicNameValuePair("jobId",
                 Integer.toString(jobId));
         startActivity(DebugDescription.class, pass);
-    }
-
-    //Must use this for every debug activity
-    @Override
-    protected void goToLoginActivity(String reasonMsg) {
-        startActivityWithMessage(DebugLoginActivity.class, reasonMsg);
     }
 
     @Override

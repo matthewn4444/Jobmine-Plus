@@ -21,7 +21,7 @@ import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient.LOGGED;
 
-public class LoginActivity extends AlertActivity implements OnClickListener, TextWatcher {
+public class LoginActivity extends SimpleActivityBase implements OnClickListener, TextWatcher {
     private UserDataSource userDataSource;
     private StopWatch sw;
 
