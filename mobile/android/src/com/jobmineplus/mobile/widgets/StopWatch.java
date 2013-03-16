@@ -1,5 +1,7 @@
 package com.jobmineplus.mobile.widgets;
 
+import android.util.Log;
+
 public class StopWatch {
     private long startTime;
     private long lastTime;
@@ -66,19 +68,19 @@ public class StopWatch {
     }
 
     public void printLast() {
-        System.out.println(last() + " ms since last lap");
+        Log.i("jbmnplsmbl",last() + " ms since last lap");
     }
 
     public void printLast(String format) {
-        System.out.println(String.format(format, last()));
+        Log.i("jbmnplsmbl",String.format(format, last()));
     }
 
     public void printElapsed(String format) {
-        System.out.println(String.format(format, elapsed()));
+        Log.i("jbmnplsmbl", String.format(format, elapsed()));
     }
 
     public void printElapsed() {
-        System.out.println(elapsed() + " ms has passed");
+        Log.i("jbmnplsmbl", elapsed() + " ms has passed");
     }
 
     private long time() {

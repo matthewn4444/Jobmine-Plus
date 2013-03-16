@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -107,7 +108,7 @@ public abstract class SimpleActivityBase extends FragmentActivity {
                         + (txt[i] == null ? "null" : txt[i].toString());
             }
         }
-        System.out.println(returnStr);
+        Log.i("jbmnplsmbl", returnStr);
     }
 }
 

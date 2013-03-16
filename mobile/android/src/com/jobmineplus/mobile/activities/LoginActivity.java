@@ -88,10 +88,6 @@ public class LoginActivity extends AlertActivity implements OnClickListener, Tex
         doLogin();
     }
 
-    public void log(Object text) {
-        System.out.println(text);
-    }
-
     protected void doLogin() {
         String username = usernameEdtbl.getText().toString();
         String password = passwordEdtbl.getText().toString();

@@ -22,6 +22,8 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
+import android.util.Log;
+
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 
 public final class JbmnplsHttpClient {
@@ -151,7 +153,7 @@ public final class JbmnplsHttpClient {
         synchronized(lock) {
             reset();
             if (username.length() == 0 || password.length() == 0) {
-                System.out.println("Logged out no pass and user");
+                Log.i("jbmnplsmbl", "Logged out no pass and user");
                 return LOGGED.OUT;
             }
 
@@ -166,7 +168,7 @@ public final class JbmnplsHttpClient {
             try {
                 StopWatch s = new StopWatch(true);
                 HttpResponse response = internalPost(nameValuePairs, JbmnplsHttpClient.POST_LINKS.LOGIN);
-                System.out.println(s.elapsed() + " ms login post");
+                s.printElapsed("%s ms login post");
                 if (response == null || response.getStatusLine().getStatusCode() != 200) {
                     return LOGGED.OUT;
                 }

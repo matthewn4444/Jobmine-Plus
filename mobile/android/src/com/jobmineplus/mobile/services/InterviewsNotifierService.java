@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
@@ -357,6 +358,6 @@ public class InterviewsNotifierService extends Service {
                         + (txt[i] == null ? "null" : txt[i].toString());
             }
         }
-        System.out.println(returnStr);
+        Log.i("jbmnplsmbl", returnStr);
     }
 }
