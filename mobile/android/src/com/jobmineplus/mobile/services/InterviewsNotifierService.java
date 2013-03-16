@@ -25,8 +25,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -35,7 +33,6 @@ public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
     private final JobDataSource jobSource = new JobDataSource(this);
     private JbmnplsHttpClient client;
-    ConnectivityManager connManager;
     NotificationManager mNotificationManager;
 
     // Nofication values
@@ -51,7 +48,6 @@ public class InterviewsNotifierService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         client = new JbmnplsHttpClient();
         log("Created");
@@ -165,9 +161,7 @@ public class InterviewsNotifierService extends Service {
             jobSource.open();
 
             // Check wifi and data  // TODO if user suggests not to crawl on mobile signal and only wifi, then change here
-            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-            NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-            if (mWifi.isConnected() || mMobile.isConnected()) {
+            if (Interviews.isNetworkConnected()) {
                 // Check the applications to then see if we need to crawl interviews
                 int result = NO_SCHEDULE;
                 try {

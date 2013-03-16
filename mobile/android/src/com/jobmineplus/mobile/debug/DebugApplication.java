@@ -1,6 +1,6 @@
 package com.jobmineplus.mobile.debug;
 
-import java.util.Date;
+import com.jobmineplus.mobile.activities.SimpleActivityBase;
 
 import android.app.Application;
 
@@ -10,17 +10,10 @@ public class DebugApplication extends Application{
         offlineFlag = internalIsOnline();
     }
 
-    final public int OFFLINE_TIME = 24;     //24 hour clock
-    final public int ONLINE_TIME = 7;        //Opens at 6am
-
     protected boolean offlineFlag;
 
     private boolean internalIsOnline() {
-        Date now = new Date();
-        int hour = now.getHours();
-        int day = now.getDay();
-        boolean isOnline = (day == 6 && hour >= ONLINE_TIME || day == 0) || (hour >= ONLINE_TIME && hour < OFFLINE_TIME);
-        System.out.println("Is offline: " + (!isOnline));
+        boolean isOnline = SimpleActivityBase.isJobmineOnline();
         return isOnline;
     }
 

@@ -246,20 +246,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         return task != null && task.isRunning();
     }
 
-    protected void log(Object... txt) {
-        String returnStr = "";
-        int i = 1;
-        int size = txt.length;
-        if (size != 0) {
-            returnStr = txt[0] == null ? "null" : txt[0].toString();
-            for (; i < size; i++) {
-                returnStr += ", "
-                        + (txt[i] == null ? "null" : txt[i].toString());
-            }
-        }
-        System.out.println(returnStr);
-    }
-
     protected void showMessage(String message) {
         alert.show(message, true);
     }
