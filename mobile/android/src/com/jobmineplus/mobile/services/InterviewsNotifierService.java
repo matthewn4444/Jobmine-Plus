@@ -114,7 +114,6 @@ public class InterviewsNotifierService extends Service {
         // Pass back the original timeout
         Bundle bundle = new Bundle();
         Intent in = new Intent(this, InterviewsAlarm.class);
-        bundle.putInt(InterviewsAlarm.BUNDLE_TIMEOUT, originalTimeout);
         bundle.putString(InterviewsAlarm.BUNDLE_USERNAME, client.getUsername());
         bundle.putString(InterviewsAlarm.BUNDLE_PASSWORD, client.getPassword());
         in.putExtra(InterviewsAlarm.BUNDLE_NAME, bundle);
@@ -252,7 +251,6 @@ public class InterviewsNotifierService extends Service {
             pulledAppsJobs.put(Applications.LISTS.ALL_JOBS, new ArrayList<Job>());
 
             // Pull data from the application webpage
-//            String html = client.getJobmineHtml(DebugApplications.FAKE_APPLICATIONS);
             String html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.APPLICATIONS);
             parser.execute(Applications.ACTIVE_OUTLINE, html);
             parser.execute(Applications.ALL_OUTLINE, html);
@@ -270,7 +268,6 @@ public class InterviewsNotifierService extends Service {
            // Pull the interview data off the website
            String html;
            try {
-//               html = client.getJobmineHtml(DebugInterviews.FAKE_INTERVIEWS);
                html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.INTERVIEWS);
            } catch (JbmnplsLoggedOutException e) {
                e.printStackTrace();

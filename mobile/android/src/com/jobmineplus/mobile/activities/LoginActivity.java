@@ -3,9 +3,7 @@ package com.jobmineplus.mobile.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
@@ -39,8 +37,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         userDataSource.open();
 
         // Check preferences to see if we should autologin
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (sharedPrefs.getBoolean("settingsAutoLogin", false)) {
+        if (preferences.getBoolean("settingsAutoLogin", false)) {
             // Check for login credentials
             // If this fails on startup, make a launcher activity instead to read credentials on thread
             Pair<String, String> credentials = userDataSource.getLastUser();

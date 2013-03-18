@@ -18,8 +18,10 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             R.id.interviews_button,
             R.id.settings_button
     };
+    private boolean prevEnabledInterviewCheck = false;
 
-    private final String PREFIX_PATH = "com.jobmineplus.mobile";
+    private static final String PREFIX_PATH = "com.jobmineplus.mobile";
+    private static final int RESULT_FROM_SETTINGS = 1;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,19 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         }
     }
 
+    public boolean goToActivityForResult(String activityName) {
+        Class<?> name = null;
+        try {
+            name = Class.forName(PREFIX_PATH + activityName);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return false;
+        }
+        Intent in = new Intent(this, name);
+        startActivityForResult(in, RESULT_FROM_SETTINGS);
+        return true;
+    }
+
     public boolean goToActivity(String activityName) {
         Class<?> name = null;
         try {
@@ -63,7 +78,29 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     public void onClick(View arg0) {
         Button button = (Button) arg0;
         String name = button.getText().toString();
-        goToActivity(".activities.jbmnpls." + name);
+        if (name.equals("Settings")) {
+            prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
+            goToActivityForResult(".activities.jbmnpls." + name);
+        } else {
+            goToActivity(".activities.jbmnpls." + name);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case RESULT_FROM_SETTINGS:
+                // Check the differences coming back from settings
+                if (preferences.getBoolean("settingsEnableInterCheck", false) != prevEnabledInterviewCheck) {
+                    if (!prevEnabledInterviewCheck) {   // Enable it
+                        startInterviewsAlarm();
+                    } else {
+                        cancelInterviewsAlarm();
+                    }
+                }
+                break;
+        }
     }
 
     protected final class LoginTask extends AsyncTask<String, Void, Void> {

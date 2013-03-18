@@ -5,9 +5,11 @@ import java.util.Date;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -21,10 +23,12 @@ public abstract class SimpleActivityBase extends FragmentActivity {
     private static ConnectivityManager connManager;
     private static boolean isOnlineMode = true;
     protected static JbmnplsHttpClient client = new JbmnplsHttpClient();
+    protected SharedPreferences preferences = null;
 
     @Override
     protected void onCreate(Bundle arg0) {
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
         super.onCreate(arg0);
     }
 

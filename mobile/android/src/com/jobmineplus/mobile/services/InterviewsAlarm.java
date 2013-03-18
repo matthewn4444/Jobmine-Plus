@@ -5,12 +5,13 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 public class InterviewsAlarm extends BroadcastReceiver {
     private final int SEC_TO_MILLISEC = 1000;
-    public static final int MINIMUM_TIMEOUT = 30;         // TODO change this to 10 min
     public static final String BUNDLE_TIMEOUT = "InterviewAlarm.timeout";
     public static final String BUNDLE_USERNAME = "InterviewAlarm.username";
     public static final String BUNDLE_PASSWORD = "InterviewAlarm.password";
@@ -35,7 +36,6 @@ public class InterviewsAlarm extends BroadcastReceiver {
     public void scheduleNextAlarm(int timeoutSeconds, String username, String password) {
         long triggerTime = System.currentTimeMillis() + timeoutSeconds * SEC_TO_MILLISEC;
         Bundle bundle = new Bundle();
-        bundle.putInt(BUNDLE_TIMEOUT, timeoutSeconds);
         bundle.putString(BUNDLE_USERNAME, username);
         bundle.putString(BUNDLE_PASSWORD, password);
         getAlarmManager().set(AlarmManager.RTC_WAKEUP, triggerTime, getPendingIntent(bundle));
@@ -72,7 +72,8 @@ public class InterviewsAlarm extends BroadcastReceiver {
             // If there is no bundle, then the service scheduled next crawl but we cancelled it
             return;
         }
-        int nextTimeout = Math.max(bundle.getInt(BUNDLE_TIMEOUT), MINIMUM_TIMEOUT);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
+        int nextTimeout = Integer.parseInt(preferences.getString("settingsCheckFreq", "10")) * 60;
 
         // Start the service
         Intent interviewsService = new Intent(context, InterviewsNotifierService.class);
