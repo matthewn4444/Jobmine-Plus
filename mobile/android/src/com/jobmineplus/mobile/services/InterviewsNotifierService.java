@@ -24,10 +24,15 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class InterviewsNotifierService extends Service {
@@ -56,7 +61,7 @@ public class InterviewsNotifierService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        GetInterviewsTask task = new GetInterviewsTask();
+        GetInterviewsTask task = new GetInterviewsTask(this);
 
         if (intent == null) {
             return START_STICKY;
@@ -143,13 +148,15 @@ public class InterviewsNotifierService extends Service {
         private ArrayList<Job> pulledJobs;
         private HashMap<String, ArrayList<Job>> pulledAppsJobs;
         private int nextTimeout = 0;
+        private Context ctx;
 
         // Results from getting interviews
         private final int NO_SCHEDULE = 0;
         private final int DO_SCHEDULE = 1;
         private final int DO_SCHEDULE_NO_INTERVIEW = 2;
 
-        public GetInterviewsTask() {
+        public GetInterviewsTask(Context context) {
+            ctx = context;
             parser.setOnTableRowParse(this);
         }
 
@@ -160,8 +167,15 @@ public class InterviewsNotifierService extends Service {
             pageSource.open();
             jobSource.open();
 
-            // Check wifi and data  // TODO if user suggests not to crawl on mobile signal and only wifi, then change here
-            if (Interviews.isNetworkConnected()) {
+            // Check connections
+            ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+            NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+            NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
+            boolean wifiOnly = preferences.getBoolean("settingsWifiCheckOnly", true);
+
+            // TODO check this
+            if (Interviews.isNetworkConnected() && (mWifi.isConnected() || mMobile.isConnected() && !wifiOnly)) {
                 // Check the applications to then see if we need to crawl interviews
                 int result = NO_SCHEDULE;
                 try {

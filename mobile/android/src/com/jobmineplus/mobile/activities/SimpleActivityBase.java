@@ -46,7 +46,7 @@ public abstract class SimpleActivityBase extends FragmentActivity {
         return (mWifi.isConnected() || mMobile.isConnected()) && isNetworkAvailable();
     }
 
-    private static boolean isNetworkAvailable() {
+    public static boolean isNetworkAvailable() {
         NetworkInfo activeNetworkInfo = connManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
