@@ -2,12 +2,26 @@
 <resources>
 
     <string name="username_hint">Username</string>
-    <string name="app_name">Jobmine Plus Mobile</string>
+    <string name="app_name">JobMine Plus Mobile</string>
     <string name="password_hint">Password</string>
     <string name="login_button">Login</string>
     <string name="applications_title">Applications</string>
-    <string name="debug_title">Jobmine Plus Mobile [Debug]</string>
+    <string name="debug_title">JobMine Plus Mobile [Debug]</string>
     <string name="shortlist_title">Shortlist</string>
     <string name="interviews_title">Interviews</string>
+    <string name="settings_title">Settings</string>
+    
+    <string name="settings_inter_note_cate_title">Interviews Notification</string>
+    <string name="settings_inter_note_summary">Periodically check if there are new interviews</string>
+    <string name="settings_inter_note_title">Notify on new interviews</string>
+    
+    <string name="settings_wifi_only_summary">Check interviews only on wifi</string>
+    <string name="settings_wifi_only_title">Check only on Wifi</string>
+    
+    <string name="settings_check_freq_summary">The time checks interviews periodically</string>
+    <string name="settings_check_freq_title">Check frequency</string> 
 
+    <string name="settings_login_cate_title">Login</string>
+    <string name="settings_auto_login_summary">Check to auto login on startup</string>
+    <string name="settings_auto_login_title">Auto login</string>
 </resources>

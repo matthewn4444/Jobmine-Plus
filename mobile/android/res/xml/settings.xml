@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <PreferenceCategory android:title="@string/settings_inter_note_cate_title">
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="settingsEnableInterCheck"
+            android:summary="@string/settings_inter_note_summary"
+            android:title="@string/settings_inter_note_title">
+        </CheckBoxPreference>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="settingsWifiCheckOnly"
+            android:summary="@string/settings_wifi_only_summary"
+            android:title="@string/settings_wifi_only_title"
+            android:dependency="settingsEnableInterCheck">
+        </CheckBoxPreference>
+        <ListPreference 
+            android:key="settingsCheckFreq"
+            android:entries="@array/checkFreq"
+            android:entryValues="@array/checkFreqValues"
+            android:title="@string/settings_check_freq_title"
+            android:summary="@string/settings_check_freq_summary"
+            android:dependency="settingsEnableInterCheck"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/settings_login_cate_title">
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="settingsAutoLogin"
+            android:summary="@string/settings_auto_login_summary"
+            android:title="@string/settings_auto_login_title">
+        </CheckBoxPreference>
+    </PreferenceCategory>
+
+</PreferenceScreen>

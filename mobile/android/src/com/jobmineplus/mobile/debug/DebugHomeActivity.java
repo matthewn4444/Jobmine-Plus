@@ -22,7 +22,11 @@ public class DebugHomeActivity extends HomeActivity implements Debuggable{
     @Override
     public void onClick(View arg0) {
         String name = ((Button) arg0).getText().toString();
-        goToActivity(".debug.activities.Debug" + name);
+        if (name.equals("Settings")) {
+            super.onClick(arg0);
+        } else {
+            goToActivity(".debug.activities.Debug" + name);
+        }
     }
 
     // =================

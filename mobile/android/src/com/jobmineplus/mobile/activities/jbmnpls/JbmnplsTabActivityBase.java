@@ -14,7 +14,7 @@ import android.widget.TabHost;
 
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 
-public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase 
+public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
                         implements TabHost.TabContentFactory, TabHost.OnTabChangeListener{
 
     //=========================
@@ -27,7 +27,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         private View view;
         private boolean isFragmentClass;
         private Bundle extras;
-        
+
         public TabInfo(String tag, String displayName, View view) {
             this.tag = tag;
             this.displayName = displayName;
@@ -40,7 +40,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
             this.isFragmentClass = isFragmentClass;
             this.extras = extras;
         }
-        
+
         public String getTag() {
             return tag;
         }
@@ -63,25 +63,25 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
             return isFragmentClass;
         }
     }
-    
+
     //========================
     //     Tab Private Variables
     //========================
     private TabHost tabHost;
     private TabInfo currentTabInfo;
     private Set<String> instantiateTabSet;
-    
+
     protected Map<String, TabInfo> tabInfoMap;
-    
+
     private View EMPTY_VIEW;
-    
+
     //===================
     //     Override Method
     //===================
     /**
      * Anything that is overriding this function MUST run super
      * or else tabs will NOT WORK.
-     * 
+     *
      * @Override
      *     protected void defineUI(Bundle savedInstanceState) {
      *         super.defineUI();
@@ -93,7 +93,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         EMPTY_VIEW = new View(this);
         setUpTabHost();
     }
-    
+
     public View createTabContent(String tag) {
         onTabSwitched(tag);
         TabInfo tab = tabInfoMap.get(tag);
@@ -104,7 +104,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
             return EMPTY_VIEW;
         }
     }
-    
+
     public void onTabChanged(String tag) {
         TabInfo newTab = tabInfoMap.get(tag);
         if (newTab != currentTabInfo) {
@@ -122,12 +122,12 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
                     ft.attach(newTab.fragment);
                 }
             }
-            
+
             ft.commit();
             currentTabInfo = newTab;
             getSupportFragmentManager().executePendingTransactions();
         }
-        
+
         // The set allows us not to call the tab switch twice
         if (instantiateTabSet == null || !instantiateTabSet.contains(tag)) {
             onTabSwitched(tag);
@@ -142,7 +142,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
     //=================
     //  Tab Creation
     //=================
-    
+
     /**
      * This creates a tab. Use this for View objects (compatibility).
      * You must call this in defineUI() or else you will get an error!
@@ -153,7 +153,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         TabInfo tab = new TabInfo(tag, displayName, view);
         setUpTab(tab);
     }
-    
+
     /**
      * This creates a tab. Use this for Activities (compatibility) or Fragments.
      * You must call this in defineUI() or else you will get an error!
@@ -166,13 +166,13 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         TabInfo tab = new TabInfo(tag, displayName, cls, isFragmentClass, extras);
         setUpTab(tab);
     }
-    
+
     protected void setUpTab(TabInfo tab) {
         if (instantiateTabSet == null) {
             instantiateTabSet = new HashSet<String>();
         }
         instantiateTabSet.add(tab.getTag());
-        
+
         if (tab.classs != null) {
             tab.fragment = getSupportFragmentManager().findFragmentByTag(tab.tag);
             if (tab.fragment != null && !tab.fragment.isDetached()) {
@@ -183,11 +183,10 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
             }
         }
         tabInfoMap.put(tab.tag, tab);
-        
+
         if (tab.hasClass() && !tab.isFragmentClass) {
             Intent i = new Intent(this, tab.classs);
             Bundle extras = tab.extras;
-            log("Bundle? "+extras);
             if (extras != null) {
                 i.putExtras(extras);
             }
@@ -197,12 +196,12 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
             tabHost.addTab(tabHost.newTabSpec(tab.tag)
                     .setIndicator(tab.displayName).setContent(this));
         }
-    }      
-    
+    }
+
     /**
      * Sets up the tabhost object
      * Calls this by overriding the base class' defineUI()
-     * because it needs the layout to be initialized before 
+     * because it needs the layout to be initialized before
      * getting the tabhost.
      * It will throw an error if no tabs are specified.
      * @throws JbmnplsException
@@ -216,7 +215,7 @@ public abstract class JbmnplsTabActivityBase extends JbmnplsActivityManagerBase
         tabHost.setup(getLocalActivityManager());
         tabHost.setOnTabChangedListener(this);
     }
-    
+
     //=====================
     //    Protected Methods
     //=====================

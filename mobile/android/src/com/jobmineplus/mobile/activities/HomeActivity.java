@@ -15,7 +15,8 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     protected int[] buttonLayouts = {
             R.id.apps_button,
             R.id.shortlist_button,
-            R.id.interviews_button
+            R.id.interviews_button,
+            R.id.settings_button
     };
 
     private final String PREFIX_PATH = "com.jobmineplus.mobile";

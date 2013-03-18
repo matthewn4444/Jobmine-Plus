@@ -11,7 +11,7 @@
              android:layout_height="100dp"
              android:layout_alignParentLeft="true"
              android:layout_marginBottom="20dp"
-             android:text="@+string/applications_title" />
+             android:text="@+string/applications_title" /> 
 
          <Button
              android:id="@+id/shortlist_button"
@@ -29,5 +29,13 @@
              android:layout_below="@+id/apps_button"
              android:layout_marginBottom="20dp"
              android:text="@+string/interviews_title" />
+
+         <Button
+             android:id="@+id/settings_button"
+             android:layout_width="100dp"
+             android:layout_height="100dp"
+             android:layout_alignParentRight="true"
+             android:layout_below="@+id/shortlist_button"
+             android:text="@+string/settings_title" />
          
 </RelativeLayout>
