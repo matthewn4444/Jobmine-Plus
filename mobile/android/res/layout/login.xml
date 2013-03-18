@@ -9,6 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/username_field"
+        android:singleLine="true"
         android:hint="@+string/username_hint"
         />
     <EditText
@@ -16,7 +17,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/password_field"
         android:hint="@+string/password_hint"
-        android:password="true"
+        android:singleLine="true"
+        android:inputType="textPassword"
         />
     <Button
         android:layout_width="fill_parent"
