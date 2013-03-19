@@ -35,9 +35,10 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         if (passedIntent != null && passedIntent.hasExtra("username")) {
             String username = passedIntent.getStringExtra("username");
             String password = passedIntent.getStringExtra("password");
-            if (isOnline()) {
+            if (isReallyOnline()) {
                 new LoginTask().execute(username, password);
             } else {
+                setOnlineMode(false);
                 client.setLoginCredentials(username, password);
             }
         }

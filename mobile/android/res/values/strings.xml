@@ -24,4 +24,6 @@
     <string name="settings_login_cate_title">Login</string>
     <string name="settings_auto_login_summary">Check to auto login on startup</string>
     <string name="settings_auto_login_title">Auto login</string>
+    
+    <string name="action_bar_online">Online</string>
 </resources>

@@ -3,7 +3,10 @@ package com.jobmineplus.mobile.activities;
 import java.util.Date;
 
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 import android.content.SharedPreferences;
@@ -53,16 +56,30 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         synchronized (this) {
             isOnlineMode = flag;
         }
+        supportInvalidateOptionsMenu();
         onlineModeChanged(flag);
     }
 
-    // Not truly online unless network is connecting and working
+    // Online mode set by user
     protected boolean isOnline() {
+        return isOnlineMode;
+    }
+
+    // Not truly online unless network is connecting and working
+    protected boolean isReallyOnline() {
         return isOnlineMode && isJobmineOnline() && isNetworkConnected();
     }
 
     // Override this function to detect online status change, call super as well
     protected void onlineModeChanged(boolean isOnline){}
+
+    private void setOnlineIcon(MenuItem button) {
+        if(isOnline()){
+            button.setIcon(R.drawable.ic_online);
+        }else{
+            button.setIcon(R.drawable.ic_offline);
+        }
+    }
 
     /*
      * Options menu creation
@@ -70,44 +87,31 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       MenuInflater inflater = getSupportMenuInflater();
+       inflater.inflate(R.menu.actionbar, menu);
+       return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem switchButton = menu.findItem(R.id.action_online);
+        setOnlineIcon(switchButton);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
         case android.R.id.home:
             finish();
             break;
+        case R.id.action_online:
+            setOnlineMode(!isOnlineMode);
+            setOnlineIcon(item);
         }
         return true;
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        MenuInflater mInflater = getMenuInflater();
-//        mInflater.inflate(R.menu.main_menu, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onPrepareOptionsMenu(Menu menu) {
-//        MenuItem item = menu.findItem(R.id.menuitem_online_mode);
-//        if (isOnline()) {
-//            item.setTitle("Go Offline");
-//        } else {
-//            item.setTitle("Go Online");
-//        }
-//        return super.onPrepareOptionsMenu(menu);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle item selection
-//        switch (item.getItemId()) {
-//            case R.id.menuitem_online_mode:
-//                setOnlineMode(!isOnlineMode);
-//                return true;
-//            default:
-//                return super.onOptionsItemSelected(item);
-//        }
-//    }
 
     protected void log(Object... txt) {
         String returnStr = "";

@@ -245,7 +245,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // =================
 
     protected void jobsToDatabase() {
-        if (isOnline()) {
+        if (isReallyOnline()) {
             databaseTask.executePut();
         }
     }
@@ -267,7 +267,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             throw new RuntimeException(
                     "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
-        if (isOnline()) {
+        if (isReallyOnline()) {
             task = new GetHtmlTask(this, LOADING_MESSAGE);
             task.execute(dataUrl);
         } else {
@@ -311,7 +311,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         @Override
         protected Integer doInBackground(String... params) {
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
-
             if (!verifyLogin()) {
                 return FORCED_LOGGEDOUT;
             }
@@ -324,7 +323,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                     backBtnDisabled = false;
                     return PARSING_ERROR;
                 }
-
                 activity.parseWebpage(html);
                 return NO_PROBLEM;
             } catch (HiddenColumnsException e) {

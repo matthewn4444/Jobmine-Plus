@@ -109,11 +109,12 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
 
     protected void doLogin(String username, String password) {
         sw = new StopWatch(true);
-        if (isOnline()) {
+        if (isReallyOnline()) {
             new AsyncLoginTask(this).execute(username, password);
         } else {
             log("offline login");
             boolean loggedIn = userDataSource.checkCredentials(username, password);
+            setOnlineMode(false);
             if (loggedIn) {
                 client.setLoginCredentials(username, password);
             }
