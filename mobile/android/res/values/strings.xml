@@ -2,11 +2,11 @@
 <resources>
 
     <string name="username_hint">Username</string>
-    <string name="app_name">JobMine Plus Mobile</string>
+    <string name="app_name">Jobmine Plus Mobile</string>
     <string name="password_hint">Password</string>
     <string name="login_button">Login</string>
     <string name="applications_title">Applications</string>
-    <string name="debug_title">JobMine Plus Mobile [Debug]</string>
+    <string name="debug_title">Jobmine Plus Mobile [Debug]</string>
     <string name="shortlist_title">Shortlist</string>
     <string name="interviews_title">Interviews</string>
     <string name="settings_title">Settings</string>

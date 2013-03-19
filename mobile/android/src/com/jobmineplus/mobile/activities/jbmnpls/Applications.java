@@ -82,7 +82,6 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
-
         createTab(LISTS.ALL_JOBS, "All");
         createTab(LISTS.ACTIVE_JOBS, "Active");
         createTab(LISTS.REJECTED_JOBS, "Rejected");

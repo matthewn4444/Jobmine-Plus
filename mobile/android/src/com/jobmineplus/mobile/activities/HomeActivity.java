@@ -28,6 +28,8 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.home);
         connectUI();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setHomeButtonEnabled(false);
 
         Intent passedIntent = getIntent();
         if (passedIntent != null && passedIntent.hasExtra("username")) {

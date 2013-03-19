@@ -111,6 +111,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             .setMessage("JobMine is currently offline, would you like to go into offline mode?");
         dataUrl = setUp(savedInstanceState);
         defineUI(savedInstanceState);
+        getSupportActionBar().setTitle(pageName.substring(pageName.lastIndexOf(".") + 1));
         requestData();
     }
 

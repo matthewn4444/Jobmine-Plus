@@ -4,11 +4,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-
-import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.Description;
 import com.jobmineplus.mobile.debug.DebugApplication;
 import com.jobmineplus.mobile.debug.DebugHomeActivity;
@@ -76,36 +71,36 @@ public class DebugDescription extends Description {
     // =================
     //  Menu buttons
     // =================
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater mInflater = getMenuInflater();
-        mInflater.inflate(R.menu.debug_main_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem item = menu.findItem(R.id.menuitem_real_site);
-        if (app.isOnline()) {
-            item.setTitle("Go Fake Site");
-        } else {
-            item.setTitle("Go Real Site");
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.menuitem_online_mode:
-                setOnlineMode(!isOnline());
-                return true;
-            case R.id.menuitem_real_site:
-                app.toggleOnline();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        MenuInflater mInflater = getMenuInflater();
+//        mInflater.inflate(R.menu.debug_main_menu, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onPrepareOptionsMenu(Menu menu) {
+//        MenuItem item = menu.findItem(R.id.menuitem_real_site);
+//        if (app.isOnline()) {
+//            item.setTitle("Go Fake Site");
+//        } else {
+//            item.setTitle("Go Real Site");
+//        }
+//        return super.onPrepareOptionsMenu(menu);
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle item selection
+//        switch (item.getItemId()) {
+//            case R.id.menuitem_online_mode:
+//                setOnlineMode(!isOnline());
+//                return true;
+//            case R.id.menuitem_real_site:
+//                app.toggleOnline();
+//                return true;
+//            default:
+//                return super.onOptionsItemSelected(item);
+//        }
+//    }
 }
