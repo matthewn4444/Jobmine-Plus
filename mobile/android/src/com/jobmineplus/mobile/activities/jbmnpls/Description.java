@@ -50,6 +50,7 @@ public class Description extends JbmnplsTabActivityBase {
     protected String setUp(Bundle savedInstanceState)
             throws JbmnplsParsingException {
         setContentView(R.layout.job_description);
+        pageName = Description.class.getName();
         int id = Integer.parseInt(getIntent().getStringExtra("jobId"));
         if (id == 0) {
             throw new JbmnplsParsingException(
