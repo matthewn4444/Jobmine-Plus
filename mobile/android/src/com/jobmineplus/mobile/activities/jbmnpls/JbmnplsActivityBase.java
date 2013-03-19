@@ -267,9 +267,13 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             throw new RuntimeException(
                     "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
         }
-        if (isReallyOnline()) {
-            task = new GetHtmlTask(this, LOADING_MESSAGE);
-            task.execute(dataUrl);
+        if (isOnline()) {
+            if (!isReallyOnline()) {
+                confirm.show();
+            } else {
+                task = new GetHtmlTask(this, LOADING_MESSAGE);
+                task.execute(dataUrl);
+            }
         } else {
             databaseTask.executeGet();
         }

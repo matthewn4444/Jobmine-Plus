@@ -55,8 +55,8 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     protected void setOnlineMode(boolean flag) {
         synchronized (this) {
             isOnlineMode = flag;
+            supportInvalidateOptionsMenu();
         }
-        supportInvalidateOptionsMenu();
         onlineModeChanged(flag);
     }
 
@@ -111,6 +111,12 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
             setOnlineIcon(item);
         }
         return true;
+    }
+
+    @Override
+    protected void onResume() {
+        supportInvalidateOptionsMenu();
+        super.onResume();
     }
 
     protected void log(Object... txt) {
