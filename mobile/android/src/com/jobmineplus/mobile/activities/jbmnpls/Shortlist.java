@@ -46,8 +46,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
-        setAdapter(new ShortlistAdapter(this, android.R.id.list,
-                R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
+        setAdapter(new ShortlistAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
     }
 
     @Override
@@ -81,10 +80,9 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //  List Adapter
     //=================
     private class ShortlistAdapter extends ViewAdapterBase<Job> {
-        public ShortlistAdapter(Activity a, int listViewResourceId,
-                int widgetResourceLayout, int[] viewResourceIdListInWidget,
+        public ShortlistAdapter(Activity a, int listViewResourceId, int[] viewResourceIdListInWidget,
                 ArrayList<Job> list) {
-            super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
+            super(a, listViewResourceId, viewResourceIdListInWidget,
                     list);
         }
 

@@ -134,8 +134,7 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
-        setAdapter(new InterviewsAdapter(this, android.R.id.list,
-                R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
+        setAdapter(new InterviewsAdapter(this, R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
     }
 
     public void onRowParse(TableParserOutline outline, Object... jobData) {
@@ -180,10 +179,9 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     //  List Adapter
     //=================
     private class InterviewsAdapter extends ViewAdapterBase<Job> {
-        public InterviewsAdapter(Activity a, int listViewResourceId,
-                int widgetResourceLayout, int[] viewResourceIdListInWidget,
-                ArrayList<Job> list) {
-            super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
+        public InterviewsAdapter(Activity a, int widgetResourceLayout,
+                int[] viewResourceIdListInWidget, ArrayList<Job> list) {
+            super(a, widgetResourceLayout, viewResourceIdListInWidget,
                     list);
         }
 

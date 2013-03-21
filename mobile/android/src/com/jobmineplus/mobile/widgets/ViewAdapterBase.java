@@ -2,7 +2,6 @@ package com.jobmineplus.mobile.widgets;
 
 import java.util.ArrayList;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,15 +10,15 @@ import android.widget.ArrayAdapter;
 
 
 public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
-    private Activity activity;
+    private Context ctx;
     private ArrayList<TItem> entries;
     private int widgetLayout;
     private int[] resources;
 
-    public ViewAdapterBase(Activity a, int listViewResourceId, int widgetResourceLayout, int[] viewResourceIdListInWidget, ArrayList<TItem> list) {
-        super(a, listViewResourceId, list);
+    public ViewAdapterBase(Context a, int widgetResourceLayout, int[] viewResourceIdListInWidget, ArrayList<TItem> list) {
+        super(a, 0, list);
         entries = list;
-        activity = a;
+        ctx = a;
         resources = viewResourceIdListInWidget;
         widgetLayout = widgetResourceLayout;
     }
@@ -31,7 +30,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
         View viewObj = convertView;
         View[] elements = null;
         if (viewObj == null) {
-            LayoutInflater inflator = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflator = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             viewObj = inflator.inflate(widgetLayout, null);
             int size = resources.length;
             elements = new View[size];

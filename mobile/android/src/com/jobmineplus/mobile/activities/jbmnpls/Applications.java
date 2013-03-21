@@ -123,18 +123,16 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
 
     @Override
     protected ArrayAdapter<Job> makeAdapterFromList(ArrayList<Job> list) {
-        return new ApplicationsAdapter(this, android.R.id.list,
-                R.layout.job_widget, WIDGET_RESOURCE_LIST, list);
+        return new ApplicationsAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, list);
     }
 
     //=================
     //  List Adapter
     //=================
     private class ApplicationsAdapter extends ViewAdapterBase<Job> {
-        public ApplicationsAdapter(Activity a, int listViewResourceId,
-                int widgetResourceLayout, int[] viewResourceIdListInWidget,
-                ArrayList<Job> list) {
-            super(a, listViewResourceId, widgetResourceLayout, viewResourceIdListInWidget,
+        public ApplicationsAdapter(Activity a, int widgetResourceLayout,
+                int[] viewResourceIdListInWidget, ArrayList<Job> list) {
+            super(a, widgetResourceLayout, viewResourceIdListInWidget,
                     list);
         }
 
