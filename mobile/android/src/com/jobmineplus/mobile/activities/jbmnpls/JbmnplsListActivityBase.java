@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import android.os.Bundle;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
@@ -15,6 +17,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //  Declarations
     //=================
     private ListView list;
+    private LinearLayout linearLayout;
     private ArrayAdapter<Job> adapter;
 
     //====================
@@ -22,7 +25,11 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //====================
     @Override
     protected void defineUI(Bundle savedInstanceState) {
-        list = (ListView) findViewById(android.R.id.list);
+        linearLayout = new LinearLayout(this);
+        list = new ListView(this);
+        linearLayout.addView(list);
+        setContentView(linearLayout);
+        list.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
         list.setOnItemClickListener(this);
     }
 

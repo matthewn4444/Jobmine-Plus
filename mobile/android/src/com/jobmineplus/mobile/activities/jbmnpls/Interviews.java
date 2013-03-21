@@ -126,7 +126,6 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     //====================
     @Override
     protected String setUp(Bundle savedInstanceState) {
-        setContentView(R.layout.interviews);
         pageName = PAGE_NAME;
         return JbmnplsHttpClient.GET_LINKS.INTERVIEWS;
     }
