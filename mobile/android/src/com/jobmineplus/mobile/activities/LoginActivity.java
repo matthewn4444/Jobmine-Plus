@@ -35,6 +35,8 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         setContentView(R.layout.login);
         userDataSource = new UserDataSource(this);
         userDataSource.open();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+        getSupportActionBar().setHomeButtonEnabled(false);
 
         // Check preferences to see if we should autologin
         if (preferences.getBoolean("settingsAutoLogin", true)) {
