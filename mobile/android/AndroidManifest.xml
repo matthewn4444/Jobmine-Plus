@@ -59,37 +59,6 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name" />
 
-        <!-- DEBUG -->
-        <activity
-            android:name=".debug.DebugLoginActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/debug_title" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER.old" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".debug.DebugHomeActivity"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/debug_title" />
-        <activity
-            android:name=".debug.activities.DebugApplications"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/debug_title" />
-        <activity
-            android:name=".debug.activities.DebugDescription"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/debug_title" />
-        <activity
-            android:name=".debug.activities.DebugShortlist"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/debug_title" />
-        <activity
-            android:name=".debug.activities.DebugInterviews"
-            android:configChanges="keyboardHidden|orientation"
-            android:label="@string/debug_title" />
-        
         <service android:name=".services.InterviewsNotifierService" />    
         <receiver android:name=".services.InterviewsAlarm" />
     </application>
