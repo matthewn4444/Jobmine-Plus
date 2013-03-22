@@ -1,46 +1,26 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
+
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.TabItemFragment;
 
-public class Description extends JbmnplsTabActivityBase {
+public class Description extends JbmnplsPageActivityBase {
 
-    private static class LISTS {
-        public static String DESCRIPTION = "description";
-        public static String DETAILS = "details";
+    private static class TABS {
+        public static String DESCRIPTION = " Description ";
+        public static String DETAILS = "Details";
     }
 
     protected Job job;
-
-    // ===============
-    // Ui Objects
-    // ===============
-    TextView employer;
-    TextView title;
-    TextView openings;
-    TextView location;
-    TextView levels;
-    TextView grades;
-    TextView warning;
-    TextView openDate;
-    TextView closedDate;
-    TextView hiringSupport;
-    TextView worktermSupport;
-    TextView disciplines;
-    TextView description;
-
-    ScrollView descriptionLayout;
-    ScrollView detailsLayout;
-
-    FrameLayout container;
+    protected JobDescription descrFragment;
+    protected JobDetails detFragment;
 
     // ====================
     // Override Methods
@@ -49,7 +29,6 @@ public class Description extends JbmnplsTabActivityBase {
     @Override
     protected String setUp(Bundle savedInstanceState)
             throws JbmnplsParsingException {
-        setContentView(R.layout.job_description);
         pageName = Description.class.getName();
         int id = Integer.parseInt(getIntent().getStringExtra("jobId"));
         if (id == 0) {
@@ -67,32 +46,10 @@ public class Description extends JbmnplsTabActivityBase {
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-        container = (FrameLayout) findViewById(android.R.id.tabcontent);
-
-        // Description Tab
-        employer = (TextView) findViewById(R.id.employer);
-        title = (TextView) findViewById(R.id.title);
-        location = (TextView) findViewById(R.id.location);
-        openings = (TextView) findViewById(R.id.openings);
-        grades = (TextView) findViewById(R.id.grades);
-        warning = (TextView) findViewById(R.id.warning);
-        description = (TextView) findViewById(R.id.description);
-        descriptionLayout = (ScrollView) findViewById(R.id.description_layout);
-
-        // Details Tab
-        levels = (TextView) findViewById(R.id.levels);
-        openDate = (TextView) findViewById(R.id.open_date);
-        closedDate = (TextView) findViewById(R.id.last_day);
-        hiringSupport = (TextView) findViewById(R.id.hiring_support);
-        worktermSupport = (TextView) findViewById(R.id.work_term);
-        disciplines = (TextView) findViewById(R.id.discplines);
-        detailsLayout = (ScrollView) findViewById(R.id.details_layout);
-
-        // Make tabs
-        createTab(LISTS.DESCRIPTION, "Description", descriptionLayout);
-        createTab(LISTS.DETAILS, "Details", detailsLayout);
-
-        container.setVisibility(View.INVISIBLE);
+        descrFragment = JobDescription.newInstance();
+        detFragment = JobDetails.newInstance();
+        createTab(TABS.DESCRIPTION, descrFragment);
+        createTab(TABS.DETAILS, detFragment);
     }
 
     @Override
@@ -131,26 +88,70 @@ public class Description extends JbmnplsTabActivityBase {
     // Protected Methods
     // =====================
     protected void fillInDescription() {
-        // Description Tab
-        employer.setText(job.getEmployerFullName());
-        title.setText(job.getTitle());
-        location.setText(job.getLocation());
-        int opennings = job.getNumberOfOpenings();
-        openings.setText("Opennings: "
-                + (opennings == 0 ? "0" : Integer.toString(opennings)));
-        grades.setText(job.areGradesRequired() ? "Required" : "[none]");
-        warning.setText(job.getDescriptionWarning());
-        description.setText(job.getDescription());
+        descrFragment.setJob(job);
+        detFragment.setJob(job);
+    }
 
-        // Details Tab
-        openDate.setText(DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply()));
-        closedDate
-                .setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
-        hiringSupport.setText(job.getHiringSupportName());
-        worktermSupport.setText(job.getWorkSupportName());
-        levels.setText(job.getLevelsAsString());
-        disciplines.setText(job.getDisciplinesAsString());
+    public static final class JobDescription extends TabItemFragment<Job> {
+        public static JobDescription newInstance() {
+            return new JobDescription();
+        }
 
-        container.setVisibility(View.VISIBLE);
+        public JobDescription() {
+            init(R.layout.job_description_content, new int[]{
+                    R.id.employer,
+                    R.id.title,
+                    R.id.location,
+                    R.id.openings,
+                    R.id.grades,
+                    R.id.warning,
+                    R.id.description
+            });
+        }
+
+        public void setJob(Job job) {
+            setData(job);
+        }
+
+        public void setValues(View[] views, Job job) {
+            int opennings = job.getNumberOfOpenings();
+            ((TextView)views[0]).setText(job.getEmployerFullName());
+            ((TextView)views[1]).setText(job.getTitle());
+            ((TextView)views[2]).setText(job.getLocation());
+            ((TextView)views[3]).setText("Opennings: " + (opennings == 0 ? "0" : Integer.toString(opennings)));
+            ((TextView)views[4]).setText(job.areGradesRequired() ? "Required" : "[none]");
+            ((TextView)views[5]).setText(job.getDescriptionWarning());
+            ((TextView)views[6]).setText(job.getDescription());
+        }
+    }
+
+    public static final class JobDetails extends TabItemFragment<Job> {
+        public static JobDetails newInstance() {
+            return new JobDetails();
+        }
+
+        public JobDetails() {
+            init(R.layout.job_description_details, new int[]{
+                    R.id.open_date,
+                    R.id.last_day,
+                    R.id.hiring_support,
+                    R.id.work_term,
+                    R.id.levels,
+                    R.id.discplines
+            });
+        }
+
+        public void setJob(Job job) {
+            setData(job);
+        }
+
+        public void setValues(View[] views, Job job) {
+            ((TextView)views[0]).setText(DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply()));
+            ((TextView)views[1]).setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
+            ((TextView)views[2]).setText(job.getHiringSupportName());
+            ((TextView)views[3]).setText(job.getWorkSupportName());
+            ((TextView)views[4]).setText(job.getLevelsAsString());
+            ((TextView)views[5]).setText(job.getDisciplinesAsString());
+        }
     }
 }
