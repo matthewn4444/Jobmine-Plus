@@ -1,5 +1,6 @@
 package com.jobmineplus.mobile.debug;
 
+import android.app.Application;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -7,11 +8,11 @@ import android.widget.Button;
 import com.jobmineplus.mobile.activities.HomeActivity;
 
 public class DebugHomeActivity extends HomeActivity implements Debuggable{
-    DebugApplication app;
+    Application app;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        app = (DebugApplication) getApplication();
+        app = getApplication();
         super.onCreate(savedInstanceState);
     }
 
