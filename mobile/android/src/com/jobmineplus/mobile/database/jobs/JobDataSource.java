@@ -256,7 +256,7 @@ public final class JobDataSource extends DataSourceBase {
 
         // Interview Data
         addNonNullValue(values, JobTable.COLUMN_INTERVIEW_START_TIME, interviewStartTimestamp);
-        addNonNullValue(values, JobTable.COLUMN_DESCRIPTION_WARNING, interviewEndTimestamp);
+        addNonNullValue(values, JobTable.COLUMN_INTERVIEW_END_TIME, interviewEndTimestamp);
         addNonNullValue(values, JobTable.COLUMN_INTERVIEW_TYPE, type == null ? null : type.toString());
         addNonNullValue(values, JobTable.COLUMN_INTERVIEW_ROOM, job.getRoomInfo());
         addNonNullValue(values, JobTable.COLUMN_INTERVIEW_INSTRUCTIONS, job.getInstructions());
