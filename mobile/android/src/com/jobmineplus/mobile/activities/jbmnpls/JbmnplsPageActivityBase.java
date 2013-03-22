@@ -24,10 +24,10 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implem
         setContentView(R.layout.tabs);
         mAdapter = new TabAdapter(getSupportFragmentManager());
         mPager = (ViewPager)findViewById(R.id.pager);
-        mPager.setOnPageChangeListener(this);
         mPager.setAdapter(mAdapter);
         mIndicator = (TitlePageIndicator)findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
+        mIndicator.setOnPageChangeListener(this);
     }
 
     public void createTab(String title, Fragment fragment) {
@@ -72,8 +72,6 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implem
     @Override
     public void onPageSelected(int index) {
         currentIndex = index;
-        mPager.setCurrentItem(index);
-
     }
 
     //=================
