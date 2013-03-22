@@ -37,7 +37,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         userDataSource.open();
 
         // Check preferences to see if we should autologin
-        if (preferences.getBoolean("settingsAutoLogin", false)) {
+        if (preferences.getBoolean("settingsAutoLogin", true)) {
             // Check for login credentials
             // If this fails on startup, make a launcher activity instead to read credentials on thread
             Pair<String, String> credentials = userDataSource.getLastUser();
