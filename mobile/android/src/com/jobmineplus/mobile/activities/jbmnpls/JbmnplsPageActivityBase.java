@@ -13,16 +13,18 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 
-public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase {
+public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implements ViewPager.OnPageChangeListener {
     private TabAdapter mAdapter;
     private ViewPager mPager;
     private PageIndicator mIndicator;
+    private int currentIndex = 0;
 
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         setContentView(R.layout.tabs);
         mAdapter = new TabAdapter(getSupportFragmentManager());
         mPager = (ViewPager)findViewById(R.id.pager);
+        mPager.setOnPageChangeListener(this);
         mPager.setAdapter(mAdapter);
         mIndicator = (TitlePageIndicator)findViewById(R.id.indicator);
         mIndicator.setViewPager(mPager);
@@ -32,6 +34,51 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase {
         mAdapter.createTab(title, fragment);
     }
 
+    public int getCurrentIndex() {
+        return currentIndex;
+    }
+
+    public String getCurrentTabName() {
+        return (String) mAdapter.getPageTitle(currentIndex);
+    }
+
+    public Fragment getCurrentFragment() {
+        return getFragment(currentIndex);
+    }
+
+    public int numOfTabs() {
+        return mAdapter.getCount();
+    }
+
+    public Fragment getFragment(int index) {
+        return mAdapter.getItem(index);
+    }
+
+    public Fragment getFragment(String title) {
+        return mAdapter.getItem(title);
+    }
+
+    //=====================
+    //  View Pager Changer
+    //=====================
+    @Override
+    public void onPageScrollStateChanged(int arg0) {
+    }
+
+    @Override
+    public void onPageScrolled(int arg0, float arg1, int arg2) {
+    }
+
+    @Override
+    public void onPageSelected(int index) {
+        currentIndex = index;
+        mPager.setCurrentItem(index);
+
+    }
+
+    //=================
+    //  Custom Adapter
+    //=================
     protected final class TabAdapter extends FragmentPagerAdapter {
         public TabAdapter(FragmentManager fm) {
             super(fm);

@@ -18,7 +18,7 @@ import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
-public class Applications extends JbmnplsTabListActivityBase implements TableParser.OnTableParseListener{
+public class Applications extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener{
 
     //======================
     //  Declaration Objects
@@ -26,9 +26,9 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     public final static String PAGE_NAME = Applications.class.getName();
 
     public final static class LISTS {
-        final public static String ALL_JOBS = "all";
-        final public static String ACTIVE_JOBS = "active";
-        final public static String REJECTED_JOBS = "rejected";
+        final public static String ALL_JOBS = "All";
+        final public static String ACTIVE_JOBS = "Active";
+        final public static String REJECTED_JOBS = "Rejected";
     }
 
     protected final static String DATE_FORMAT = "d-MMM-yyyy";
@@ -82,13 +82,13 @@ public class Applications extends JbmnplsTabListActivityBase implements TablePar
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
-        createTab(LISTS.ALL_JOBS, "All");
-        createTab(LISTS.ACTIVE_JOBS, "Active");
-        createTab(LISTS.REJECTED_JOBS, "Rejected");
+        createTab(LISTS.ACTIVE_JOBS);
+        createTab(LISTS.REJECTED_JOBS);
+        createTab(LISTS.ALL_JOBS);
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getListByTabId(getCurrentTab()).get(arg2).getId();
+        int jobId = getCurrentList().get(arg2).getId();
         goToDescription(jobId);
     }
 
