@@ -52,7 +52,38 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
         interviewsAlarm.scheduleNextAlarm(timeoutSec * 60, client.getUsername(), client.getPassword());
     }
 
+    protected void logout() {
+        client = new JbmnplsHttpClient();
 
+        // Going to login, do not let it auto login
+        Intent intent = new Intent(this, LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.putExtra(LoginActivity.DO_AUTO_LOGIN_EXTRA, false);
+        startActivity(intent);
+
+        // Remove the last user status from the database
+        final Context that = this;
+        new DatabaseTask<Void>(new IDatabaseTask<Void>() {
+            @Override
+            public Void doPutTask() {
+                UserDataSource source = new UserDataSource(that);
+                source.open();
+                source.clearLastUser();
+                source.close();
+                return null;
+            }
+
+            @Override
+            public Void doGetTask() {
+                return null;
+            }
+
+            @Override
+            public void finishedTask(Void result, Action action) {
+            }
+        }).executePut();
+        finish();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -65,37 +96,7 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.menuitem_logout:
-                // Conduct logout now, clear the client
-                client = new JbmnplsHttpClient();
-
-                // Going to login, do not let it auto login
-                Intent intent = new Intent(this, LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                intent.putExtra(LoginActivity.DO_AUTO_LOGIN_EXTRA, false);
-                startActivity(intent);
-
-                // Remove the last user status from the database
-                final Context that = this;
-                new DatabaseTask<Void>(new IDatabaseTask<Void>() {
-                    @Override
-                    public Void doPutTask() {
-                        UserDataSource source = new UserDataSource(that);
-                        source.open();
-                        source.clearLastUser();
-                        source.close();
-                        return null;
-                    }
-
-                    @Override
-                    public Void doGetTask() {
-                        return null;
-                    }
-
-                    @Override
-                    public void finishedTask(Void result, Action action) {
-                    }
-                }).executePut();
-                finish();
+                logout();
                 break;
         }
         return super.onOptionsItemSelected(item);
