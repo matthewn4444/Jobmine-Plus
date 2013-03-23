@@ -3,13 +3,16 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
@@ -21,7 +24,7 @@ import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
-public class Interviews extends JbmnplsListActivityBase implements TableParser.OnTableParseListener {
+public class Interviews extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener {
 
     //======================
     //  Declaration Objects
@@ -30,6 +33,11 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     protected final static String DATE_FORMAT = "d MMM yyyy";
     protected final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
     private final TableParser parser = new TableParser();
+
+    public final static class TABS {
+        final public static String COMING_UP = "Coming Up";
+        final public static String FINISHED = "Finished";
+    }
 
     //======================
     // Table Definitions
@@ -134,23 +142,37 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
-        setAdapter(new InterviewsAdapter(this, R.layout.interview_widget, WIDGET_RESOURCE_LIST, getList()));
+        createTab(TABS.COMING_UP);
+        createTab(TABS.FINISHED);
+    }
+
+    @Override
+    protected ArrayAdapter<Job> makeAdapterFromList(ArrayList<Job> list) {
+        return new InterviewsAdapter(this, R.layout.interview_widget, WIDGET_RESOURCE_LIST, list);
     }
 
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = parseRowTableOutline(outline, jobData);
+        Calendar now = Calendar.getInstance();
+        Calendar interviewEndTime = new GregorianCalendar();
+        interviewEndTime.setTime(job.getInterviewEndTime());
+        log(DISPLAY_DATE_FORMAT.format(now.getTime()), DISPLAY_DATE_FORMAT.format(interviewEndTime.getTime()));
+        if (now.after(interviewEndTime)) {
+            addJobToListByTabId(TABS.FINISHED, job);
+        } else {
+            addJobToListByTabId(TABS.COMING_UP, job);
+        }
         addJob(job);
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getList().get(arg2).getId();
-        pageName = "Interviews";
+        int jobId = getCurrentList().get(arg2).getId();
         goToDescription(jobId);
     }
 
     @Override
     protected void parseWebpage(String html) {
-        clearList();
+        clearAllLists();
         parser.execute(INTERVIEWS_OUTLINE, html);
         parser.execute(GROUPS_OUTLINE, html);
         parser.execute(SPECIAL_OUTLINE, html);
@@ -231,6 +253,4 @@ public class Interviews extends JbmnplsListActivityBase implements TableParser.O
             }
         }
     }
-
-
 }
