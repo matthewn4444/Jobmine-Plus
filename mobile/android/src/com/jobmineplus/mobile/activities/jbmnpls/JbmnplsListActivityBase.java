@@ -31,6 +31,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         list = (ListView) findViewById(R.id.list);
         emptyText = (TextView) findViewById(android.R.id.empty);
         list.setEmptyView(emptyText);
+        list.setOnItemClickListener(this);
     }
 
     @Override
