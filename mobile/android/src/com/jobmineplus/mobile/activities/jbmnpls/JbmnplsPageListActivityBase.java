@@ -102,6 +102,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     public void updateLists() {
         for (String tag : lists.keySet()) {
             ListFragment frag = (ListFragment) getFragment(tag);
+            ((PageListFragment)frag).showEmptyText();
             ArrayAdapter<Job> adapter = makeAdapterFromList(lists.get(tag));
             frag.setListAdapter(adapter);
         }
@@ -139,6 +140,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     //============================
     public final static class PageListFragment extends ListFragment {
         private OnItemClickListener that;
+        private boolean showEmptyText = false;
 
         public final static PageListFragment newInstance() {
             return new PageListFragment();
@@ -148,10 +150,20 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             that = a;
         }
 
+        // Hack that shows the text only when there is no content in the list
+        public void showEmptyText() {
+            showEmptyText = true;
+            if (getView() != null) {
+                setEmptyText(getString(R.string.empty_job_list));
+            }
+        }
+
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             getListView().setOnItemClickListener(that);
-            setEmptyText(getString(R.string.empty_job_list));
+            if (showEmptyText) {
+                setEmptyText(getString(R.string.empty_job_list));
+            }
             super.onActivityCreated(savedInstanceState);
         }
     }
