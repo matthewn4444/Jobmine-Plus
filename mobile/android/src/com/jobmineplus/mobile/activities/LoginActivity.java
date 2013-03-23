@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.users.UserDataSource;
+import com.jobmineplus.mobile.widgets.JbmnplsAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
@@ -118,14 +119,8 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         if (isReallyOnline()) {
             new AsyncLoginTask(this).execute(username, password);
         } else {
-            // TODO add this code to the background task to add the last user
-            log("offline login");
-            boolean loggedIn = userDataSource.checkCredentials(username, password);
             setOnlineMode(false);
-            if (loggedIn) {
-                client.setLoginCredentials(username, password);
-            }
-            postExecuteLogin(loggedIn ? LOGGED.IN : LOGGED.OUT);
+            new AsyncOfflineLoginTask(this).execute(username, password);
         }
     }
 
@@ -157,6 +152,32 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         }
     }
 
+
+    protected class AsyncOfflineLoginTask extends JbmnplsAsyncTaskBase<String, Void, JbmnplsHttpClient.LOGGED> {
+        public AsyncOfflineLoginTask(Activity a) {
+            super(a);
+        }
+
+        @Override
+        protected LOGGED doInBackground(String... args) {
+            String username = args[0];
+            String password = args[1];
+            boolean loggedIn = userDataSource.checkCredentials(username, password);
+            if (loggedIn) {
+                client.setLoginCredentials(username, password);
+                userDataSource.putUser(username, password, true);
+                return LOGGED.IN;
+            }
+            return LOGGED.OUT;
+        }
+
+        @Override
+        protected void onPostExecute(JbmnplsHttpClient.LOGGED loginState){
+            super.onPostExecute(loginState);
+            ((LoginActivity)getActivity()).postExecuteLogin(loginState);
+        }
+    }
+
     protected class AsyncLoginTask extends ProgressDialogAsyncTaskBase<String, Void, JbmnplsHttpClient.LOGGED> {
         public AsyncLoginTask(Activity activity) {
             super(activity, activity.getString(R.string.login_message));
@@ -166,7 +187,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         protected JbmnplsHttpClient.LOGGED doInBackground(String... args) {
             JbmnplsHttpClient.LOGGED result = client.login(args[0], args[1]);
             if (result == LOGGED.IN) {
-               userDataSource.putUser(args[0], args[1], true);
+                userDataSource.putUser(args[0], args[1], true);
             }
             return result;
         }
