@@ -108,7 +108,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         pageName = null;
         confirm = new Builder(this);
         confirm.setPositiveButton("Yes", this).setNegativeButton("No", this)
-            .setMessage("JobMine is currently offline, would you like to go into offline mode?");
+            .setMessage(getString(R.string.go_offline_message));
         dataUrl = setUp(savedInstanceState);
         defineUI(savedInstanceState);
         getSupportActionBar().setTitle(pageName.substring(pageName.lastIndexOf(".") + 1));
