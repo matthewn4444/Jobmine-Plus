@@ -3,11 +3,13 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 
 import android.os.Bundle;
+import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
-import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.TextView;
+
+import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -17,7 +19,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //  Declarations
     //=================
     private ListView list;
-    private LinearLayout linearLayout;
+    private TextView emptyText;
     private ArrayAdapter<Job> adapter;
 
     //====================
@@ -25,12 +27,10 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //====================
     @Override
     protected void defineUI(Bundle savedInstanceState) {
-        linearLayout = new LinearLayout(this);
-        list = new ListView(this);
-        linearLayout.addView(list);
-        setContentView(linearLayout);
-        list.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
-        list.setOnItemClickListener(this);
+        setContentView(R.layout.joblist);
+        list = (ListView) findViewById(R.id.list);
+        emptyText = (TextView) findViewById(android.R.id.empty);
+        list.setEmptyView(emptyText);
     }
 
     @Override
@@ -52,6 +52,13 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
                 allJobs.add(job);
             }
         }
+    }
+
+    @Override
+    protected void onRequestComplete() {
+        updateList();
+        emptyText.setVisibility(View.VISIBLE);
+        jobsToDatabase();
     }
 
     //=================================
@@ -82,11 +89,5 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 
     protected void clearList() {
         allJobs.clear();
-    }
-
-    @Override
-    protected void onRequestComplete() {
-        updateList();
-        jobsToDatabase();
     }
 }

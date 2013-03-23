@@ -41,14 +41,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         jobsToDatabase();
     }
 
-    @Override
-    public void onPageSelected(int index) {
-        super.onPageSelected(index);
-        ListFragment frag = getFragment(index);
-        frag.getListView().setOnItemClickListener(this);
-        frag.setEmptyText(getString(R.string.empty_job_list));
-    }
-
     /**
      * Instead of running a request to get a job list for each tab, we ask the data source
      * to do it for us (1 database request). Look at getJobsMap for more info.
@@ -79,7 +71,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         }
     }
 
-
     @Override
     public Void doPutTask() {
         jobDataSource.addJobs(allJobs);
@@ -99,7 +90,8 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     }
 
     protected void createTab(String displayName) {
-        ListFragment frag = new ListFragment();
+        PageListFragment frag = PageListFragment.newInstance();
+        frag.setOnItemClickListener(this);
         ArrayList<Job> list = new ArrayList<Job>();
         ArrayAdapter<Job> adapter = makeAdapterFromList(list);
         frag.setListAdapter(adapter);
@@ -113,9 +105,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             ArrayAdapter<Job> adapter = makeAdapterFromList(lists.get(tag));
             frag.setListAdapter(adapter);
         }
-        ListFragment firstPage = getFragment(0);
-        firstPage.getListView().setOnItemClickListener(this);
-        firstPage.setEmptyText(getString(R.string.empty_job_list));
     }
 
     public void addJobToListByTabId(String displayName, Job job) {
@@ -144,4 +133,28 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     public boolean listContainsId(String displayName, int id) {
         return getListByTab(displayName).contains(id);
     }
+
+    //============================
+    //  Custom ListFragment Class
+    //============================
+    public final static class PageListFragment extends ListFragment {
+        private OnItemClickListener that;
+
+        public final static PageListFragment newInstance() {
+            return new PageListFragment();
+        }
+
+        public void setOnItemClickListener(OnItemClickListener a) {
+            that = a;
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            getListView().setOnItemClickListener(that);
+            setEmptyText(getString(R.string.empty_job_list));
+            super.onActivityCreated(savedInstanceState);
+        }
+    }
+
+
 }
