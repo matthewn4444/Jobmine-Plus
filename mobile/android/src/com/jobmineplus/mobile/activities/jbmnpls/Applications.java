@@ -74,7 +74,6 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
 
     @Override
     protected String setUp(Bundle savedInstanceState) {
-        setContentView(R.layout.applications);
         pageName = Applications.class.getName();
         return JbmnplsHttpClient.GET_LINKS.APPLICATIONS;
     }
