@@ -22,8 +22,9 @@
     <string name="settings_check_freq_title">Check frequency</string> 
 
     <string name="settings_login_cate_title">Login</string>
-    <string name="settings_auto_login_summary">Check to auto login on startup</string>
+    <string name="settings_auto_login_summary">Check to auto log in on startup</string>
     <string name="settings_auto_login_title">Auto login</string>
     
     <string name="action_bar_online">Online</string>
+    <string name="menuitem_logout">Logout</string>
 </resources>

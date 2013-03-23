@@ -22,6 +22,8 @@ import com.jobmineplus.mobile.widgets.StopWatch;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient.LOGGED;
 
 public class LoginActivity extends SimpleActivityBase implements OnClickListener, TextWatcher {
+    public static final String DO_AUTO_LOGIN_EXTRA = "do_auto_login_extra";
+
     private UserDataSource userDataSource;
     private StopWatch sw;
 
@@ -38,8 +40,10 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(false);
 
-        // Check preferences to see if we should autologin
-        if (preferences.getBoolean("settingsAutoLogin", true)) {
+        // Check preferences and intent to see if we should autologin
+        Intent intent = getIntent();
+        boolean doAutoLogin = intent.getBooleanExtra(DO_AUTO_LOGIN_EXTRA, true);
+        if (doAutoLogin && preferences.getBoolean("settingsAutoLogin", true)) {
             // Check for login credentials
             // If this fails on startup, make a launcher activity instead to read credentials on thread
             Pair<String, String> credentials = userDataSource.getLastUser();
@@ -114,6 +118,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         if (isReallyOnline()) {
             new AsyncLoginTask(this).execute(username, password);
         } else {
+            // TODO add this code to the background task to add the last user
             log("offline login");
             boolean loggedIn = userDataSource.checkCredentials(username, password);
             setOnlineMode(false);

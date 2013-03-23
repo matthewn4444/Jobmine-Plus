@@ -33,12 +33,23 @@ public class UserDataSource extends DataSourceBase{
     //=========================
     //  Insertions
     //=========================
-    public long putUser(String username, String password, Boolean isLastUser) {
+    public synchronized long putUser(String username, String password, Boolean isLastUser) {
         return internalPutUser(username, password, isLastUser);
     }
 
     public synchronized long putUser(String username, String password) {
         return internalPutUser(username, password, false);
+    }
+
+    public synchronized void clearLastUser() {
+        Cursor cursor = database.rawQuery(String.format("update %s set %s = null",
+                UserTable.TABLE_USER, UserTable.COLUMN_LAST_USER), null);
+        if (cursor != null) {
+            cursor.moveToFirst();
+        } else {
+            return;
+        }
+        cursor.close();
     }
 
     //=========================
