@@ -8,7 +8,7 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-
+import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.Job;
 
 public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
@@ -44,7 +44,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     @Override
     public void onPageSelected(int index) {
         super.onPageSelected(index);
-        getFragment(index).getListView().setOnItemClickListener(this);
+        ListFragment frag = getFragment(index);
+        frag.getListView().setOnItemClickListener(this);
+        frag.setEmptyText(getString(R.string.empty_job_list));
     }
 
     /**
@@ -111,7 +113,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             ArrayAdapter<Job> adapter = makeAdapterFromList(lists.get(tag));
             frag.setListAdapter(adapter);
         }
-        getFragment(0).getListView().setOnItemClickListener(this);
+        ListFragment firstPage = getFragment(0);
+        firstPage.getListView().setOnItemClickListener(this);
+        firstPage.setEmptyText(getString(R.string.empty_job_list));
     }
 
     public void addJobToListByTabId(String displayName, Job job) {
