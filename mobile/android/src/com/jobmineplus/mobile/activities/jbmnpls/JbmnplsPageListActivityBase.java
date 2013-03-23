@@ -3,13 +3,15 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 
 import com.jobmineplus.mobile.widgets.Job;
 
-public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase {
+public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
 
     private HashMap<String, ArrayList<Job>> lists;
 
@@ -37,6 +39,12 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     protected void onRequestComplete() {
         updateLists();
         jobsToDatabase();
+    }
+
+    @Override
+    public void onPageSelected(int index) {
+        super.onPageSelected(index);
+        getFragment(index).getListView().setOnItemClickListener(this);
     }
 
     /**
@@ -103,6 +111,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             ArrayAdapter<Job> adapter = makeAdapterFromList(lists.get(tag));
             frag.setListAdapter(adapter);
         }
+        getFragment(0).getListView().setOnItemClickListener(this);
     }
 
     public void addJobToListByTabId(String displayName, Job job) {
