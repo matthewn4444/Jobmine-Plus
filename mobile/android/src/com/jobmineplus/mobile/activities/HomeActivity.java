@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
@@ -45,10 +45,8 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     }
 
     protected void connectUI() {
-        Button button;
         for (int i = 0; i < buttonLayouts.length; i++) {
-            button = (Button) findViewById(buttonLayouts[i]);
-            button.setOnClickListener(this);
+            findViewById(buttonLayouts[i]).setOnClickListener(this);
         }
     }
 
@@ -79,8 +77,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     }
 
     public void onClick(View arg0) {
-        Button button = (Button) arg0;
-        String name = button.getText().toString();
+        String name = ((TextView)arg0.findViewWithTag("text")).getText().toString();
         if (name.equals("Settings")) {
             prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
             goToActivityForResult(".activities.jbmnpls." + name);

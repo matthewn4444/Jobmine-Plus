@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="empty"></string>
+    
     <string name="username_hint">Username</string>
     <string name="app_name">Jobmine Plus Mobile</string>
     <string name="password_hint">Password</string>

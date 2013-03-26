@@ -1,41 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
+    android:background="@color/background"
     android:orientation="vertical"
-    android:padding="20dp" >
-
-         <Button
-             android:id="@+id/apps_button"
-             android:layout_width="100dp"
-             android:layout_height="100dp"
-             android:layout_alignParentLeft="true"
-             android:layout_marginBottom="20dp"
-             android:text="@+string/applications_title" /> 
-
-         <Button
-             android:id="@+id/shortlist_button"
-             android:layout_width="100dp"
-             android:layout_alignParentRight="true"
-             android:layout_height="100dp"
-             android:layout_marginBottom="20dp"
-             android:text="@+string/shortlist_title" />
-
-         <Button
-             android:id="@+id/interviews_button"
-             android:layout_width="100dp"
-             android:layout_height="100dp"
-             android:layout_alignLeft="@+id/apps_button"
-             android:layout_below="@+id/apps_button"
-             android:layout_marginBottom="20dp"
-             android:text="@+string/interviews_title" />
-
-         <Button
-             android:id="@+id/settings_button"
-             android:layout_width="100dp"
-             android:layout_height="100dp"
-             android:layout_alignParentRight="true"
-             android:layout_below="@+id/shortlist_button"
-             android:text="@+string/settings_title" />
-         
-</RelativeLayout>
+    android:padding="20dp">
+        <LinearLayout style="@style/category_button_row">
+            <LinearLayout
+                android:id="@+id/apps_button"
+                style="@style/category_button">
+                <ImageView
+                    style="@style/category_button_image"
+                    android:contentDescription="@string/empty"
+                    android:src="@drawable/home_applications_icon" />
+                <com.jobmineplus.mobile.widgets.TextViewPlus
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:text="@+string/applications_title"
+                    style="@style/category_button_text"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/shortlist_button"
+                style="@style/category_button">
+                <ImageView
+                    style="@style/category_button_image"
+                    android:contentDescription="@string/empty"
+                    android:src="@drawable/home_shortlist_icon" />
+                <com.jobmineplus.mobile.widgets.TextViewPlus
+                    android:text="@+string/shortlist_title"
+                    style="@style/category_button_text"/>
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout style="@style/category_button_row">
+            <LinearLayout
+                android:id="@+id/interviews_button"
+                style="@style/category_button">
+                <ImageView
+                    style="@style/category_button_image"
+                    android:contentDescription="@string/empty"
+                    android:src="@drawable/home_interviews_icon" />
+                <com.jobmineplus.mobile.widgets.TextViewPlus
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:text="@+string/interviews_title"
+                    style="@style/category_button_text"/>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/settings_button"
+                style="@style/category_button">
+                <ImageView
+                    style="@style/category_button_image"
+                    android:contentDescription="@string/empty"
+                    android:src="@drawable/home_settings_icon" />
+                <com.jobmineplus.mobile.widgets.TextViewPlus
+                    android:text="@+string/settings_title"
+                    style="@style/category_button_text"/>
+            </LinearLayout>
+        </LinearLayout>
+        <!-- 
+        <LinearLayout
+            android:layout_width="fill_parent" 
+            android:layout_height="wrap_content"
+            android:weightSum="1">
+            <Button
+                android:id="@+id/interviews_button"
+                android:layout_height="100dp"
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:background="@android:color/transparent"
+                android:text="@+string/interviews_title" />
+             <Button
+                 android:id="@+id/settings_button"
+                 android:layout_height="100dp"
+                 android:layout_width="0dp"
+                 android:layout_weight="0.5"
+                 android:background="@android:color/transparent"
+                 android:text="@+string/settings_title" />
+        </LinearLayout>
+         -->
+</LinearLayout>
