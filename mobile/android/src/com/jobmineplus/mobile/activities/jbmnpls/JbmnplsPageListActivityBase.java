@@ -132,7 +132,12 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     }
 
     public boolean listContainsId(String displayName, int id) {
-        return getListByTab(displayName).contains(id);
+        for (Job job : getListByTab(displayName)) {
+            if (job.getId() == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     //============================
