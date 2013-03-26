@@ -14,13 +14,11 @@
                     android:contentDescription="@string/empty"
                     android:src="@drawable/home_applications_icon" />
                 <com.jobmineplus.mobile.widgets.TextViewPlus
-                    xmlns:android="http://schemas.android.com/apk/res/android"
                     android:text="@+string/applications_title"
                     style="@style/category_button_text"/>
             </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
             <com.jobmineplus.mobile.widgets.OpacityLinearLayout
                 android:id="@+id/shortlist_button"
-                xmlns:android="http://schemas.android.com/apk/res/android"
                 style="@style/category_button">
                 <ImageView
                     style="@style/category_button_image"
@@ -40,7 +38,6 @@
                     android:contentDescription="@string/empty"
                     android:src="@drawable/home_interviews_icon" />
                 <com.jobmineplus.mobile.widgets.TextViewPlus
-                    xmlns:android="http://schemas.android.com/apk/res/android"
                     android:text="@+string/interviews_title"
                     style="@style/category_button_text"/>
             </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
