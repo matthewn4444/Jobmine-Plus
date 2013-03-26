@@ -26,5 +26,6 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="uppercase">true</item>
+        <item name="android:tag">text</item>
     </style>
 </resources>

@@ -6,7 +6,7 @@
     android:orientation="vertical"
     android:padding="20dp">
         <LinearLayout style="@style/category_button_row">
-            <LinearLayout
+            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
                 android:id="@+id/apps_button"
                 style="@style/category_button">
                 <ImageView
@@ -17,9 +17,10 @@
                     xmlns:android="http://schemas.android.com/apk/res/android"
                     android:text="@+string/applications_title"
                     style="@style/category_button_text"/>
-            </LinearLayout>
-            <LinearLayout
+            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
                 android:id="@+id/shortlist_button"
+                xmlns:android="http://schemas.android.com/apk/res/android"
                 style="@style/category_button">
                 <ImageView
                     style="@style/category_button_image"
@@ -28,10 +29,10 @@
                 <com.jobmineplus.mobile.widgets.TextViewPlus
                     android:text="@+string/shortlist_title"
                     style="@style/category_button_text"/>
-            </LinearLayout>
+            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
         </LinearLayout>
         <LinearLayout style="@style/category_button_row">
-            <LinearLayout
+            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
                 android:id="@+id/interviews_button"
                 style="@style/category_button">
                 <ImageView
@@ -42,8 +43,8 @@
                     xmlns:android="http://schemas.android.com/apk/res/android"
                     android:text="@+string/interviews_title"
                     style="@style/category_button_text"/>
-            </LinearLayout>
-            <LinearLayout
+            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
                 android:id="@+id/settings_button"
                 style="@style/category_button">
                 <ImageView
@@ -53,27 +54,6 @@
                 <com.jobmineplus.mobile.widgets.TextViewPlus
                     android:text="@+string/settings_title"
                     style="@style/category_button_text"/>
-            </LinearLayout>
+            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
         </LinearLayout>
-        <!-- 
-        <LinearLayout
-            android:layout_width="fill_parent" 
-            android:layout_height="wrap_content"
-            android:weightSum="1">
-            <Button
-                android:id="@+id/interviews_button"
-                android:layout_height="100dp"
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:background="@android:color/transparent"
-                android:text="@+string/interviews_title" />
-             <Button
-                 android:id="@+id/settings_button"
-                 android:layout_height="100dp"
-                 android:layout_width="0dp"
-                 android:layout_weight="0.5"
-                 android:background="@android:color/transparent"
-                 android:text="@+string/settings_title" />
-        </LinearLayout>
-         -->
 </LinearLayout>
