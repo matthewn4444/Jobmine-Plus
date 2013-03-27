@@ -2,18 +2,15 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.util.ArrayList;
 import java.util.Date;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
-
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -53,7 +50,8 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
 
     protected static final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
-            R.id.job_status,R.id.job_last_day, R.id.job_apps };
+            R.id.job_status_first_line, R.id.job_status_second_line,
+            R.id.job_last_day, R.id.job_apps };
 
     //============================
     //  Static Public Methods
@@ -128,7 +126,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     //=================
     //  List Adapter
     //=================
-    private class ApplicationsAdapter extends ViewAdapterBase<Job> {
+    private class ApplicationsAdapter extends JbmnplsAdapterBase {
         public ApplicationsAdapter(Activity a, int widgetResourceLayout,
                 int[] viewResourceIdListInWidget, ArrayList<Job> list) {
             super(a, widgetResourceLayout, viewResourceIdListInWidget,
@@ -136,14 +134,30 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
         }
 
         @Override
-        protected void setWidgetValues(Job job, View[] elements) {
-            if (job != null) {
-                ((TextView) elements[0]).setText(job.getTitle());
-                ((TextView) elements[1]).setText(job.getEmployer());
-                ((TextView) elements[2]).setVisibility(View.GONE);          //Make location invisible
-                ((TextView) elements[3]).setText(job.getDisplayStatus());
-                ((TextView) elements[4]).setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
-                ((TextView) elements[5]).setText(Integer.toString(job.getNumberOfApplications()));
+        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+            final Applications applications = (Applications) getActivity();
+            String status = job.getDisplayStatus();
+
+            // Set the text fields
+            setText(0, job.getTitle());
+            setText(1, job.getEmployer(), true);
+            hide(2);
+            setText(3, 4, status, true);
+            setDate(5, job.getLastDateToApply(), "Apply by");
+            hide(6);
+
+            /*
+             *  Do the highlighting
+             */
+            if (isOneOf(status, "Selected", "Scheduled", "Employed") || status == "Ranking Completed"
+                    && applications.listContainsId(LISTS.ACTIVE_JOBS, job.getId())) {
+                return HIGHLIGHTING.GREAT;
+            } else if (isOneOf(status, "Unfilled", "Ranking Completed", "Not Ranked")) {
+                return HIGHLIGHTING.BAD;
+            } else if (isOneOf(status, "Not Selected", "Cancelled")) {
+                return HIGHLIGHTING.WORSE;
+            } else {
+                return HIGHLIGHTING.NORMAL;
             }
         }
     }

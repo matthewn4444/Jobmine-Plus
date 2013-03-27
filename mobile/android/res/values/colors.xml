@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background">#ebebeb</color>
+    <color name="highlight_green">#8861f768</color>
+    <color name="highlight_grey">#88717171</color>
+    <color name="highlight_red">#88ed4a4a</color>
+    
+    <color name="job_widget_employer_text">#77000000</color>
+    <color name="job_widget_status_text">#88000000</color>
+    <color name="job_widget_date_text">#66000000</color>
+</resources>

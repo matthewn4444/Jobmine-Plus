@@ -2,6 +2,7 @@ package com.jobmineplus.mobile.widgets;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,27 +11,31 @@ import android.widget.ArrayAdapter;
 
 
 public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
-    private Context ctx;
+    private Activity activity;
     private ArrayList<TItem> entries;
     private int widgetLayout;
     private int[] resources;
 
-    public ViewAdapterBase(Context a, int widgetResourceLayout, int[] viewResourceIdListInWidget, ArrayList<TItem> list) {
+    public ViewAdapterBase(Activity a, int widgetResourceLayout, int[] viewResourceIdListInWidget, ArrayList<TItem> list) {
         super(a, 0, list);
         entries = list;
-        ctx = a;
+        activity = a;
         resources = viewResourceIdListInWidget;
         widgetLayout = widgetResourceLayout;
     }
 
-    protected abstract void setWidgetValues(TItem item, View[] elements);
+    protected abstract void setWidgetValues(TItem item, View[] elements, View layout);
+
+    protected Activity getActivity() {
+        return activity;
+    }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View viewObj = convertView;
         View[] elements = null;
         if (viewObj == null) {
-            LayoutInflater inflator = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater inflator = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             viewObj = inflator.inflate(widgetLayout, null);
             int size = resources.length;
             elements = new View[size];
@@ -45,7 +50,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
         for (View v: elements) {
             v.setVisibility(View.VISIBLE);
         }
-        setWidgetValues(item, elements);
+        setWidgetValues(item, elements, viewObj);
         return viewObj;
     }
 }

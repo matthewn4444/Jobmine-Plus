@@ -208,7 +208,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         }
 
         @Override
-        protected void setWidgetValues(Job job, View[] elements) {
+        protected void setWidgetValues(Job job, View[] elements, View layout) {
             if (job != null) {
                 Date start = job.getInterviewStartTime();
                 Date end = job.getInterviewEndTime();
