@@ -80,8 +80,9 @@ public class Description extends JbmnplsPageActivityBase {
     }
 
     @Override
-    protected void doOffine() {
+    protected long doOffine() {
         // Not needed because we get the job from the database already
+        return 0;
     }
 
     // =====================

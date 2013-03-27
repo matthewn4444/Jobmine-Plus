@@ -9,6 +9,7 @@ import android.support.v4.app.ListFragment;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.database.pages.PageMapResult;
 import com.jobmineplus.mobile.widgets.Job;
 
 public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
@@ -46,9 +47,10 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
      * to do it for us (1 database request). Look at getJobsMap for more info.
      */
     @Override
-    protected void doOffine() {
-        HashMap<String, ArrayList<Integer>> idMap =
-                pageDataSource.getJobsIdMap(client.getUsername(), pageName);
+    protected long doOffine() {
+        PageMapResult result =
+                pageDataSource.getPageDataMap(client.getUsername(), pageName);
+        HashMap<String, ArrayList<Integer>> idMap = result.idMap;
         if (idMap != null) {
             HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
             if (retList != null) {
@@ -69,10 +71,11 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
                 }
             }
         }
+        return result.timestamp;
     }
 
     @Override
-    public Void doPutTask() {
+    public Long doPutTask() {
         jobDataSource.addJobs(allJobs);
         if (pageName != null) {
             pageDataSource.addPage(client.getUsername(), pageName, lists, timestamp);

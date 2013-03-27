@@ -10,6 +10,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.database.pages.PageResult;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -43,8 +44,9 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
 
     @Override
-    protected void doOffine() {
-        ArrayList<Integer> ids = pageDataSource.getJobsIds(client.getUsername(), pageName);
+    protected long doOffine() {
+        PageResult result = pageDataSource.getPageData(client.getUsername(), pageName);
+        ArrayList<Integer> ids = result.ids;
         allJobs.clear();
 
         if (ids != null) {
@@ -53,6 +55,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
                 allJobs.add(job);
             }
         }
+        return result.timestamp;
     }
 
     @Override

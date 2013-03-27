@@ -3,6 +3,8 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -30,12 +32,12 @@ import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
-public abstract class JbmnplsActivityBase extends LoggedInActivityBase implements IDatabaseTask<Void>, DialogInterface.OnClickListener {
+public abstract class JbmnplsActivityBase extends LoggedInActivityBase implements IDatabaseTask<Long>, DialogInterface.OnClickListener {
 
     // =================
     // Declarations
     // =================
-    protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy");
+    protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
 
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
@@ -47,7 +49,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected long timestamp;
     protected String pageName;
     private Boolean backBtnDisabled = false;
-    private DatabaseTask<Void> databaseTask;
+    private DatabaseTask<Long> databaseTask;
     private Builder confirm;
 
     // ====================
@@ -90,7 +92,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
      */
     protected abstract void onRequestComplete();
 
-    protected abstract void doOffine();
+    protected abstract long doOffine();
 
 
     // ====================
@@ -102,7 +104,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         allJobs = new ArrayList<Job>();
         jobDataSource = new JobDataSource(this);
         pageDataSource = new PageDataSource(this);
-        databaseTask = new DatabaseTask<Void>(this);
+        databaseTask = new DatabaseTask<Long>(this);
         jobDataSource.open();
         pageDataSource.open();
         pageName = null;
@@ -219,7 +221,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // ======================
     // Database Task Members
     // ======================
-    public Void doPutTask() {
+    public Long doPutTask() {
         backBtnDisabled = true;
         jobDataSource.addJobs(allJobs);
         if (pageName != null) {
@@ -229,13 +231,13 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         return null;
     }
 
-    public Void doGetTask() {
-        doOffine();
-        return null;
+    public Long doGetTask() {
+        return doOffine();
     }
 
-    public void finishedTask(Void result, DatabaseTask.Action action) {
+    public void finishedTask(Long result, DatabaseTask.Action action) {
         if (action == Action.GET) {
+            getSupportActionBar().setSubtitle(formatDateFromNow(result, "Last accessed"));
             onRequestComplete();
         }
     }
@@ -243,6 +245,39 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // =================
     // Miscellaneous
     // =================
+    protected String formatDateFromNow(Date then) {
+        return formatDateFromNow(then.getTime());
+    }
+    protected String formatDateFromNow(long then) {
+        return formatDateFromNow(then, null);
+    }
+    protected String formatDateFromNow(long then, String prefix) {
+        Date now = new Date();
+        prefix = (prefix == null) ? "" : prefix.trim();
+        StringBuilder sb = new StringBuilder(prefix).append(" ");
+        float diffSecs = Math.round((now.getTime() - then) / 1000);
+        log(diffSecs, (60*60*24));
+        if (diffSecs > (60*60*24)) {                    // Return the parsed Date
+            return sb.append("on ")
+                    .append(DISPLAY_DATE_FORMAT.format(then)).toString();
+        } else {
+            if (diffSecs < 60) {                        // Seconds
+                sb.append((int)diffSecs + " second");
+            } else if (diffSecs < (60*60)) {            // Minutes
+                diffSecs = Math.round(diffSecs/60);
+                sb.append((int)diffSecs + " minute");
+            } else {                                    // Hours
+                diffSecs = Math.round(diffSecs/(60*60));
+                sb.append((int)diffSecs + " hour");
+            }
+            if (diffSecs > 1) {
+                sb.append("s ago");
+            } else {
+                sb.append(" ago");
+            }
+            return sb.toString();
+        }
+    }
 
     protected void jobsToDatabase() {
         if (isReallyOnline()) {
