@@ -87,6 +87,10 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
         @Override
         protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
             String status = job.getDisplayStatus();
+            if (status == "Not Authorized to Apply") {
+                status = "Cannot Apply";
+            }
+
             setText(0, job.getTitle());
             setText(1, job.getEmployer(), true);
             setText(2, job.getLocation());
@@ -95,7 +99,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
             if (status == "Already Applied") {
                 return HIGHLIGHTING.GREAT;
-            } else if (status == "Not Authorized") {
+            } else if (status == "Cannot Apply") {
                 return HIGHLIGHTING.BAD;
             }
             return HIGHLIGHTING.NORMAL;
