@@ -152,7 +152,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         switch (which){
         case DialogInterface.BUTTON_POSITIVE:
             setOnlineMode(false);
-            databaseTask.executeGet();
+            doExecuteGetTask();
             break;
         case DialogInterface.BUTTON_NEGATIVE:
             goToHomeActivity();
@@ -242,6 +242,11 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         }
     }
 
+    private void doExecuteGetTask() {
+        getSupportActionBar().setSubtitle(getString(R.string.subtitle_getting_last_accessed));
+        databaseTask.executeGet();
+    }
+
     // =================
     // Miscellaneous
     // =================
@@ -310,7 +315,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 task.execute(dataUrl);
             }
         } else {
-            databaseTask.executeGet();
+            doExecuteGetTask();
         }
     }
 
