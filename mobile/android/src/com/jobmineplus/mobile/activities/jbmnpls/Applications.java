@@ -51,7 +51,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     protected static final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
             R.id.job_status_first_line, R.id.job_status_second_line,
-            R.id.job_last_day, R.id.job_apps };
+            R.id.job_last_day};
 
     //============================
     //  Static Public Methods
@@ -144,7 +144,6 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
             hide(2);
             setText(3, 4, status, true);
             setDate(5, job.getLastDateToApply(), "Apply by");
-            hide(6);
 
             /*
              *  Do the highlighting

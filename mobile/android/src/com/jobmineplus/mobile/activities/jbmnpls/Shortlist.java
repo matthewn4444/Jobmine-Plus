@@ -7,12 +7,10 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.TextView;
-
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -37,7 +35,8 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
     protected final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
-            R.id.job_status_first_line,R.id.job_last_day, R.id.job_apps };
+            R.id.job_status_first_line,R.id.job_status_second_line,
+            R.id.job_last_day };
 
     //====================
     //  Override Methods
@@ -79,23 +78,27 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //=================
     //  List Adapter
     //=================
-    private class ShortlistAdapter extends ViewAdapterBase<Job> {
+    private class ShortlistAdapter extends JbmnplsAdapterBase {
         public ShortlistAdapter(Activity a, int listViewResourceId, int[] viewResourceIdListInWidget,
                 ArrayList<Job> list) {
-            super(a, listViewResourceId, viewResourceIdListInWidget,
-                    list);
+            super(a, listViewResourceId, viewResourceIdListInWidget, list);
         }
 
         @Override
-        protected void setWidgetValues(Job job, View[] elements, View layout) {
-            if (job != null) {
-                ((TextView) elements[0]).setText(job.getTitle());
-                ((TextView) elements[1]).setText(job.getEmployer());
-                ((TextView) elements[2]).setText(job.getLocation());
-                ((TextView) elements[3]).setText(job.getDisplayStatus());
-                ((TextView) elements[4]).setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
-                ((TextView) elements[5]).setText(Integer.toString(job.getNumberOfApplications()));
+        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+            String status = job.getDisplayStatus();
+            setText(0, job.getTitle());
+            setText(1, job.getEmployer(), true);
+            setText(2, job.getLocation());
+            setText(3, 4, status, true);
+            setDate(5, job.getLastDateToApply(), "Apply by");
+
+            if (status == "Already Applied") {
+                return HIGHLIGHTING.GREAT;
+            } else if (status == "Not Authorized") {
+                return HIGHLIGHTING.BAD;
             }
+            return HIGHLIGHTING.NORMAL;
         }
     }
 }
