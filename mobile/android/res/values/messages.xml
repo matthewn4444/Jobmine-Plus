@@ -11,5 +11,4 @@
         <string name="interviews_ticket_text">You have a new interview!</string>
         <string name="go_offline_message">"JobMine is currently offline, would you like to go into offline mode?"</string>
         <string name="empty_job_list">"No jobs are listed"</string>
-        <string name="subtitle_getting_last_accessed">Getting last accessed content&#8230;</string>
     </resources>

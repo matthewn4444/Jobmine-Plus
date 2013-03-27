@@ -243,7 +243,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     }
 
     private void doExecuteGetTask() {
-        getSupportActionBar().setSubtitle(getString(R.string.subtitle_getting_last_accessed));
+        getSupportActionBar().setSubtitle(" ");
         databaseTask.executeGet();
     }
 
