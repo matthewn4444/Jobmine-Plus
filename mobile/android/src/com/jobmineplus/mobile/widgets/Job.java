@@ -57,17 +57,17 @@ public class Job {
      * @param jTitle
      * @param jEmployer
      * @param jLocation
-     * @param jStatus - eg. Job.STATUS.SCREENED
+     * @param jAppStatus
      * @param jLastDate
      * @param jNumApps
      */
     public Job(int jId, String jTitle, String jEmployer, String jLocation,
-            STATUS jStatus, Date jLastDate, int jNumApps) {
+            APPLY_STATUS jAppStatus, Date jLastDate, int jNumApps) {
         setId(jId);
         title = jTitle;
         employer = jEmployer;
         location = jLocation;
-        status = jStatus;
+        app_status = jAppStatus;
         lastToApply = jLastDate;
         numApps = jNumApps;
     }
@@ -118,6 +118,7 @@ public class Job {
     * @param jTerm
     * @param jState
     * @param jStatus
+    * @param jAppStatus
     * @param jLastToApply
     * @param jNumApps
     * @param jOpenings
@@ -139,7 +140,7 @@ public class Job {
     * @param jInterviewer
     */
     public Job(int jId, String jTitle, String jEmployer, String jTerm,
-            String jState, String jStatus, long jLastToApply, int jNumApps,
+            String jState, String jStatus, String jAppStatus, long jLastToApply, int jNumApps,
             int jOpenings, long jOpenToApply, String jEmployerFull,
             int jGradesRequired, String jLocation, String jDisciplines,
             String jLevels, String jHiringSupport, String jWorkSupport,
@@ -150,8 +151,15 @@ public class Job {
         title = jTitle;
         employer = jEmployer;
         term = jTerm;
-        state = STATE.getStatefromString(jState);
-        status = STATUS.getStatusfromString(jStatus);
+        if (jState != null) {
+            state = STATE.getStatefromString(jState);
+        }
+        if (jStatus != null) {
+            status = STATUS.getStatusfromString(jStatus);
+        }
+        if (jAppStatus != null) {
+            app_status = APPLY_STATUS.getApplicationStatusfromString(jAppStatus);
+        }
         lastToApply = new Date(jLastToApply);
         numApps = jNumApps;
         openings = jOpenings;
@@ -300,12 +308,9 @@ public class Job {
     }
 
     static public enum STATUS {
-        APPLY("Apply", 3),
         APPLIED("Applied", 3),
         NOT_POSTED("Not Posted", 2),
-        ALREADY_APPLIED("Already Applied", 3),
         NO_RESUME("No Resumes Available", 2),
-        CANNOT_APPLY("Not Authorized to Apply", 8),
         NOT_SELECTED("Not Selected", 10),
         NOT_RANKED("Not Ranked", 7),
         EMPLOYED("Employed", 11),
@@ -347,6 +352,47 @@ public class Job {
         }
 
         private String status;
+        private int priority;
+    }
+
+    static public enum APPLY_STATUS {
+        APPLY("Apply", 3),
+        ALREADY_APPLIED("Already Applied", 3),
+        CANNOT_APPLY("Not Authorized to Apply", 8);
+
+        public static APPLY_STATUS getApplicationStatusfromString(String text)
+                throws JbmnplsParsingException {
+            if (text == null) {
+                return null;
+            }
+            for (APPLY_STATUS b : APPLY_STATUS.values()) {
+                if (text.equalsIgnoreCase(b.toString())) {
+                    return b;
+                }
+            }
+            throw new JbmnplsParsingException("Application Status: Cannot match value '"
+                    + text + "'");
+        }
+
+        public static APPLY_STATUS getDefault() {
+            return CANNOT_APPLY;
+        }
+
+        @Override
+        public String toString() {
+            return application_status;
+        }
+
+        public int getPriority() {
+            return priority;
+        }
+
+        private APPLY_STATUS(String s, int p) {
+            application_status = s;
+            priority = p; // The higher the number, the more priority it has
+        }
+
+        private String application_status;
         private int priority;
     }
 
@@ -438,6 +484,7 @@ public class Job {
     // These can change
     protected STATE state = STATE.getDefault();
     protected STATUS status = STATUS.getDefault();
+    protected APPLY_STATUS app_status = APPLY_STATUS.getDefault();
     protected Date lastToApply;
     protected int numApps;
     protected int openings;
@@ -480,7 +527,7 @@ public class Job {
     }
 
     public boolean hasApplied() {
-        return status != STATUS.BLANK && status != STATUS.CANNOT_APPLY;
+        return status != STATUS.BLANK && app_status != APPLY_STATUS.CANNOT_APPLY;
     }
 
     public boolean canApply() {
@@ -678,6 +725,10 @@ public class Job {
 
     public STATUS getStatus() {
         return status;
+    }
+
+    public APPLY_STATUS getApplicationStatus() {
+        return app_status;
     }
 
     public Date getLastDateToApply() {

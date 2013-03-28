@@ -5,6 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import com.jobmineplus.mobile.database.DataSourceBase;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
+import com.jobmineplus.mobile.widgets.Job.STATE;
+import com.jobmineplus.mobile.widgets.Job.STATUS;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -23,6 +27,7 @@ public final class JobDataSource extends DataSourceBase {
             JobTable.COLUMN_TERM,
             JobTable.COLUMN_STATE,
             JobTable.COLUMN_STATUS,
+            JobTable.COLUMN_APP_STATUS,
             JobTable.COLUMN_LAST_DATE_APPLY,
             JobTable.COLUMN_NUM_APPS,
             JobTable.COLUMN_OPENINGS,
@@ -238,8 +243,11 @@ public final class JobDataSource extends DataSourceBase {
         values.put(JobTable.COLUMN_TITLE, job.getTitle());
         values.put(JobTable.COLUMN_EMPLOYER, job.getEmployer());
         addNonNullValue(values, JobTable.COLUMN_TERM, job.getTerm());
-        addNonNullValue(values, JobTable.COLUMN_STATE, job.getState().toString());
-        addNonNullValue(values, JobTable.COLUMN_STATUS, job.getStatus().toString());
+
+//        addNonNullValue(values, JobTable.COLUMN_STATE, job.getState().toString());
+//        addNonNullValue(values, JobTable.COLUMN_STATUS, job.getStatus().toString());
+//        addNonNullValue(values, JobTable.COLUMN_APP_STATUS, job.getApplicationStatus().toString());
+
         addNonNullValue(values, JobTable.COLUMN_LAST_DATE_APPLY, lastDateTimestamp);
         addNonNullValue(values, JobTable.COLUMN_NUM_APPS, job.getNumberOfApplications());
         addNonNullValue(values, JobTable.COLUMN_OPENINGS, job.getNumberOfOpenings());
@@ -261,6 +269,20 @@ public final class JobDataSource extends DataSourceBase {
         addNonNullValue(values, JobTable.COLUMN_INTERVIEW_ROOM, job.getRoomInfo());
         addNonNullValue(values, JobTable.COLUMN_INTERVIEW_INSTRUCTIONS, job.getInstructions());
         addNonNullValue(values, JobTable.COLUMN_INTERVIEWER, job.getInterviewer());
+
+        // Check the status values
+        STATE state = job.getState();
+        STATUS status = job.getStatus();
+        APPLY_STATUS appStatus = job.getApplicationStatus();
+        if (state != STATE.getDefault()) {
+            values.put( JobTable.COLUMN_STATE, state.toString());
+        }
+        if (status != STATUS.getDefault()) {
+            values.put( JobTable.COLUMN_STATUS, status.toString());
+        }
+        if (appStatus != APPLY_STATUS.getDefault()) {
+            values.put( JobTable.COLUMN_APP_STATUS, appStatus.toString());
+        }
 
         ArrayList<Pair<String, Object>> where = new ArrayList<Pair<String,Object>>();
         where.add(new Pair<String, Object>("_id", jobId));
@@ -290,27 +312,28 @@ public final class JobDataSource extends DataSourceBase {
                 cursor.getString(3),    // Term
                 cursor.getString(4),    // State
                 cursor.getString(5),    // Status
-                cursor.getLong(6),      // Last date apply
-                cursor.getInt(7),       // Number of apps
-                cursor.getInt(8),       // Openings
-                cursor.getLong(9),      // Open date to apply
-                cursor.getString(10),   // Employer fullname
-                cursor.getInt(11),      // Grades required
-                cursor.getString(12),   // Location
-                cursor.getString(13),   // Disciplines
-                cursor.getString(14),   // Levels
-                cursor.getString(15),   // Hiring support
-                cursor.getString(16),   // Work support
-                cursor.getString(17),   // Description
-                cursor.getString(18),   // Description warning
+                cursor.getString(6),    // Application Status
+                cursor.getLong(7),      // Last date apply
+                cursor.getInt(8),       // Number of apps
+                cursor.getInt(9),       // Openings
+                cursor.getLong(10),      // Open date to apply
+                cursor.getString(11),   // Employer fullname
+                cursor.getInt(12),      // Grades required
+                cursor.getString(13),   // Location
+                cursor.getString(14),   // Disciplines
+                cursor.getString(15),   // Levels
+                cursor.getString(16),   // Hiring support
+                cursor.getString(17),   // Work support
+                cursor.getString(18),   // Description
+                cursor.getString(19),   // Description warning
 
                 // Interview data
-                cursor.getLong(19),     // Interview start time
-                cursor.getLong(20),     // Interview end time
-                cursor.getString(21),   // Interview type
-                cursor.getString(22),   // Interview room
-                cursor.getString(23),   // Interview instructions
-                cursor.getString(24)    // Interviewer
+                cursor.getLong(20),     // Interview start time
+                cursor.getLong(21),     // Interview end time
+                cursor.getString(22),   // Interview type
+                cursor.getString(23),   // Interview room
+                cursor.getString(24),   // Interview instructions
+                cursor.getString(25)    // Interviewer
         );
     }
 

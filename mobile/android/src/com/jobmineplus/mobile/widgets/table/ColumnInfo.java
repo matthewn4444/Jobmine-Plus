@@ -17,7 +17,8 @@ public class ColumnInfo {
     final public static int DOUBLE          = 4;
     final public static int STATE           = 5;
     final public static int STATUS          = 6;
-    final public static int INTERVIEW_TYPE  = 7;
+    final public static int APPLY_STATUS    = 7;
+    final public static int INTERVIEW_TYPE  = 8;
 
     private int columnNumber;
     private int type;

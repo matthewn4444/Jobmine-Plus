@@ -157,6 +157,9 @@ public class TableParser {
                   case ColumnInfo.STATUS:
                       value = Job.STATUS.getStatusfromString(text);
                       break;
+                  case ColumnInfo.APPLY_STATUS:
+                      value = Job.APPLY_STATUS.getApplicationStatusfromString(text);
+                      break;
                   case ColumnInfo.INTERVIEW_TYPE:
                       value = Job.INTERVIEW_TYPE.getTypefromString(text);
                       break;

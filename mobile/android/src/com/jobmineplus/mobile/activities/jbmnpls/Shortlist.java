@@ -11,6 +11,7 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -29,7 +30,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
                     new ColumnInfo(1, ColumnInfo.TEXT),
                     new ColumnInfo(2, ColumnInfo.TEXT),
                     new ColumnInfo(4, ColumnInfo.TEXT),
-                    new ColumnInfo(5, ColumnInfo.STATUS),
+                    new ColumnInfo(5, ColumnInfo.APPLY_STATUS),
                     new ColumnInfo(6, ColumnInfo.DATE, DATE_FORMAT),
                     new ColumnInfo(7, ColumnInfo.NUMERIC));
 
@@ -62,10 +63,10 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = new Job(  // Shortlist constructor
-                (Integer)   jobData[0],     (String)jobData[1],
-                (String)    jobData[2],     (String)jobData[3],
-                (Job.STATUS)jobData[4],     (Date)  jobData[5],
-                (Integer)   jobData[6]);
+                (Integer)           jobData[0],     (String)jobData[1],
+                (String)            jobData[2],     (String)jobData[3],
+                (Job.APPLY_STATUS)  jobData[4],     (Date)  jobData[5],
+                (Integer)           jobData[6]);
         addJob(job);
     }
 
@@ -86,20 +87,18 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
         @Override
         protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
-            String status = job.getDisplayStatus();
-            if (status == "Not Authorized to Apply") {
-                status = "Cannot Apply";
-            }
+            APPLY_STATUS status = job.getApplicationStatus();
+            String statusStr = status == APPLY_STATUS.CANNOT_APPLY ? "Cannot Apply" : status.toString();
 
             setText(0, job.getTitle());
             setText(1, job.getEmployer(), true);
             setText(2, job.getLocation());
-            setText(3, 4, status, true);
+            setText(3, 4, statusStr, true);
             setDate(5, job.getLastDateToApply(), "Apply by");
 
-            if (status == "Already Applied") {
+            if (status == APPLY_STATUS.ALREADY_APPLIED) {
                 return HIGHLIGHTING.GREAT;
-            } else if (status == "Cannot Apply") {
+            } else if (status == APPLY_STATUS.CANNOT_APPLY) {
                 return HIGHLIGHTING.BAD;
             }
             return HIGHLIGHTING.NORMAL;
