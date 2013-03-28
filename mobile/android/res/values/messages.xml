@@ -12,4 +12,5 @@
         <string name="go_offline_message">"JobMine is currently offline, would you like to go into offline mode?"</string>
         <string name="empty_job_list">"No jobs are listed"</string>
         <string name="never_accessed_before">Page was never accessed before</string>
+        <string name="description_getting_data">Getting data&#8230;</string>
     </resources>

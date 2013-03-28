@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
@@ -58,6 +59,8 @@ public class Description extends JbmnplsPageActivityBase {
         if (job.hasDescriptionData()) {
             fillInDescription();
         } else {
+            ActionBar bar = getSupportActionBar();
+            bar.setTitle(getString(R.string.description_getting_data));
             super.requestData();
         }
     }
@@ -91,6 +94,11 @@ public class Description extends JbmnplsPageActivityBase {
     protected void fillInDescription() {
         descrFragment.setJob(job);
         detFragment.setJob(job);
+
+        ActionBar bar = getSupportActionBar();
+        bar.setSubtitle(job.getTitle());
+        String employer = job.getEmployerFullName() == "" ? job.getEmployerFullName() : job.getEmployer();
+        bar.setTitle(employer);
     }
 
     public static final class JobDescription extends TabItemFragment<Job> {
@@ -100,12 +108,8 @@ public class Description extends JbmnplsPageActivityBase {
 
         public JobDescription() {
             init(R.layout.job_description_content, new int[]{
-                    R.id.employer,
-                    R.id.title,
-                    R.id.location,
-                    R.id.openings,
-                    R.id.grades,
                     R.id.warning,
+                    R.id.divider,
                     R.id.description
             });
         }
@@ -115,14 +119,14 @@ public class Description extends JbmnplsPageActivityBase {
         }
 
         public void setValues(View[] views, Job job) {
-            int opennings = job.getNumberOfOpenings();
-            ((TextView)views[0]).setText(job.getEmployerFullName());
-            ((TextView)views[1]).setText(job.getTitle());
-            ((TextView)views[2]).setText(job.getLocation());
-            ((TextView)views[3]).setText("Opennings: " + (opennings == 0 ? "0" : Integer.toString(opennings)));
-            ((TextView)views[4]).setText(job.areGradesRequired() ? "Required" : "[none]");
-            ((TextView)views[5]).setText(job.getDescriptionWarning());
-            ((TextView)views[6]).setText(job.getDescription());
+            String warning = job.getDescriptionWarning();
+            if (!warning.equals("")) {
+                ((TextView)views[0]).setText(warning);
+            } else {
+                views[0].setVisibility(View.GONE);
+                views[1].setVisibility(View.GONE);
+            }
+            ((TextView)views[2]).setText(job.getDescription());
         }
     }
 
@@ -147,6 +151,13 @@ public class Description extends JbmnplsPageActivityBase {
         }
 
         public void setValues(View[] views, Job job) {
+//            int opennings = job.getNumberOfOpenings();
+//            ((TextView)views[0]).setText(job.getEmployerFullName());
+//            ((TextView)views[1]).setText(job.getTitle());
+//            ((TextView)views[2]).setText(job.getLocation());
+//            ((TextView)views[3]).setText("Opennings: " + (opennings == 0 ? "0" : Integer.toString(opennings)));
+//            ((TextView)views[4]).setText(job.areGradesRequired() ? "Required" : "[none]");
+
             ((TextView)views[0]).setText(DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply()));
             ((TextView)views[1]).setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
             ((TextView)views[2]).setText(job.getHiringSupportName());

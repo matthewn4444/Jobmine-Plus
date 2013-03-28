@@ -8,4 +8,6 @@
     <color name="job_widget_employer_text">#77000000</color>
     <color name="job_widget_status_text">#88000000</color>
     <color name="job_widget_detail_text">#66000000</color>
+    
+    <color name="description_warning_text">#f43636</color>
 </resources>
