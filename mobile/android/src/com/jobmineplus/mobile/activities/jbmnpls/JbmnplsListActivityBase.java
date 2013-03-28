@@ -46,16 +46,19 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     @Override
     protected long doOffine() {
         PageResult result = pageDataSource.getPageData(client.getUsername(), pageName);
-        ArrayList<Integer> ids = result.ids;
-        allJobs.clear();
+        if (result != null) {
+            ArrayList<Integer> ids = result.ids;
+            allJobs.clear();
 
-        if (ids != null) {
-            ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
-            for (Job job : jobs) {
-                allJobs.add(job);
+            if (ids != null) {
+                ArrayList<Job> jobs = jobDataSource.getJobsByIdList(ids);
+                for (Job job : jobs) {
+                    allJobs.add(job);
+                }
             }
+            return result.timestamp;
         }
-        return result.timestamp;
+        return 0;
     }
 
     @Override

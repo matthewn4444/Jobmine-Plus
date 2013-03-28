@@ -237,7 +237,11 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     public void finishedTask(Long result, DatabaseTask.Action action) {
         if (action == Action.GET) {
-            getSupportActionBar().setSubtitle(formatDateFromNow(result, "Last accessed"));
+            if (result > 0) {
+                getSupportActionBar().setSubtitle(formatDateFromNow(result, "Last accessed"));
+            } else {
+                getSupportActionBar().setSubtitle(getString(R.string.never_accessed_before));
+            }
             onRequestComplete();
         }
     }

@@ -50,28 +50,31 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     protected long doOffine() {
         PageMapResult result =
                 pageDataSource.getPageDataMap(client.getUsername(), pageName);
-        HashMap<String, ArrayList<Integer>> idMap = result.idMap;
-        if (idMap != null) {
-            HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
-            if (retList != null) {
-                lists = retList;
+        if (result != null) {
+            HashMap<String, ArrayList<Integer>> idMap = result.idMap;
+            if (idMap != null) {
+                HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
+                if (retList != null) {
+                    lists = retList;
 
-                // Make the job list
-                HashSet<Integer> ids = new HashSet<Integer>();
-                for (String tag : lists.keySet()) {
-                    ArrayList<Job> jobs = lists.get(tag);
-                    if (!jobs.isEmpty()) {
-                        for (Job job : jobs) {
-                            if (!ids.contains(job.getId())) {
-                                ids.add(job.getId());
-                                allJobs.add(job);
+                    // Make the job list
+                    HashSet<Integer> ids = new HashSet<Integer>();
+                    for (String tag : lists.keySet()) {
+                        ArrayList<Job> jobs = lists.get(tag);
+                        if (!jobs.isEmpty()) {
+                            for (Job job : jobs) {
+                                if (!ids.contains(job.getId())) {
+                                    ids.add(job.getId());
+                                    allJobs.add(job);
+                                }
                             }
                         }
                     }
                 }
             }
+            return result.timestamp;
         }
-        return result.timestamp;
+        return 0;
     }
 
     @Override
