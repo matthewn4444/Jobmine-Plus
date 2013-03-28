@@ -1,5 +1,6 @@
 package com.jobmineplus.mobile.activities;
 
+import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -22,6 +23,9 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
 
     private static final String PREFIX_PATH = "com.jobmineplus.mobile";
     private static final int RESULT_FROM_SETTINGS = 1;
+    public static final String INTENT_REASON = "reason";
+
+    private Builder alert;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,16 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         getSupportActionBar().setHomeButtonEnabled(false);
 
         Intent passedIntent = getIntent();
+
+        // See if it came with an error
+        String errorMessage = passedIntent.getStringExtra(INTENT_REASON);
+        if (errorMessage != null) {
+            alert = new Builder(this);
+            alert.setMessage(errorMessage);
+            alert.setNeutralButton("Ok", null);
+            alert.show();
+        }
+
         if (passedIntent != null && passedIntent.hasExtra("username")) {
             String username = passedIntent.getStringExtra("username");
             String password = passedIntent.getStringExtra("password");

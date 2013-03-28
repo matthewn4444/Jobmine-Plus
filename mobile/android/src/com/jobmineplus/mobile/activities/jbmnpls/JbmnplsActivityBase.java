@@ -198,7 +198,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     protected void startActivityWithMessage(Class<?> cls, String reasonMsg) {
         Intent in = new Intent(this, cls);
-        in.putExtra("reason", reasonMsg);
+        in.putExtra(HomeActivity.INTENT_REASON, reasonMsg);
         startActivity(in);
         finish();
     }
