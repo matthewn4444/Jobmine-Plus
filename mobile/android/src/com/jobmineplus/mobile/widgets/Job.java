@@ -756,7 +756,7 @@ public class Job {
     }
 
     public String getDisciplinesAsString() {
-        return getDisciplinesAsString(", ");
+        return getDisciplinesAsString(",");
     }
 
     public String getDisciplinesAsString(CharSequence delimiter) {
@@ -768,7 +768,7 @@ public class Job {
     }
 
     public String getLevelsAsString() {
-        return getLevelsAsString(", ");
+        return getLevelsAsString(",");
     }
 
     public String getLevelsAsString(CharSequence delimiter) {
