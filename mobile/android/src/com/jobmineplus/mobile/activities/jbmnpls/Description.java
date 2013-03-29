@@ -161,7 +161,8 @@ public class Description extends JbmnplsPageActivityBase {
 
             // Opennings
             int opennings = job.getNumberOfOpenings();
-            ((TextView)views[1]).setText((opennings == 0 ? "No" : opennings) + " Opennings");
+            ((TextView)views[1]).setText((opennings == 0 ? "No" : opennings) + " Openning"
+                    + (opennings == 1 ? "" : "s"));
 
             // Location
             ((TextView)views[2]).setText(job.getLocation());
