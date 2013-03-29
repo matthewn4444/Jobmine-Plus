@@ -2,57 +2,75 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/details_layout"
     android:layout_width="fill_parent"
+    android:background="@color/background"
     android:layout_height="fill_parent" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-
+        style="@style/description_layout">
+        
+        <!-- Warning at the top -->
         <TextView
-            android:id="@+id/location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:id="@+id/grades"
+            style="@style/description_text"
+            android:textColor="@color/description_warning_text"
+            android:text="@string/job_details_grades"/>
 
         <TextView
             android:id="@+id/openings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
-        <TextView
-            android:id="@+id/grades"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textColor="@color/description_warning_text"
+            style="@style/description_text"/>
         
+        <!-- Location -->
+        <TextView
+            style="@style/description_title"
+            android:text="@string/job_details_loc_title"/>
         
         <TextView
-            android:id="@+id/open_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:id="@+id/location"
+            style="@style/description_text"/>
 
+        <!-- Dates to apply -->
         <TextView
-            android:id="@+id/last_day"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-
+            style="@style/description_title"
+            android:text="@string/job_details_dates_title"/>
         <TextView
-            android:id="@+id/hiring_support"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:id="@+id/date_range"
+            style="@style/description_text"/>
 
+        <!-- Work term support -->
+        <TextView
+            style="@style/description_title"
+            android:text="@string/job_details_wrksppt_title"/>
+        
         <TextView
             android:id="@+id/work_term"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            style="@style/description_text"/>
+        
+        <!-- Hiring Support -->
+        <TextView
+            android:text="@string/job_details_cecs_title"
+            style="@style/description_title"/>   
+        
+        <TextView
+            android:id="@+id/hiring_support"
+            style="@style/description_text"/>
 
+        <!-- Disciplines -->
+        <TextView
+            style="@style/description_title"
+            android:text="@string/job_details_disc_title"/>
+        
         <TextView
             android:id="@+id/discplines"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            style="@style/description_text"/>
         
-          <TextView
+        <!-- Levels -->
+        <TextView
+            style="@style/description_title"
+            android:text="@string/job_details_lvls_title"/>
+        
+        <TextView
             android:id="@+id/levels"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            style="@style/description_text"/>
     </LinearLayout>
 </ScrollView>

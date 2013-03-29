@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Generic Styles -->
+    <style name="wrap">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    
+    <!-- Home Style -->
     <style name="category_button_row">
         <item name="android:layout_width">fill_parent</item>
         <item name="android:layout_height">wrap_content</item>
@@ -21,11 +28,30 @@
         <item name="android:layout_marginBottom">8dp</item>
         <item name="android:scaleType">fitXY</item>
     </style>
-    <style name="category_button_text">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <style name="category_button_text" parent="wrap">
         <item name="android:layout_gravity">center_horizontal</item>
         <item name="uppercase">true</item>
         <item name="android:tag">text</item>
+    </style>
+    
+    <!-- Job description Styles -->
+    <style name="description_layout">
+        <item name="android:layout_width">fill_parent</item>
+	    <item name="android:layout_height">wrap_content</item>
+		<item name="android:paddingLeft">15dp</item>
+		<item name="android:paddingRight">15dp</item>
+		<item name="android:paddingTop">5dp</item>
+		<item name="android:paddingBottom">10dp</item>
+		<item name="android:orientation">vertical</item>
+    </style>
+    <style name="description_title" parent="wrap">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/description_text</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:layout_marginTop">16dp</item>
+        <item name="android:layout_marginBottom">-2dp</item>
+    </style>
+    <style name="description_text" parent="wrap">
+        <item name="android:textColor">@color/description_text</item>
     </style>
 </resources>

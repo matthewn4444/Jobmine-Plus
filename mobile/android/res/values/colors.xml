@@ -10,4 +10,5 @@
     <color name="job_widget_detail_text">#66000000</color>
     
     <color name="description_warning_text">#f43636</color>
+    <color name="description_text">#444444</color>
 </resources>

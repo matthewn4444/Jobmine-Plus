@@ -138,12 +138,14 @@ public class Description extends JbmnplsPageActivityBase {
 
         public JobDetails() {
             init(R.layout.job_description_details, new int[]{
-                    R.id.open_date,
-                    R.id.last_day,
-                    R.id.hiring_support,
+                    R.id.grades,
+                    R.id.openings,
+                    R.id.location,
+                    R.id.date_range,
                     R.id.work_term,
-                    R.id.levels,
-                    R.id.discplines
+                    R.id.hiring_support,
+                    R.id.discplines,
+                    R.id.levels
             });
         }
 
@@ -152,19 +154,34 @@ public class Description extends JbmnplsPageActivityBase {
         }
 
         public void setValues(View[] views, Job job) {
-//            int opennings = job.getNumberOfOpenings();
-//            ((TextView)views[0]).setText(job.getEmployerFullName());
-//            ((TextView)views[1]).setText(job.getTitle());
-//            ((TextView)views[2]).setText(job.getLocation());
-//            ((TextView)views[3]).setText("Opennings: " + (opennings == 0 ? "0" : Integer.toString(opennings)));
-//            ((TextView)views[4]).setText(job.areGradesRequired() ? "Required" : "[none]");
+            // Grades
+            if (!job.areGradesRequired()) {
+                views[0].setVisibility(View.GONE);
+            }
 
-            ((TextView)views[0]).setText(DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply()));
-            ((TextView)views[1]).setText(DISPLAY_DATE_FORMAT.format(job.getLastDateToApply()));
-            ((TextView)views[2]).setText(job.getHiringSupportName());
-            ((TextView)views[3]).setText(job.getWorkSupportName());
-            ((TextView)views[4]).setText(job.getLevelsAsString());
-            ((TextView)views[5]).setText(job.getDisciplinesAsString());
+            // Opennings
+            int opennings = job.getNumberOfOpenings();
+            ((TextView)views[1]).setText((opennings == 0 ? "No" : opennings) + " Opennings");
+
+            // Location
+            ((TextView)views[2]).setText(job.getLocation());
+
+            // Dates
+            String openingDate = DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply());
+            String lastDate = DISPLAY_DATE_FORMAT.format(job.getLastDateToApply());
+            ((TextView)views[3]).setText(openingDate + " - " + lastDate);
+
+            // Work Support
+            ((TextView)views[4]).setText(job.getWorkSupportName());
+
+            // Hiring Support
+            ((TextView)views[5]).setText(job.getHiringSupportName());
+
+            // Disciplines
+            ((TextView)views[6]).setText(job.getDisciplinesAsString("\n"));
+
+            // Levels
+            ((TextView)views[7]).setText(job.getLevelsAsString("\n"));
         }
     }
 }

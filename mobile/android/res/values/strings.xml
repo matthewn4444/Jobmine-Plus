@@ -27,4 +27,12 @@
     
     <string name="action_bar_online">Online</string>
     <string name="menuitem_logout">Logout</string>
+    
+    <string name="job_details_grades">Grades are required</string>
+    <string name="job_details_loc_title">Location of Job</string>
+    <string name="job_details_dates_title">Apply Between</string>
+    <string name="job_details_wrksppt_title">Work Term Support</string>
+    <string name="job_details_cecs_title">CECS Field Co-ordinator</string>
+    <string name="job_details_disc_title">Disciplines</string>
+    <string name="job_details_lvls_title">Levels</string>
 </resources>
