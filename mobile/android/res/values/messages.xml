@@ -13,4 +13,5 @@
         <string name="empty_job_list">"No jobs are listed"</string>
         <string name="never_accessed_before">Page was never accessed before</string>
         <string name="description_getting_data">Getting data&#8230;</string>
+        <string name="description_no_data">Please go online to view the description.</string>
     </resources>

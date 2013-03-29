@@ -120,13 +120,14 @@ public class Description extends JbmnplsPageActivityBase {
 
         public void setValues(View[] views, Job job) {
             String warning = job.getDescriptionWarning();
-            if (!warning.equals("")) {
+            if (warning != null && !warning.equals("")) {
                 ((TextView)views[0]).setText(warning);
+                ((TextView)views[2]).setText(job.getDescription());
             } else {
                 views[0].setVisibility(View.GONE);
                 views[1].setVisibility(View.GONE);
+                ((TextView)views[2]).setText(getString(R.string.description_no_data));
             }
-            ((TextView)views[2]).setText(job.getDescription());
         }
     }
 
