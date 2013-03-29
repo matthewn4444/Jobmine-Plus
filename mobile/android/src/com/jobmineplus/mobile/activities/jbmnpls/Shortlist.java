@@ -94,7 +94,14 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
             setText(1, job.getEmployer(), true);
             setText(2, job.getLocation());
             setText(3, 4, statusStr, true);
-            setDate(5, job.getLastDateToApply(), "Apply by");
+
+            // Show the closing date if hasnt passed yet
+            Date closingDate = job.getLastDateToApply();
+            if (closingDate.after(new Date())) {
+                setDate(5, job.getLastDateToApply(), "Apply by");
+            } else {
+                hide(5);
+            }
 
             if (status == APPLY_STATUS.ALREADY_APPLIED) {
                 return HIGHLIGHTING.GREAT;
