@@ -12,6 +12,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.view.View;
+import android.widget.TextView;
 
 public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implements ViewPager.OnPageChangeListener {
     private TabAdapter mAdapter;
@@ -56,6 +58,25 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implem
 
     public Fragment getFragment(String title) {
         return mAdapter.getItem(title);
+    }
+
+    //=====================
+    //  Empty Text
+    //=====================
+    public void setEmptyText(CharSequence text) {
+        ((TextView)findViewById(R.id.emptyText)).setText(text);
+    }
+
+    public void setIsEmpty(boolean isEmpty) {
+        View text = findViewById(R.id.emptyText);
+        View layout = findViewById(R.id.layout);
+        if (isEmpty) {
+            text.setVisibility(View.VISIBLE);
+            layout.setVisibility(View.GONE);
+        } else {
+            text.setVisibility(View.GONE);
+            layout.setVisibility(View.VISIBLE);
+        }
     }
 
     //=====================

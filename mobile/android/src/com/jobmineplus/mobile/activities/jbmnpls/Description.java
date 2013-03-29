@@ -51,6 +51,8 @@ public class Description extends JbmnplsPageActivityBase {
         detFragment = JobDetails.newInstance();
         createTab(TABS.DESCRIPTION, descrFragment);
         createTab(TABS.DETAILS, detFragment);
+
+        setEmptyText(getString(R.string.description_no_data));
     }
 
     @Override
@@ -92,13 +94,17 @@ public class Description extends JbmnplsPageActivityBase {
     // Protected Methods
     // =====================
     protected void fillInDescription() {
-        descrFragment.setJob(job);
-        detFragment.setJob(job);
-
         ActionBar bar = getSupportActionBar();
-        bar.setSubtitle(job.getTitle());
         String employer = job.getEmployerFullName() == "" ? job.getEmployerFullName() : job.getEmployer();
+        bar.setSubtitle(job.getTitle());
         bar.setTitle(employer);
+
+        if (job.hasDescriptionData()) {
+            descrFragment.setJob(job);
+            detFragment.setJob(job);
+        } else {
+            setIsEmpty(true);
+        }
     }
 
     public static final class JobDescription extends TabItemFragment<Job> {
@@ -120,14 +126,8 @@ public class Description extends JbmnplsPageActivityBase {
 
         public void setValues(View[] views, Job job) {
             String warning = job.getDescriptionWarning();
-            if (warning != null && !warning.equals("")) {
-                ((TextView)views[0]).setText(warning);
-                ((TextView)views[2]).setText(job.getDescription());
-            } else {
-                views[0].setVisibility(View.GONE);
-                views[1].setVisibility(View.GONE);
-                ((TextView)views[2]).setText(getString(R.string.description_no_data));
-            }
+            ((TextView)views[0]).setText(warning);
+            ((TextView)views[2]).setText(job.getDescription());
         }
     }
 
