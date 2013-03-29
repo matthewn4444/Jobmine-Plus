@@ -138,11 +138,15 @@ public class TableParser {
                       value = text;
                       break;
                   case ColumnInfo.DATE:
-                      try {
-                          value = new SimpleDateFormat(entry.getDateFormat(),
-                              Locale.ENGLISH).parse(text);
-                      } catch(ParseException e) {
-                          value = new Date();
+                      if (text.equals("")) {
+                          value = new Date(0);
+                      } else {
+                          try {
+                              value = new SimpleDateFormat(entry.getDateFormat(),
+                                  Locale.ENGLISH).parse(text);
+                          } catch(ParseException e) {
+                              value = new Date(0);
+                          }
                       }
                       break;
                   case ColumnInfo.DOUBLE:

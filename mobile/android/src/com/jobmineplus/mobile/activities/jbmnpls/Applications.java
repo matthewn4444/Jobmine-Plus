@@ -59,8 +59,9 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     public static Job parseRowTableOutline(TableParserOutline outline, Object... jobData) {
         Job.STATUS status = (Job.STATUS)jobData[5];
         int id = (Integer) jobData[0];
+
         //Applications constructor
-        return new Job(          id, (String)    jobData[1],
+        return new Job(          id,    (String)    jobData[1],
                 (String)    jobData[2], (String)    jobData[3],
                 (Job.STATE) jobData[4],                 status,
                 (Date)      jobData[6], (Integer)   jobData[7]);
@@ -143,7 +144,14 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
             setText(1, job.getEmployer(), true);
             hide(2);
             setText(3, 4, status, true);
-            setDate(5, job.getLastDateToApply(), "Apply by");
+
+            // Show the closing date if hasnt passed yet
+            Date closingDate = job.getLastDateToApply();
+            if (closingDate.after(new Date())) {
+                setDate(5, job.getLastDateToApply(), "Closes by");
+            } else {
+                hide(5);
+            }
 
             /*
              *  Do the highlighting

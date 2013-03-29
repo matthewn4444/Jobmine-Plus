@@ -126,7 +126,12 @@ public class Description extends JbmnplsPageActivityBase {
 
         public void setValues(View[] views, Job job) {
             String warning = job.getDescriptionWarning();
-            ((TextView)views[0]).setText(warning);
+            if (!warning.equals("")) {
+                ((TextView)views[0]).setText(warning);
+                views[1].setVisibility(View.VISIBLE);
+            } else {
+                views[0].setVisibility(View.GONE);
+            }
             ((TextView)views[2]).setText(job.getDescription());
         }
     }
@@ -170,7 +175,12 @@ public class Description extends JbmnplsPageActivityBase {
             // Dates
             String openingDate = DISPLAY_DATE_FORMAT.format(job.getOpenDateToApply());
             String lastDate = DISPLAY_DATE_FORMAT.format(job.getLastDateToApply());
-            ((TextView)views[3]).setText(openingDate + " - " + lastDate);
+
+            if (openingDate.equals(lastDate)) {
+                ((TextView)views[3]).setText(getString(R.string.description_no_dates));
+            } else {
+                ((TextView)views[3]).setText(openingDate + " - " + lastDate);
+            }
 
             // Work Support
             ((TextView)views[4]).setText(job.getWorkSupportName());
