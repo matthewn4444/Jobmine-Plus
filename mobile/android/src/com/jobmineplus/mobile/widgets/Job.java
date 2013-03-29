@@ -756,7 +756,11 @@ public class Job {
     }
 
     public String getDisciplinesAsString() {
-        return arrayJoin(disciplines, ",");
+        return getDisciplinesAsString(", ");
+    }
+
+    public String getDisciplinesAsString(CharSequence delimiter) {
+        return arrayJoin(disciplines, delimiter);
     }
 
     public LEVEL[] getLevels() {
@@ -764,7 +768,11 @@ public class Job {
     }
 
     public String getLevelsAsString() {
-        return arrayJoin(levels, ",");
+        return getLevelsAsString(", ");
+    }
+
+    public String getLevelsAsString(CharSequence delimiter) {
+        return arrayJoin(levels, delimiter);
     }
 
     public String getHiringSupportName() {
@@ -937,7 +945,7 @@ public class Job {
         }
     }
 
-    protected String arrayJoin(Object[] array, String delimiter) {
+    protected String arrayJoin(Object[] array, CharSequence delimiter) {
         if (array == null) {
             return null;
         }
@@ -947,7 +955,7 @@ public class Job {
         if (size != 0) {
             returnStr = array[0].toString();
             for (; i < size; i++) {
-                returnStr += delimiter + array[i];
+                returnStr += delimiter.toString() + array[i].toString().trim();
             }
         }
         return returnStr;
