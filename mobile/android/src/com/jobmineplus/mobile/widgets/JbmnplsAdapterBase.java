@@ -10,6 +10,8 @@ import com.jobmineplus.mobile.R;
 import junit.framework.Assert;
 
 import android.app.Activity;
+import android.text.Html;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,34 +35,98 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
     /*
      * Helper functions to set the widget text
      */
+    protected void hide(int index) {
+        Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
+        currentElements[index].setVisibility(View.GONE);
+    }
+
+    /*
+     * Date methods
+     */
+    protected void setDate(int index, Date date) {
+        setDate(index, date, (String)null, (SimpleDateFormat)null);
+    }
+
+    protected void setDate(int index, Date date, SimpleDateFormat format) {
+        setDate(index, date, (String)null, format);
+    }
+
+    protected void setDate(int index, Date date, String prefix) {
+        setDate(index, date, prefix, (SimpleDateFormat)null);
+    }
+
+    protected void setDate(int index, Date date, String prefix, SimpleDateFormat format) {
+        Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
+        if (date == null) {
+            hide(index);
+            return;
+        }
+        if (format == null) {
+            format = DATE_FORMAT;
+        }
+        String dateStr = format.format(date);
+        if (prefix != null && prefix != "") {
+            setText(index, prefix.trim() + " " + dateStr);
+        } else {
+            setText(index, dateStr);
+        }
+    }
+
+    protected void setDate(int index, Date from, Date to) {
+        setDate(index, from, to, null, null);
+    }
+
+    protected void setDate(int index, Date from, Date to, String prefix) {
+        setDate(index, from, to, prefix, null);
+    }
+
+    protected void setDate(int index, Date from, Date to, SimpleDateFormat format) {
+        setDate(index, from, to, null, null);
+    }
+
+    protected void setDate(int index, Date from, Date to, String prefix, SimpleDateFormat format) {
+        Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
+        if (from == null || to == null) {
+            hide(index);
+            return;
+        }
+        if (format == null) {
+            format = DATE_FORMAT;
+        }
+        String dateStr = format.format(from) + " - " + format.format(to);
+        if (prefix != null && prefix != "") {
+            setText(index, prefix.trim() + " " + dateStr);
+        } else {
+            setText(index, dateStr);
+        }
+    }
+
     protected void setText(int index, String text) {
         setText(index, text, false);
     }
     protected void setText(int index, String text, boolean uppercase) {
         Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
         TextView element = (TextView) currentElements[index];
+        if (text == null || TextUtils.isEmpty(text)) {
+            hide(index);
+            return;
+        }
         if (uppercase) {
             text = text.toUpperCase(Locale.getDefault());
         }
-        element.setText(text);
+        element.setText(Html.fromHtml(text));
     }
 
-    protected void hide(int index) {
-        Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
-        currentElements[index].setVisibility(View.GONE);
+    protected void setText(int index, String text, String prefix) {
+        setText(index, text, prefix, false);
     }
 
-    protected void setDate(int index, Date date) {
-        setDate(index, date, null);
-    }
-    protected void setDate(int index, Date date, String prefix) {
-        Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
-        String dateStr = DATE_FORMAT.format(date);
-        if (prefix != null && prefix != "") {
-            ((TextView)currentElements[index]).setText(prefix.trim() + " " + dateStr);
-        } else {
-            ((TextView)currentElements[index]).setText(dateStr);
+    protected void setText(int index, String text, String prefix, boolean uppercase) {
+        if (text == null || TextUtils.isEmpty(text)) {
+            hide(index);
+            return;
         }
+        setText(index, prefix + " " + text, uppercase);
     }
 
     protected void setText(int index1, int index2, String text) {
@@ -70,15 +136,20 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
         Assert.assertNotNull("Can only call this in setJobWidgetValues.", currentElements);
         TextView element1 = (TextView) currentElements[index1];
         TextView element2 = (TextView) currentElements[index2];
+        if (text == null || TextUtils.isEmpty(text)) {
+            hide(index1);
+            hide(index2);
+            return;
+        }
         if (uppercase) {
             text = text.toUpperCase(Locale.getDefault());
         }
 
         // Split the text into 2 elements, if there is no 2nd word, then hide it
         String[] textSplit = text.split(" ");
-        element1.setText(textSplit[0]);
+        element1.setText(Html.fromHtml(textSplit[0]));
         if (textSplit.length > 1) {
-            element2.setText(textSplit[1]);
+            element2.setText(Html.fromHtml(textSplit[1]));
         } else {
             hide(index2);
         }

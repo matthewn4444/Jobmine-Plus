@@ -13,13 +13,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
-
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.ViewAdapterBase;
 import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -93,8 +91,8 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     //  Widget Resource List Outline
     //================================
     protected final int[] WIDGET_RESOURCE_LIST = {
-            R.id.job_title, R.id.job_employer, R.id.date, R.id.type, R.id.time,
-            R.id.interviewer, R.id.room, R.id.instructions};
+            R.id.job_title, R.id.job_employer, R.id.interviewer, R.id.date, R.id.time,
+            R.id.room, R.id.type, R.id.instructions};
 
 
     //============================
@@ -200,57 +198,23 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     //=================
     //  List Adapter
     //=================
-    private class InterviewsAdapter extends ViewAdapterBase<Job> {
+    private class InterviewsAdapter extends JbmnplsAdapterBase {
         public InterviewsAdapter(Activity a, int widgetResourceLayout,
                 int[] viewResourceIdListInWidget, ArrayList<Job> list) {
-            super(a, widgetResourceLayout, viewResourceIdListInWidget,
-                    list);
+            super(a, widgetResourceLayout, viewResourceIdListInWidget, list);
         }
 
         @Override
-        protected void setWidgetValues(Job job, View[] elements, View layout) {
-            if (job != null) {
-                Date start = job.getInterviewStartTime();
-                Date end = job.getInterviewEndTime();
-                Job.INTERVIEW_TYPE type = job.getInterviewType();
-                String roominfo = job.getRoomInfo();
-                String instructions = job.getInstructions();
-                String interviewer = job.getInterviewer();
-
-                ((TextView) elements[0]).setText(job.getTitle());
-                ((TextView) elements[1]).setText(job.getEmployer());
-                if (start != null) {
-                    ((TextView) elements[2]).setText(DISPLAY_DATE_FORMAT.format(start));
-                    if (end != null) {
-                        ((TextView) elements[4]).setText(TIME_FORMAT.format(start) + " - " + TIME_FORMAT.format(end));
-                    } else {
-                        ((TextView) elements[4]).setVisibility(View.GONE);
-                    }
-                } else {
-                    ((TextView) elements[2]).setVisibility(View.GONE);
-                    ((TextView) elements[4]).setVisibility(View.GONE);
-                }
-                if (type != null) {
-                    ((TextView) elements[3]).setText(type.toString());
-                } else {
-                    ((TextView) elements[3]).setVisibility(View.GONE);
-                }
-                if (interviewer != null) {
-                    ((TextView) elements[5]).setText(interviewer);
-                } else {
-                    ((TextView) elements[5]).setVisibility(View.GONE);
-                }
-                if (roominfo != null) {
-                    ((TextView) elements[6]).setText(roominfo);
-                } else {
-                    ((TextView) elements[6]).setVisibility(View.GONE);
-                }
-                if (instructions != null && instructions.length() > 0) {
-                    ((TextView) elements[7]).setText(instructions);
-                } else {
-                    ((TextView) elements[7]).setVisibility(View.GONE);
-                }
-            }
+        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+            setText(0, job.getTitle());
+            setText(1, job.getEmployer(), true);
+            setText(2, job.getInterviewer(), "With <b>");
+            setDate(3, job.getInterviewStartTime(), "On <b>");
+            setDate(4, job.getInterviewStartTime(), job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
+            setText(5, job.getRoomInfo(), "At <b>");
+            setText(6, job.getInterviewType().toString(), true);
+            setText(7, job.getInstructions());
+            return HIGHLIGHTING.NORMAL;
         }
     }
 }
