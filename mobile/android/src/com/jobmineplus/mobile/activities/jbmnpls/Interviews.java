@@ -4,6 +4,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Locale;
@@ -31,6 +33,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     protected final static String DATE_FORMAT = "d MMM yyyy";
     protected final static SimpleDateFormat TIME_FORMAT = new SimpleDateFormat("h:mm a", Locale.ENGLISH);
     private final TableParser parser = new TableParser();
+    private final JobInterviewStartDateComparer isdComparer = new JobInterviewStartDateComparer();
 
     public final static class TABS {
         final public static String COMING_UP = "Coming Up";
@@ -86,6 +89,31 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
             COLUMN_1_INFO_ID,                               // Job Id
             COLUMN_2_INFO_TEXT,                             // Employer
             COLUMN_3_INFO_TEXT);                            // Title
+
+    //================================
+    //  Sorting Jobs
+    //================================
+    final class JobInterviewStartDateComparer implements Comparator<Job> {
+        private boolean descending = false;
+
+        public void shouldDescend(boolean d) {
+            descending = d;
+        }
+
+        @Override
+        public int compare(Job lhs, Job rhs) {
+            if (lhs == rhs || lhs.equals(rhs)) {
+                return 0;
+            }
+            Date l = lhs.getInterviewStartTime();
+            Date r = rhs.getInterviewStartTime();
+            if (descending) {
+                return l.after(r) ? -1 : 1;
+            } else {
+                return l.before(r) ? -1 : 1;
+            }
+        }
+    }
 
     //================================
     //  Widget Resource List Outline
@@ -175,6 +203,12 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         parser.execute(GROUPS_OUTLINE, html);
         parser.execute(SPECIAL_OUTLINE, html);
         parser.execute(CANCELLED_OUTLINE, html);
+
+        // Sort results by date
+        isdComparer.shouldDescend(false);
+        Collections.sort(getListByTab(TABS.COMING_UP), isdComparer);
+        isdComparer.shouldDescend(true);
+        Collections.sort(getListByTab(TABS.FINISHED), isdComparer);
     }
 
     //===================
