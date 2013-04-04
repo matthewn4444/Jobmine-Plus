@@ -139,7 +139,7 @@ public class Description extends JbmnplsPageActivityBase {
                 Character lastChar = text.charAt(text.length() - 1);
                 if (firstChar == '*' && lastChar == '*' || lastChar == ':') {
                     text = "<b>" + text;
-                } else if (firstChar == '*' || firstChar == '-') {
+                } else if (firstChar == '*' || firstChar == '-' && text.charAt(1) != '-') {
                     appendListItem(text.substring(1).trim());
                     return;
                 } else if (isTitle(text)) {
