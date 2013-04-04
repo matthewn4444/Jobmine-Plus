@@ -141,10 +141,12 @@ public class Description extends JbmnplsPageActivityBase {
                 Character firstChar = text.charAt(0);
                 Character lastChar = text.charAt(text.length() - 1);
                 if (firstChar == '*' && lastChar == '*' || lastChar == ':') {
-                        text = "<b>" + text;
+                    text = "<b>" + text;
                 } else if (firstChar == '*' || firstChar == '-') {
                     appendListItem(text.substring(1).trim());
                     return;
+                } else if (isTitle(text)) {
+                    text = "<b>" + text;
                 }
             }
             TextView t = (TextView)a.getLayoutInflater().inflate(R.layout.template_description_text, null);
@@ -172,6 +174,19 @@ public class Description extends JbmnplsPageActivityBase {
         private void setText(TextView v, String text) {
             text = text.replace("\\&quot;", "&quot;").replace("\\&#039;", "&#039;");
             v.setText(Html.fromHtml(text));
+        }
+
+        private boolean isTitle(String text) {
+            // Count number of spaces
+            int start = 0;
+            int num = 0;
+            while (start < text.length() && start != -1) {
+                start = text.indexOf(' ', start + 1);
+                if (start != -1) {
+                    num++;
+                }
+            }
+            return num < 10 && !text.contains(".") && !text.contains(":") && !text.contains(",");
         }
 
         public void setValues(View[] views, Job job) {
