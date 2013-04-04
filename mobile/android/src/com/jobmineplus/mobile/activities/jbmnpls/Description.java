@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.util.Linkify;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -216,20 +215,6 @@ public class Description extends JbmnplsPageActivityBase {
                     appendText(line);
                 }
             }
-        }
-
-        protected void log(Object... txt) {
-            String returnStr = "";
-            int i = 1;
-            int size = txt.length;
-            if (size != 0) {
-                returnStr = txt[0] == null ? "null" : txt[0].toString();
-                for (; i < size; i++) {
-                    returnStr += ", "
-                            + (txt[i] == null ? "null" : txt[i].toString());
-                }
-            }
-            Log.i("jbmnplsmbl", returnStr);
         }
     }
 
