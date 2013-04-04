@@ -35,4 +35,6 @@
     <string name="job_details_cecs_title">CECS Field Co-ordinator</string>
     <string name="job_details_disc_title">Disciplines</string>
     <string name="job_details_lvls_title">Levels</string>
+    
+    <string name="bullet_point">&#8226;</string>
 </resources>

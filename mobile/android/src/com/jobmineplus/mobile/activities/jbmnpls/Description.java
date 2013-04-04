@@ -2,8 +2,14 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -96,8 +102,8 @@ public class Description extends JbmnplsPageActivityBase {
     protected void fillInDescription() {
         ActionBar bar = getSupportActionBar();
         String employer = job.getEmployerFullName() == "" ? job.getEmployerFullName() : job.getEmployer();
-        bar.setSubtitle(job.getTitle());
-        bar.setTitle(employer);
+        bar.setSubtitle(Html.fromHtml(job.getTitle()));
+        bar.setTitle(Html.fromHtml(employer));
 
         if (job.hasDescriptionData()) {
             descrFragment.setJob(job);
@@ -108,15 +114,16 @@ public class Description extends JbmnplsPageActivityBase {
     }
 
     public static final class JobDescription extends TabItemFragment<Job> {
+        private LinearLayout layout;
+
         public static JobDescription newInstance() {
             return new JobDescription();
         }
 
         public JobDescription() {
             init(R.layout.job_description_content, new int[]{
-                    R.id.warning,
-                    R.id.divider,
-                    R.id.description
+                    R.id.description_layout,
+                    R.id.warning
             });
         }
 
@@ -124,15 +131,91 @@ public class Description extends JbmnplsPageActivityBase {
             setData(job);
         }
 
+        public void appendText(String text) {
+            Activity a = getActivity();
+            if (!TextUtils.isEmpty(text)) {
+                // Bold the font
+
+                // TODO support dash and then some spaces, support that dot character
+                // Support all caps regardless of punctuations
+                Character firstChar = text.charAt(0);
+                Character lastChar = text.charAt(text.length() - 1);
+                if (firstChar == '*' && lastChar == '*' || lastChar == ':') {
+                        text = "<b>" + text;
+                } else if (firstChar == '*' || firstChar == '-') {
+                    appendListItem(text.substring(1).trim());
+                    return;
+                }
+            }
+            TextView t = (TextView)a.getLayoutInflater().inflate(R.layout.template_description_text, null);
+            setText(t, text);
+            layout.addView(t);
+        }
+
+        public void appendDivider() {
+            Activity a = getActivity();
+            View ruler = new View(a);
+            ruler.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams( ViewGroup.LayoutParams.FILL_PARENT, 1);
+            params.setMargins(0, 10, 0, 10);
+            layout.addView(ruler, params);
+        }
+
+        public void appendListItem(String text) {
+            Activity a = getActivity();
+            LinearLayout l = (LinearLayout)a.getLayoutInflater().inflate(R.layout.template_list_item, null);
+            TextView t = (TextView)l.findViewWithTag("text");
+            setText(t, text);
+            layout.addView(l);
+        }
+
+        private void setText(TextView v, String text) {
+            text = text.replace("\\&quot;", "&quot;").replace("\\&#039;", "&#039;");
+            v.setText(Html.fromHtml(text));
+        }
+
         public void setValues(View[] views, Job job) {
+            layout = (LinearLayout)views[0];
+
+            // Show the warning if it exists
             String warning = job.getDescriptionWarning();
             if (!warning.equals("")) {
-                ((TextView)views[0]).setText(warning);
-                views[1].setVisibility(View.VISIBLE);
+                setText(((TextView)views[1]), warning);
+                appendDivider();
             } else {
-                views[0].setVisibility(View.GONE);
+                views[1].setVisibility(View.GONE);
             }
-            ((TextView)views[2]).setText(job.getDescription());
+
+            // Parse the description
+            String[] lines = job.getDescription().split("\n");
+
+            for (int i = 0; i < lines.length; i++) {
+                String line = lines[i].trim();
+                if (line.matches("-++") || line.matches("_++")) {
+                    appendDivider();
+
+                    // If next line is an empty space, skip it
+                    if (i + 1 < lines.length &&TextUtils.isEmpty(lines[i+1].trim())) {
+                        i++;
+                    }
+                } else {
+                    appendText(line);
+                }
+            }
+        }
+
+        protected void log(Object... txt) {
+            String returnStr = "";
+            int i = 1;
+            int size = txt.length;
+            if (size != 0) {
+                returnStr = txt[0] == null ? "null" : txt[0].toString();
+                for (; i < size; i++) {
+                    returnStr += ", "
+                            + (txt[i] == null ? "null" : txt[i].toString());
+                }
+            }
+            Log.i("jbmnplsmbl", returnStr);
         }
     }
 
