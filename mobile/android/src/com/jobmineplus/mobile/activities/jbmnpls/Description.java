@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -134,10 +135,6 @@ public class Description extends JbmnplsPageActivityBase {
         public void appendText(String text) {
             Activity a = getActivity();
             if (!TextUtils.isEmpty(text)) {
-                // Bold the font
-
-                // TODO support dash and then some spaces, support that dot character
-                // Support all caps regardless of punctuations
                 Character firstChar = text.charAt(0);
                 Character lastChar = text.charAt(text.length() - 1);
                 if (firstChar == '*' && lastChar == '*' || lastChar == ':') {
@@ -151,6 +148,8 @@ public class Description extends JbmnplsPageActivityBase {
             }
             TextView t = (TextView)a.getLayoutInflater().inflate(R.layout.template_description_text, null);
             setText(t, text);
+            t.setLinkTextColor(getResources().getColor(R.color.details_link_text));
+            Linkify.addLinks(t, Linkify.ALL);
             layout.addView(t);
         }
 

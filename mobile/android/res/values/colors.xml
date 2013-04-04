@@ -12,4 +12,5 @@
     <color name="description_warning_text">#f43636</color>
     <color name="description_text">#444444</color>
     <color name="details_text">#777777</color>
+    <color name="details_link_text">#2983ad</color>
 </resources>
