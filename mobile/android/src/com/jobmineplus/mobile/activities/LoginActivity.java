@@ -151,8 +151,8 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
                     Toast.LENGTH_SHORT).show();
             goToHomeActivity();
         } else if (loginState == JbmnplsHttpClient.LOGGED.OUT) {
-            Toast.makeText(this, getString(R.string.login_fail_message),
-                    Toast.LENGTH_SHORT).show();
+            String message = getString(isReallyOnline() ? R.string.login_fail_message : R.string.login_offline_message);
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
         } else {    // LOGGED.OFFLINE
             Toast.makeText(this, getString(R.string.login_not_available),
                     Toast.LENGTH_SHORT).show();

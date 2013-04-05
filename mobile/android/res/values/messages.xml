@@ -1,6 +1,7 @@
 
     <resources>
         <string name="login_fail_message">Invalid username or password.</string>
+        <string name="login_offline_message">Please connect to the internet.</string>
         <string name="login_message">Signing in&#8230;</string>
         <string name="wait_post_message">Fetching data&#8230;</string>
         <string name="login_not_available">Jobmine is not available at this time.</string>
