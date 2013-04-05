@@ -40,6 +40,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         userDataSource.open();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(false);
+        getSupportActionBar().setTitle("Please log in");
 
         // Check preferences and intent to see if we should autologin
         Intent intent = getIntent();
@@ -74,6 +75,12 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
     protected void onDestroy() {
         userDataSource.close();
         super.onDestroy();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
     }
 
     private void defindUiAndAttachEvents() {
@@ -198,4 +205,5 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
             ((LoginActivity)getActivity()).postExecuteLogin(loginState);
         }
     }
+
 }
