@@ -57,6 +57,9 @@ public class Description extends JbmnplsPageActivityBase {
         detFragment = JobDetails.newInstance();
         createTab(TABS.DESCRIPTION, descrFragment);
         createTab(TABS.DETAILS, detFragment);
+        if (!job.hasDescriptionData()) {
+            setIsEmpty(true);
+        }
 
         setEmptyText(getString(R.string.description_no_data));
     }
@@ -104,16 +107,9 @@ public class Description extends JbmnplsPageActivityBase {
         String employer = job.getEmployerFullName() == "" ? job.getEmployerFullName() : job.getEmployer();
         bar.setSubtitle(Html.fromHtml(job.getTitle()));
         bar.setTitle(Html.fromHtml(employer));
-
-        if (job.hasDescriptionData()) {
-            descrFragment.setJob(job);
-            detFragment.setJob(job);
-        } else {
-            setIsEmpty(true);
-        }
     }
 
-    public static final class JobDescription extends TabItemFragment<Job> {
+    public static final class JobDescription extends TabItemFragment {
         private LinearLayout layout;
 
         public static JobDescription newInstance() {
@@ -125,10 +121,6 @@ public class Description extends JbmnplsPageActivityBase {
                     R.id.description_layout,
                     R.id.warning
             });
-        }
-
-        public void setJob(Job job) {
-            setData(job);
         }
 
         public void appendText(String text) {
@@ -187,8 +179,9 @@ public class Description extends JbmnplsPageActivityBase {
             return num < 10 && !text.contains(".") && !text.contains(":") && !text.contains(",");
         }
 
-        public void setValues(View[] views, Job job) {
+        public void setValues(View[] views) {
             layout = (LinearLayout)views[0];
+            Job job = ((Description)getActivity()).job;
 
             // Show the warning if it exists
             String warning = job.getDescriptionWarning();
@@ -218,7 +211,7 @@ public class Description extends JbmnplsPageActivityBase {
         }
     }
 
-    public static final class JobDetails extends TabItemFragment<Job> {
+    public static final class JobDetails extends TabItemFragment {
         public static JobDetails newInstance() {
             return new JobDetails();
         }
@@ -236,11 +229,9 @@ public class Description extends JbmnplsPageActivityBase {
             });
         }
 
-        public void setJob(Job job) {
-            setData(job);
-        }
+        public void setValues(View[] views) {
+            Job job = ((Description)getActivity()).job;
 
-        public void setValues(View[] views, Job job) {
             // Grades
             if (!job.areGradesRequired()) {
                 views[0].setVisibility(View.GONE);
