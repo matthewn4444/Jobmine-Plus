@@ -107,9 +107,13 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implem
         private final ArrayList<String> tabTitles = new ArrayList<String>();
 
         public void createTab(String title, Fragment fragment) {
-            tabFragments.put(title, fragment);
-            tabTitles.add(title);
-            notifyDataSetChanged();
+            if (!tabTitles.contains(title)) {
+                tabTitles.add(title);
+            }
+            Fragment prev = tabFragments.get(title);
+            if (prev == null || !prev.equals(fragment)) {
+                tabFragments.put(title, fragment);
+            }
         }
 
         @Override

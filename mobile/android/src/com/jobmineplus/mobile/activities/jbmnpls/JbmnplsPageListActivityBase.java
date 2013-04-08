@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import junit.framework.Assert;
+
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.widget.AdapterView.OnItemClickListener;
@@ -15,6 +17,8 @@ import com.jobmineplus.mobile.widgets.Job;
 public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
 
     private HashMap<String, ArrayList<Job>> lists;
+
+    private static final String DISPLAYNAME = "displayname";
 
     //====================
     //  Abstract Methods
@@ -97,6 +101,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
 
     protected void createTab(String displayName) {
         PageListFragment frag = PageListFragment.newInstance();
+        Bundle b = new Bundle();
+        b.putString(DISPLAYNAME, displayName);
+        frag.setArguments(b);
         frag.setOnItemClickListener(this);
         ArrayList<Job> list = new ArrayList<Job>();
         ArrayAdapter<Job> adapter = makeAdapterFromList(list);
@@ -152,6 +159,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     public final static class PageListFragment extends ListFragment {
         private OnItemClickListener that;
         private boolean showEmptyText = false;
+        public String displayName;
+
+        // TODO in this class, get the adapter from the upper class by id, this should fix it
 
         public final static PageListFragment newInstance() {
             return new PageListFragment();
@@ -171,6 +181,12 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
 
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
+            Bundle b = getArguments();
+            Assert.assertNotNull(b);
+            displayName = b.getString(DISPLAYNAME);
+            JbmnplsPageListActivityBase a = (JbmnplsPageListActivityBase)getActivity();
+            a.createTab(displayName, this);
+
             getListView().setOnItemClickListener(that);
             if (showEmptyText) {
                 setEmptyText(getString(R.string.empty_job_list));
