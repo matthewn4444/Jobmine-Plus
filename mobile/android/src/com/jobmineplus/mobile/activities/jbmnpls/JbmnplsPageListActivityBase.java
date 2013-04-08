@@ -180,6 +180,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             Bundle b = getArguments();
+            setListShown(true);
             Assert.assertNotNull(b);
             displayName = b.getString(DISPLAYNAME);
             JbmnplsPageListActivityBase a = (JbmnplsPageListActivityBase)getActivity();

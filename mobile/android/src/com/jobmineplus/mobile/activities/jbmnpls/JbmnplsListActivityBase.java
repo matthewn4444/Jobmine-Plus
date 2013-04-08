@@ -31,6 +31,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         setContentView(R.layout.joblist);
         list = (ListView) findViewById(R.id.list);
         emptyText = (TextView) findViewById(android.R.id.empty);
+        list.setVisibility(View.INVISIBLE);
         list.setEmptyView(emptyText);
         list.setOnItemClickListener(this);
     }
@@ -88,6 +89,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         }
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
+        list.setVisibility(View.VISIBLE);
     }
 
     protected ArrayList<Job> getList() {
