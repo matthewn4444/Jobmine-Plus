@@ -89,7 +89,9 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         }
         adapter.notifyDataSetChanged();
         list.setAdapter(adapter);
-        list.setVisibility(View.VISIBLE);
+        if (!adapter.isEmpty()) {
+            list.setVisibility(View.VISIBLE);
+        }
     }
 
     protected ArrayList<Job> getList() {
