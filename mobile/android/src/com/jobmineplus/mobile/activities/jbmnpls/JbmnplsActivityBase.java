@@ -112,8 +112,8 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         confirm.setPositiveButton("Yes", this).setNegativeButton("No", this)
             .setMessage(getString(R.string.go_offline_message));
         dataUrl = setUp(savedInstanceState);
-        defineUI(savedInstanceState);
         getSupportActionBar().setTitle(pageName.substring(pageName.lastIndexOf(".") + 1));
+        defineUI(savedInstanceState);
         requestData();
     }
 
@@ -164,9 +164,17 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Login/Logout Methods
     // ========================
     protected boolean verifyLogin() {
-
         // TODO put this in a lower case so that Loginactivity can use it as well
-        if (client.getUsername() == null || client.getPassword() == null) {
+        if (getLastUser() == null) {
+            return false;
+        }
+        return client.verifyLogin();
+    }
+
+    protected Pair<String, String> getLastUser() {
+        String username = client.getUsername();
+        String password = client.getPassword();
+        if (username == null || password == null) {
             UserDataSource userDataSource = new UserDataSource(this);
             userDataSource.open();
             Pair<String, String> credentials = userDataSource.getLastUser();
@@ -174,9 +182,10 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 client.setLoginCredentials(credentials.first, credentials.second);
             }
             userDataSource.close();
+            return credentials;
+        } else {
+            return new Pair<String, String>(username, password);
         }
-
-        return client.verifyLogin();
     }
 
     // ======================
@@ -232,6 +241,10 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     }
 
     public Long doGetTask() {
+        // Handle the moments when username is null, eg. coming back from clearing ram
+        if (getLastUser() == null) {
+            return (long) -1;
+        }
         return doOffine();
     }
 
@@ -239,8 +252,10 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         if (action == Action.GET) {
             if (result > 0) {
                 getSupportActionBar().setSubtitle(formatDateFromNow(result, "Last accessed"));
-            } else {
+            } else if (result == 0) {
                 getSupportActionBar().setSubtitle(getString(R.string.never_accessed_before));
+            } else {
+                throw new IllegalStateException("It is impossible to go to this screen without logging in.");
             }
             onRequestComplete();
         }
@@ -265,7 +280,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         prefix = (prefix == null) ? "" : prefix.trim();
         StringBuilder sb = new StringBuilder(prefix).append(" ");
         float diffSecs = Math.round((now.getTime() - then) / 1000);
-        log(diffSecs, (60*60*24));
         if (diffSecs > (60*60*24)) {                    // Return the parsed Date
             return sb.append("on ")
                     .append(DISPLAY_DATE_FORMAT.format(then)).toString();
