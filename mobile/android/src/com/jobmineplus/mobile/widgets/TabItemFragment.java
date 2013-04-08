@@ -12,12 +12,19 @@ import android.view.ViewGroup;
 public abstract class TabItemFragment extends Fragment {
     private int[] viewIds;
     private int resourceId;
+    private View[] views;
 
     public abstract void setValues(View[] views);
 
     protected void init(int resourceView, int[] resourceElementIds) {
         resourceId = resourceView;
         viewIds = resourceElementIds;
+    }
+
+    public void invokeSetValues() {
+        if (views != null) {
+            setValues(views);
+        }
     }
 
     @Override
@@ -33,7 +40,7 @@ public abstract class TabItemFragment extends Fragment {
         Assert.assertNotSame("Did not provide a resource ids for elements, please use init",
                 viewIds, null);
         View v = getView();
-        View[] views = new View[viewIds.length];
+        views = new View[viewIds.length];
         int i = 0;
         for (int id : viewIds) {
             views[i++] = v.findViewById(id);

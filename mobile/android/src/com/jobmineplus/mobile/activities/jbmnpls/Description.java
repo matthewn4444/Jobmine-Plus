@@ -26,8 +26,6 @@ public class Description extends JbmnplsPageActivityBase {
     }
 
     protected Job job;
-    protected JobDescription descrFragment;
-    protected JobDetails detFragment;
 
     // ====================
     // Override Methods
@@ -53,14 +51,8 @@ public class Description extends JbmnplsPageActivityBase {
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-        descrFragment = JobDescription.newInstance();
-        detFragment = JobDetails.newInstance();
-        createTab(TABS.DESCRIPTION, descrFragment);
-        createTab(TABS.DETAILS, detFragment);
-        if (!job.hasDescriptionData()) {
-            setIsEmpty(true);
-        }
-
+        createTab(TABS.DESCRIPTION, JobDescription.newInstance());
+        createTab(TABS.DETAILS, JobDetails.newInstance());
         setEmptyText(getString(R.string.description_no_data));
     }
 
@@ -107,6 +99,12 @@ public class Description extends JbmnplsPageActivityBase {
         String employer = job.getEmployerFullName() == "" ? job.getEmployerFullName() : job.getEmployer();
         bar.setSubtitle(Html.fromHtml(job.getTitle()));
         bar.setTitle(Html.fromHtml(employer));
+        if (!job.hasDescriptionData()) {
+            setIsEmpty(true);
+        } else {
+            ((TabItemFragment)getFragment(0)).invokeSetValues();
+            ((TabItemFragment)getFragment(1)).invokeSetValues();
+        }
     }
 
     public static final class JobDescription extends TabItemFragment {
@@ -121,6 +119,12 @@ public class Description extends JbmnplsPageActivityBase {
                     R.id.description_layout,
                     R.id.warning
             });
+        }
+
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            ((Description)getActivity()).createTab(TABS.DESCRIPTION, this);
         }
 
         public void appendText(String text) {
@@ -183,6 +187,10 @@ public class Description extends JbmnplsPageActivityBase {
             layout = (LinearLayout)views[0];
             Job job = ((Description)getActivity()).job;
 
+            if (!job.hasDescriptionData()) {
+                return;
+            }
+
             // Show the warning if it exists
             String warning = job.getDescriptionWarning();
             if (!warning.equals("")) {
@@ -229,8 +237,18 @@ public class Description extends JbmnplsPageActivityBase {
             });
         }
 
+        @Override
+        public void onActivityCreated(Bundle savedInstanceState) {
+            super.onActivityCreated(savedInstanceState);
+            ((Description)getActivity()).createTab(TABS.DETAILS, this);
+        }
+
         public void setValues(View[] views) {
             Job job = ((Description)getActivity()).job;
+
+            if (!job.hasDescriptionData()) {
+                return;
+            }
 
             // Grades
             if (!job.areGradesRequired()) {
