@@ -1,4 +1,3 @@
-
 package com.jobmineplus.mobile.widgets;
 
 import java.io.IOException;
@@ -6,6 +5,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import android.text.TextUtils;
 
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
@@ -936,6 +937,9 @@ public class Job {
     }
 
     protected Date parseDate(String dateString) {
+        if (TextUtils.isEmpty(dateString)) {
+            return new Date();
+        }
         try {
             return new SimpleDateFormat("d MMM yyyy", Locale.ENGLISH)
                     .parse(dateString);
