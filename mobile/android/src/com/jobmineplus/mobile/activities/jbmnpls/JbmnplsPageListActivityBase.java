@@ -161,8 +161,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         private boolean showEmptyText = false;
         public String displayName;
 
-        // TODO in this class, get the adapter from the upper class by id, this should fix it
-
         public final static PageListFragment newInstance() {
             return new PageListFragment();
         }
