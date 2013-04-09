@@ -59,6 +59,11 @@ public abstract class ProgressDialogAsyncTaskBase<TParams, TProgress, TResult>
         this.cancel(true);
     }
 
+    public void setMessage(String text) {
+        message = text;
+        progressDial.setMessage(text);
+    }
+
     public void showProgress() {
         if (doDialog) {
             progressDial = ProgressDialog.show(getActivity(), "", message, true, true, this);

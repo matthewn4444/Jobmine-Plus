@@ -45,7 +45,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected GetHtmlTask task = null;
     protected JobDataSource jobDataSource;
     protected PageDataSource pageDataSource;
-    protected final String LOADING_MESSAGE = "Fetching data...";
     protected long timestamp;
     protected String pageName;
     private Boolean backBtnDisabled = false;
@@ -336,7 +335,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             if (!isReallyOnline()) {
                 confirm.show();
             } else {
-                task = new GetHtmlTask(this, LOADING_MESSAGE);
+                task = new GetHtmlTask(this, getString(R.string.login_message));
                 task.execute(dataUrl);
             }
         } else {
@@ -360,7 +359,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     }
 
     private class GetHtmlTask extends
-            ProgressDialogAsyncTaskBase<String, Void, Integer> {
+            ProgressDialogAsyncTaskBase<String, String, Integer> {
 
         static final int NO_PROBLEM = 0;
         static final int FORCED_LOGGEDOUT = 1;
@@ -378,11 +377,20 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         }
 
         @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            setMessage(values[0]);
+        }
+
+        @Override
         protected Integer doInBackground(String... params) {
             JbmnplsActivityBase activity = (JbmnplsActivityBase) getActivity();
+
             if (!verifyLogin()) {
                 return FORCED_LOGGEDOUT;
             }
+            publishProgress(getString(R.string.wait_post_message));
+
             sw.start();
             try {
                 backBtnDisabled = true;
