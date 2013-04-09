@@ -9,8 +9,6 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
-import com.jobmineplus.mobile.widgets.JbmnplsHttpClient.LOGGED;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
     protected int[] buttonLayouts = {
@@ -122,11 +120,8 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         protected Void doInBackground(String... params) {
             // Do not allow this login to be aborted
             client.canAbort(false);
-            JbmnplsHttpClient.LOGGED result = client.login(params[0], params[1]);
+            client.login(params[0], params[1]);
             client.canAbort(true);
-            if (result != LOGGED.IN) {
-                throw new IllegalStateException("Prior logins credentials do not work or isOnline() does not work");
-            }
             return null;
         }
 
