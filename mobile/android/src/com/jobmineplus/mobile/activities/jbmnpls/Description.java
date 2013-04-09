@@ -71,7 +71,9 @@ public class Description extends JbmnplsPageActivityBase {
     @Override
     protected String onRequestData(String[] args) throws IOException {
         String descriptionData = job.grabDescriptionData(client);
-        jobDataSource.addJob(job);      // updates with the description data
+        if (descriptionData != null) {
+            jobDataSource.addJob(job);      // updates with the description data
+        }
         return descriptionData;
     }
 

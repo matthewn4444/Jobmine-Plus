@@ -398,7 +398,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 timestamp = System.currentTimeMillis();
                 if (html == null) {
                     backBtnDisabled = false;
-                    return PARSING_ERROR;
+                    return NETWORK_ERROR;
                 }
                 activity.parseWebpage(html);
                 return NO_PROBLEM;

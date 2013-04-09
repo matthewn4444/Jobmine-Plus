@@ -7,7 +7,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.text.TextUtils;
-
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -844,6 +843,9 @@ public class Job {
             html = client.getJobmineHtml(url);
         } catch (JbmnplsLoggedOutException e) {
             e.printStackTrace();
+            return null;
+        }
+        if (html == null) {
             return null;
         }
 
