@@ -90,7 +90,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
      *
      * @param doc
      */
-    protected abstract void onRequestComplete();
+    protected abstract void onRequestComplete(boolean pulledData);
 
     protected abstract long doOffine();
 
@@ -112,9 +112,16 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         confirm.setPositiveButton("Yes", this).setNegativeButton("No", this)
             .setMessage(getString(R.string.go_offline_message));
         dataUrl = setUp(savedInstanceState);
+
         getSupportActionBar().setTitle(pageName.substring(pageName.lastIndexOf(".") + 1));
         defineUI(savedInstanceState);
-        requestData();
+
+        // Coming from home we want to request data, returning after clearing ram, do offline
+        if (savedInstanceState == null) {
+            requestData();
+        } else {
+            doExecuteGetTask();
+        }
     }
 
     @Override
@@ -257,7 +264,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             } else {
                 throw new IllegalStateException("It is impossible to go to this screen without logging in.");
             }
-            onRequestComplete();
+            onRequestComplete(false);
         }
     }
 
@@ -415,7 +422,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             log(renderMsg);
             Toast.makeText(a, renderMsg, Toast.LENGTH_SHORT).show();
             if (reasonForFailure == NO_PROBLEM) {
-                onRequestComplete();
+                onRequestComplete(true);
             } else {
                 switch (reasonForFailure) {
                 case FORCED_LOGGEDOUT:

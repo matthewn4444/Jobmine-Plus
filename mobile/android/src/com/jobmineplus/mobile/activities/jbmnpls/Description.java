@@ -81,7 +81,7 @@ public class Description extends JbmnplsPageActivityBase {
     }
 
     @Override
-    protected void onRequestComplete() {
+    protected void onRequestComplete(boolean pullData) {
         fillInDescription();
     }
 

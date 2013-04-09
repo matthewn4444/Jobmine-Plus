@@ -63,10 +63,12 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
 
     @Override
-    protected void onRequestComplete() {
+    protected void onRequestComplete(boolean pullData) {
         updateList();
         emptyText.setVisibility(View.VISIBLE);
-        jobsToDatabase();
+        if (pullData) {
+            jobsToDatabase();
+        }
     }
 
     //=================================

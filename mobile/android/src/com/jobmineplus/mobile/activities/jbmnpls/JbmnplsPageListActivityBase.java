@@ -41,9 +41,11 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     }
 
     @Override
-    protected void onRequestComplete() {
+    protected void onRequestComplete(boolean pullData) {
         updateLists();
-        jobsToDatabase();
+        if (pullData) {
+            jobsToDatabase();
+        }
     }
 
     /**
