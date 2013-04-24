@@ -12,6 +12,7 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -145,9 +146,6 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     }
 
     protected void log(Object... txt) {
-        if (!isDebug()) {
-            return;
-        }
         String returnStr = "";
         int i = 1;
         int size = txt.length;
