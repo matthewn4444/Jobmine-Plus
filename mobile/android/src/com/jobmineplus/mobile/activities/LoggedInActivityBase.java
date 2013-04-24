@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.appbrain.AppBrain;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.users.UserDataSource;
 import com.jobmineplus.mobile.services.InterviewsAlarm;
@@ -41,6 +42,7 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
                 }
             }
         }
+        AppBrain.init(this);
     }
 
     protected void cancelInterviewsAlarm() {
@@ -82,6 +84,7 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
             public void finishedTask(Void result, Action action) {
             }
         }).executePut();
+        AppBrain.getAds().maybeShowInterstitial(this);
         finish();
     }
 
