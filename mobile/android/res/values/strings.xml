@@ -41,5 +41,9 @@
     <string name="job_details_disc_title">Disciplines</string>
     <string name="job_details_lvls_title">Levels</string>
     
+    <string name="tutorial_online_text">View jobs\nonline or offline</string>
+    <string name="tutorial_logout_text">You can select logout\nfrom the menu</string>
+    <string name="tutorial_end">Touch to close</string>
+    
     <string name="bullet_point">&#8226;</string>
 </resources>

@@ -1,11 +1,15 @@
 package com.jobmineplus.mobile.activities;
 
 import android.app.AlertDialog.Builder;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.appbrain.AppBrain;
@@ -23,13 +27,28 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     private static final String PREFIX_PATH = "com.jobmineplus.mobile";
     private static final int RESULT_FROM_SETTINGS = 1;
     public static final String INTENT_REASON = "reason";
+    public static final String PREF_SEEN_TUTORIAL = "settingsSeenTutorial";
 
     private Builder alert;
+    private View tutorialView;
+    private FrameLayout mainLayout;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.home);
+
+        // Inflate the home layout, if needed, inflate the tutorial layout
+        mainLayout = new FrameLayout(this);
+        LayoutInflater inflator = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        inflator.inflate(R.layout.home, mainLayout);
+
+        // See if we should show the tutorial
+        if (!preferences.getBoolean(PREF_SEEN_TUTORIAL, false)) {
+            View view = inflator.inflate(R.layout.tutorial, mainLayout);
+            tutorialView = view.findViewById(R.id.layout);
+            tutorialView.setOnClickListener(this);
+        }
+        setContentView(mainLayout);
         connectUI();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         getSupportActionBar().setHomeButtonEnabled(false);
@@ -96,12 +115,20 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     }
 
     public void onClick(View arg0) {
-        String name = ((TextView)arg0.findViewWithTag("text")).getText().toString();
-        if (name.equals("Settings")) {
-            prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
-            goToActivityForResult(".activities.jbmnpls." + name);
+        if (arg0.equals(tutorialView)) {
+            // Tutorial is finished
+            mainLayout.removeView(tutorialView);
+            Editor editor = preferences.edit();
+            editor.putBoolean(PREF_SEEN_TUTORIAL, true);
+            editor.commit();
         } else {
-            goToActivity(".activities.jbmnpls." + name);
+            String name = ((TextView)arg0.findViewWithTag("text")).getText().toString();
+            if (name.equals("Settings")) {
+                prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
+                goToActivityForResult(".activities.jbmnpls." + name);
+            } else {
+                goToActivity(".activities.jbmnpls." + name);
+            }
         }
     }
 
