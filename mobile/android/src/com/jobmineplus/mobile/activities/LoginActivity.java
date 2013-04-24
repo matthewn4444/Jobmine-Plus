@@ -1,6 +1,7 @@
 package com.jobmineplus.mobile.activities;
 
 import android.app.Activity;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +13,7 @@ import android.view.View.OnClickListener;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
@@ -30,6 +32,8 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
 
     //UI objects
     protected Button loginBtn;
+    protected Builder tou;
+    protected TextView touText;
     EditText usernameEdtbl, passwordEdtbl;
 
     @Override
@@ -84,6 +88,8 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
     }
 
     private void defindUiAndAttachEvents() {
+        tou = new Builder(this);
+        touText = (TextView) findViewById(R.id.tou_text);
         loginBtn = (Button) findViewById(R.id.login_button);
         usernameEdtbl = (EditText) findViewById(R.id.username_field);
         passwordEdtbl = (EditText) findViewById(R.id.password_field);
@@ -92,6 +98,11 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
 
         usernameEdtbl.addTextChangedListener(this);
         passwordEdtbl.addTextChangedListener(this);
+        touText.setOnClickListener(this);
+
+        tou.setNeutralButton("Ok", null);
+        tou.setTitle(getString(R.string.login_tou_title));
+        tou.setMessage(R.string.login_tou_message);
     }
 
     public void afterTextChanged(Editable arg0) {
@@ -104,7 +115,11 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
 
 
     public void onClick(View v) {
-        doLogin();
+        if (loginBtn.equals(v)) {
+            doLogin();
+        } else if (touText.equals(v)) {
+            tou.show();
+        }
     }
 
     protected void doLogin() {

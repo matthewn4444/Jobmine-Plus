@@ -11,6 +11,11 @@
     <string name="interviews_title">Interviews</string>
     <string name="settings_title">Settings</string>
     
+    <string name="login_tou_text">"By logging in, you accept the "</string>
+    <string name="login_tou_text_click"><u>terms of use</u></string>
+    <string name="login_tou_title">Terms of Use</string>
+    <string name="login_tou_message"><b>These Terms of Use are effective on April 20, 2013.</b>\n\nBy using this application, I (Matthew Ng) have no liability for what job you may get. This application is mainly used to view your jobs (applications, short list and interviews). <b>These Terms of Use affect your legal rights and obligations. If you do not agree to be bound by all of these Terms of Use, do not access or use the Service.</b>\n\nUniversity of Waterloo owns the content of the JobMine website. I have used the content to display it in this application. The content in this application is not altered to negativity affect the user. \n\n<b>Terms</b>\n<b>1.</b>You must be a student of the University of Waterloo to use this Service.\n<b>2.</b>Matthew Ng and this application is not liable for your decisions or outcome of JobMine.\n<b>3.</b>You may not use the Service for any illegal or unauthorized purpose. You must agree to all laws and regulations of Canada.</string>
+    
     <string name="settings_inter_note_cate_title">Interviews Notification</string>
     <string name="settings_inter_note_summary">Periodically check if there are new interviews</string>
     <string name="settings_inter_note_title">Notify on new interviews</string>

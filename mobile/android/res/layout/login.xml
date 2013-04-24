@@ -17,10 +17,27 @@
 	        android:contentDescription="@string/empty"
 	        android:paddingRight="60dp"
 	        android:paddingLeft="60dp"
-	        android:layout_marginBottom="10dp"
 	        android:src="@drawable/icon"
 	        />
-	    
+	    <LinearLayout
+	        android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
+	        >
+	    <TextView
+            style="@style/wrap"
+            android:text="@string/login_tou_text" 
+            />
+	    <TextView
+            style="@style/wrap"
+            android:id="@+id/tou_text"
+            android:clickable="true"
+            android:textColor="@color/details_link_text"
+            android:text="@string/login_tou_text_click" 
+            />
+	    </LinearLayout>
 	    <EditText
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
