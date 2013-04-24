@@ -1,56 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/background"
-    android:orientation="vertical"
-    android:padding="20dp">
-        <LinearLayout style="@style/category_button_row">
-            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
-                android:id="@+id/apps_button"
-                style="@style/category_button">
-                <ImageView
-                    style="@style/category_button_image"
-                    android:contentDescription="@string/empty"
-                    android:src="@drawable/home_applications_icon" />
-                <com.jobmineplus.mobile.widgets.TextViewPlus
-                    android:text="@+string/applications_title"
-                    style="@style/category_button_text"/>
-            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
-            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
-                android:id="@+id/shortlist_button"
-                style="@style/category_button">
-                <ImageView
-                    style="@style/category_button_image"
-                    android:contentDescription="@string/empty"
-                    android:src="@drawable/home_shortlist_icon" />
-                <com.jobmineplus.mobile.widgets.TextViewPlus
-                    android:text="@+string/shortlist_title"
-                    style="@style/category_button_text"/>
-            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+    android:background="@color/background">
+        <LinearLayout
+            android:padding="20dp"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+	        <LinearLayout style="@style/category_button_row">
+	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
+	                android:id="@+id/apps_button"
+	                style="@style/category_button">
+	                <ImageView
+	                    style="@style/category_button_image"
+	                    android:contentDescription="@string/empty"
+	                    android:src="@drawable/home_applications_icon" />
+	                <com.jobmineplus.mobile.widgets.TextViewPlus
+	                    android:text="@+string/applications_title"
+	                    style="@style/category_button_text"/>
+	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
+	                android:id="@+id/shortlist_button"
+	                style="@style/category_button">
+	                <ImageView
+	                    style="@style/category_button_image"
+	                    android:contentDescription="@string/empty"
+	                    android:src="@drawable/home_shortlist_icon" />
+	                <com.jobmineplus.mobile.widgets.TextViewPlus
+	                    android:text="@+string/shortlist_title"
+	                    style="@style/category_button_text"/>
+	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+	        </LinearLayout>
+	        <LinearLayout style="@style/category_button_row">
+	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
+	                android:id="@+id/interviews_button"
+	                style="@style/category_button">
+	                <ImageView
+	                    style="@style/category_button_image"
+	                    android:contentDescription="@string/empty"
+	                    android:src="@drawable/home_interviews_icon" />
+	                <com.jobmineplus.mobile.widgets.TextViewPlus
+	                    android:text="@+string/interviews_title"
+	                    style="@style/category_button_text"/>
+	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
+	                android:id="@+id/settings_button"
+	                style="@style/category_button">
+	                <ImageView
+	                    style="@style/category_button_image"
+	                    android:contentDescription="@string/empty"
+	                    android:src="@drawable/home_settings_icon" />
+	                <com.jobmineplus.mobile.widgets.TextViewPlus
+	                    android:text="@+string/settings_title"
+	                    style="@style/category_button_text"/>
+	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+	        </LinearLayout>
         </LinearLayout>
-        <LinearLayout style="@style/category_button_row">
-            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
-                android:id="@+id/interviews_button"
-                style="@style/category_button">
-                <ImageView
-                    style="@style/category_button_image"
-                    android:contentDescription="@string/empty"
-                    android:src="@drawable/home_interviews_icon" />
-                <com.jobmineplus.mobile.widgets.TextViewPlus
-                    android:text="@+string/interviews_title"
-                    style="@style/category_button_text"/>
-            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
-            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
-                android:id="@+id/settings_button"
-                style="@style/category_button">
-                <ImageView
-                    style="@style/category_button_image"
-                    android:contentDescription="@string/empty"
-                    android:src="@drawable/home_settings_icon" />
-                <com.jobmineplus.mobile.widgets.TextViewPlus
-                    android:text="@+string/settings_title"
-                    style="@style/category_button_text"/>
-            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
-        </LinearLayout>
-</LinearLayout>
+         <com.google.ads.AdView android:id="@+id/adView"
+             android:layout_alignParentBottom="true"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             ads:adUnitId="@string/admob_id"
+             ads:adSize="BANNER"
+             android:background="#000000"
+             ads:loadAdOnCreate="true"/>
+</RelativeLayout>
