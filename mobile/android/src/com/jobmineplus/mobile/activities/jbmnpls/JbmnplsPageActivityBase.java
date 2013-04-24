@@ -23,7 +23,10 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implem
 
     @Override
     protected void defineUI(Bundle savedInstanceState) {
-        setContentView(R.layout.tabs);
+        // Set the content view if not set yet
+        if (findViewById(R.id.pager) == null) {
+            setContentView(R.layout.tabs);
+        }
         mAdapter = new TabAdapter(getSupportFragmentManager());
         mPager = (ViewPager)findViewById(R.id.pager);
         mPager.setAdapter(mAdapter);

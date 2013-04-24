@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+    android:id="@+id/grouplayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/background">
+	<LinearLayout
+	    android:orientation="vertical"
+	    android:background="@color/background"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent">
+	
+	    <LinearLayout
+	        android:id="@+id/layout"
+	        android:orientation="vertical"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent">
+		    <com.viewpagerindicator.TitlePageIndicator
+		        android:id="@+id/indicator"
+		        android:padding="10dip"
+		        android:background="#6b6b6b"
+		        android:layout_height="wrap_content"
+		        android:layout_width="fill_parent"
+		        />
+		    <android.support.v4.view.ViewPager
+		        android:id="@+id/pager"
+		        android:layout_width="fill_parent"
+		        android:layout_height="0dp"
+		        android:layout_weight="1"
+		        />
+	    </LinearLayout>
+	    <LinearLayout 
+	        style="@style/description_layout">
+		    <TextView 
+		        android:id="@+id/emptyText"
+		        style="@style/description_text"
+		        android:visibility="gone"/>
+	    </LinearLayout>
+	</LinearLayout>
+	<com.google.ads.AdView android:id="@+id/adView"
+             android:layout_alignParentBottom="true"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             ads:adUnitId="@string/admob_id"
+             ads:adSize="BANNER"
+             android:background="#000000"
+             ads:loadAdOnCreate="true"/>
+</RelativeLayout>

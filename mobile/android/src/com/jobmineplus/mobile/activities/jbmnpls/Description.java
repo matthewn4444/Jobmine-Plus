@@ -7,18 +7,22 @@ import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
 import android.text.util.Linkify;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
+import com.google.ads.AdView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.TabItemFragment;
 
-public class Description extends JbmnplsPageActivityBase {
+public class Description extends JbmnplsPageActivityBase implements OnTouchListener {
 
     private static class TABS {
         public static String DESCRIPTION = " Description ";
@@ -26,6 +30,7 @@ public class Description extends JbmnplsPageActivityBase {
     }
 
     protected Job job;
+    protected AdView adview;
 
     // ====================
     // Override Methods
@@ -50,10 +55,12 @@ public class Description extends JbmnplsPageActivityBase {
 
     @Override
     protected void defineUI(Bundle savedInstanceState) {
+        setContentView(R.layout.tabs_ads);
         super.defineUI(savedInstanceState);
         createTab(TABS.DESCRIPTION, JobDescription.newInstance());
         createTab(TABS.DETAILS, JobDetails.newInstance());
         setEmptyText(getString(R.string.description_no_data));
+        adview = ((AdView)findViewById(R.id.adView));
     }
 
     @Override
@@ -93,6 +100,14 @@ public class Description extends JbmnplsPageActivityBase {
         return 0;
     }
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        // Touch once and remove it
+        v.setOnTouchListener(null);
+        ((RelativeLayout)findViewById(R.id.grouplayout)).removeView(adview);;
+        return false;
+    }
+
     // =====================
     // Protected Methods
     // =====================
@@ -119,7 +134,8 @@ public class Description extends JbmnplsPageActivityBase {
         public JobDescription() {
             init(R.layout.job_description_content, new int[]{
                     R.id.description_layout,
-                    R.id.warning
+                    R.id.warning,
+                    R.id.scrollview
             });
         }
 
@@ -218,6 +234,9 @@ public class Description extends JbmnplsPageActivityBase {
                     appendText(line);
                 }
             }
+
+            // Set the scrollview event
+            views[2].setOnTouchListener(((Description)getActivity()));
         }
     }
 
@@ -235,7 +254,8 @@ public class Description extends JbmnplsPageActivityBase {
                     R.id.work_term,
                     R.id.hiring_support,
                     R.id.discplines,
-                    R.id.levels
+                    R.id.levels,
+                    R.id.details_layout
             });
         }
 
@@ -286,6 +306,9 @@ public class Description extends JbmnplsPageActivityBase {
 
             // Levels
             ((TextView)views[7]).setText(job.getLevelsAsString("\n"));
+
+            // Set the scrollview event
+            views[8].setOnTouchListener(((Description)getActivity()));
         }
     }
 }
