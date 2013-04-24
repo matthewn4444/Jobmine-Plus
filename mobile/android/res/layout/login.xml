@@ -1,40 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:padding="20dp"
-    android:background="@color/background"
-    android:orientation="vertical" >
-    
-    <ImageView
-        android:layout_width="fill_parent" 
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/empty"
-        android:paddingRight="60dp"
-        android:paddingLeft="60dp"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/icon"
-        />
-    
-    <EditText
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/username_field"
-        android:singleLine="true"
-        android:hint="@+string/username_hint"
-        />
-    <EditText
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/password_field"
-        android:hint="@+string/password_hint"
-        android:singleLine="true"
-        android:inputType="textPassword"
-        />
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/login_button"
-        android:text="@+string/login_button"
-        />
-</LinearLayout>
+    android:background="@color/background">
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:padding="20dp"
+	    android:background="@color/background"
+	    android:orientation="vertical" >
+	    
+	    <ImageView
+	        android:layout_width="fill_parent" 
+	        android:layout_height="wrap_content"
+	        android:contentDescription="@string/empty"
+	        android:paddingRight="60dp"
+	        android:paddingLeft="60dp"
+	        android:layout_marginBottom="10dp"
+	        android:src="@drawable/icon"
+	        />
+	    
+	    <EditText
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:id="@+id/username_field"
+	        android:singleLine="true"
+	        android:hint="@+string/username_hint"
+	        />
+	    <EditText
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:id="@+id/password_field"
+	        android:hint="@+string/password_hint"
+	        android:singleLine="true"
+	        android:inputType="textPassword"
+	        />
+	    <Button
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:id="@+id/login_button"
+	        android:text="@+string/login_button"
+	        />
+    </LinearLayout>
+    <com.google.ads.AdView android:id="@+id/adView"
+             android:layout_alignParentBottom="true"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             ads:adUnitId="@string/admob_id"
+             ads:adSize="BANNER"
+             android:background="#000000"
+             ads:loadAdOnCreate="true"/>
+</RelativeLayout>

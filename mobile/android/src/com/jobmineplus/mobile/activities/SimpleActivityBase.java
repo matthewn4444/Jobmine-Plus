@@ -6,6 +6,8 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
@@ -13,6 +15,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -117,6 +120,17 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     protected void onResume() {
         supportInvalidateOptionsMenu();
         super.onResume();
+
+        // If adbanner exists, then show it
+        final AdView adview = ((AdView)findViewById(R.id.adView));
+        if (adview != null) {
+            (new Thread() {
+                public void run() {
+                    Looper.prepare();
+                    adview.loadAd(new AdRequest());
+                }
+            }).start();
+        }
     }
 
     protected void log(Object... txt) {

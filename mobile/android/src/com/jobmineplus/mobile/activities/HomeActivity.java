@@ -4,13 +4,10 @@ import android.app.AlertDialog.Builder;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Looper;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
 import com.jobmineplus.mobile.R;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
@@ -57,17 +54,6 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
                 client.setLoginCredentials(username, password);
             }
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        (new Thread() {
-            public void run() {
-                Looper.prepare();
-                ((AdView)findViewById(R.id.adView)).loadAd(new AdRequest());
-            }
-        }).start();
     }
 
     protected void connectUI() {
