@@ -162,8 +162,8 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
 
     protected void postExecuteLogin(LOGGED loginState) {
         if (loginState == JbmnplsHttpClient.LOGGED.IN) {
-            Toast.makeText(this, "You are logged in! " + sw.elapsed() + " ms",
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.login_success), Toast.LENGTH_SHORT).show();
+            log("Login time:",sw.elapsed());
             goToHomeActivity();
         } else if (loginState == JbmnplsHttpClient.LOGGED.OUT) {
             String message = getString(isReallyOnline() ? R.string.login_fail_message : R.string.login_offline_message);

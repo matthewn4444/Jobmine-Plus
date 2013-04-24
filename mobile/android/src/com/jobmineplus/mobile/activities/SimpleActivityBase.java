@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     final static public int JBMN_OFFLINE_TIME = 24;     //24 hour clock
@@ -53,6 +54,10 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     public static boolean isNetworkAvailable() {
         NetworkInfo activeNetworkInfo = connManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    public boolean isDebug() {
+        return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
     }
 
     protected void setOnlineMode(boolean flag) {
@@ -133,7 +138,16 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         }
     }
 
+    protected void toast(String message) {
+        if (isDebug()) {
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
     protected void log(Object... txt) {
+        if (!isDebug()) {
+            return;
+        }
         String returnStr = "";
         int i = 1;
         int size = txt.length;

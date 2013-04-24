@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 public class InterviewsAlarm extends BroadcastReceiver {
     private final int SEC_TO_MILLISEC = 1000;
@@ -64,7 +63,6 @@ public class InterviewsAlarm extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         ctx = context;
-        Toast.makeText(context, "Alarm went off", Toast.LENGTH_SHORT).show();
 
         // Get the stored timeout
         Bundle bundle = intent.getBundleExtra(BUNDLE_NAME);

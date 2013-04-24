@@ -33,7 +33,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
@@ -56,7 +55,6 @@ public class InterviewsNotifierService extends Service {
         super.onCreate();
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         client = new JbmnplsHttpClient();
-        log("Created");
     }
 
     @Override
@@ -200,7 +198,6 @@ public class InterviewsNotifierService extends Service {
                 }
             } else {
                 // Try again later
-                log("No wifi, try later");
                 return true;
             }
         }
@@ -234,11 +231,9 @@ public class InterviewsNotifierService extends Service {
             if (activeList == null) {
                 // Both lists are empty so we don't do anything or schedule anything
                 if (allList == null) {
-                    log("nothing");
                     return NO_SCHEDULE;
                 } else {
                     // No active apps and now we reschedule at a later time
-                    log("not now");
                     nextTimeout = NO_DATA_RESCHEDULE_TIME;
                     return DO_SCHEDULE_NO_INTERVIEW;
                 }
@@ -248,11 +243,9 @@ public class InterviewsNotifierService extends Service {
                 for (Job j : jobs) {
                     if (j.getStatus() == Job.STATUS.EMPLOYED) {
                         // We are employed, no need to check interviews at all
-                        log("already employed");
                         return NO_SCHEDULE;
                     }
                 }
-                log("continuing");
                 return DO_SCHEDULE;
             }
         }
@@ -334,7 +327,6 @@ public class InterviewsNotifierService extends Service {
 
         @Override
         protected void onPostExecute(Boolean shouldScheduleAlarm) {
-            log("finished grabbing", shouldScheduleAlarm);
             pageSource.close();
             jobSource.close();
             if (shouldScheduleAlarm && nextTimeout != 0) {
@@ -356,19 +348,5 @@ public class InterviewsNotifierService extends Service {
             }
             pulledJobs.add(job);
         }
-    }
-
-    protected void log(Object... txt) {
-        String returnStr = "";
-        int i = 1;
-        int size = txt.length;
-        if (size != 0) {
-            returnStr = txt[0] == null ? "null" : txt[0].toString();
-            for (; i < size; i++) {
-                returnStr += ", "
-                        + (txt[i] == null ? "null" : txt[i].toString());
-            }
-        }
-        Log.i("jbmnplsmbl", returnStr);
     }
 }

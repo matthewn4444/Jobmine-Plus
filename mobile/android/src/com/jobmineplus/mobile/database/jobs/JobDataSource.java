@@ -81,7 +81,6 @@ public final class JobDataSource extends DataSourceBase {
                 database.setTransactionSuccessful();
             } catch(Exception e) {
                 e.printStackTrace();
-                log("failed to database a bunch of items");
             } finally {
                 database.endTransaction();
                 database.setLockingEnabled(true);

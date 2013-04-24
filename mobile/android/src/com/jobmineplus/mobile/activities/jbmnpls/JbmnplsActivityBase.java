@@ -14,8 +14,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
-import android.widget.Toast;
-
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoggedInActivityBase;
@@ -428,7 +426,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             super.onPostExecute(reasonForFailure);
             String renderMsg = sw.elapsed() + " ms to render";
             log(renderMsg);
-            Toast.makeText(a, renderMsg, Toast.LENGTH_SHORT).show();
+            toast(renderMsg);
             if (reasonForFailure == NO_PROBLEM) {
                 onRequestComplete(true);
             } else {

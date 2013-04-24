@@ -4,7 +4,6 @@ import java.util.ArrayList;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 import android.util.Pair;
 
 public abstract class DataSourceBase {
@@ -52,20 +51,5 @@ public abstract class DataSourceBase {
         if (value != 0) {
             values.put(column, value);
         }
-    }
-
-    // TEMP
-    protected void log(Object... txt) {
-        String returnStr = "";
-        int i = 1;
-        int size = txt.length;
-        if (size != 0) {
-            returnStr = txt[0] == null ? "null" : txt[0].toString();
-            for (; i < size; i++) {
-                returnStr += ", "
-                        + (txt[i] == null ? "null" : txt[i].toString());
-            }
-        }
-        Log.i("jbmnplsmbl", returnStr);
     }
 }
