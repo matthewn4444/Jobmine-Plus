@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.appbrain.AppBrain;
 import com.jobmineplus.mobile.R;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
@@ -54,6 +55,12 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
                 client.setLoginCredentials(username, password);
             }
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        AppBrain.getAds().showInterstitial(this);
+        finish();
     }
 
     protected void connectUI() {
