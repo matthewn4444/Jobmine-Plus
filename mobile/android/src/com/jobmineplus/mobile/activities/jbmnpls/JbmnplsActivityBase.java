@@ -367,11 +367,8 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         static final int NETWORK_ERROR = 5;
 
         private final StopWatch sw = new StopWatch();
-        protected Activity a;
-
         public GetHtmlTask(Activity activity, String dialogueMessage) {
             super(activity, dialogueMessage, isOnline());
-            a = activity;
         }
 
         @Override
