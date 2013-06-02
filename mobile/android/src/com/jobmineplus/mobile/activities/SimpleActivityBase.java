@@ -37,7 +37,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (preferences.getBoolean("settingsEnableDataCrashReports", true)) {
+        if (!preferences.getBoolean("settingsEnableDataCrashReports", false)) {
             BugSenseHandler.sendDataOverWiFiOnly();
         }
         BugSenseHandler.initAndStartSession(SimpleActivityBase.this, getString(R.string.bugsence_api_key));
