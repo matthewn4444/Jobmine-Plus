@@ -358,7 +358,8 @@ public class Job {
     static public enum APPLY_STATUS {
         APPLY("Apply", 3),
         ALREADY_APPLIED("Already Applied", 3),
-        CANNOT_APPLY("Not Authorized to Apply", 8);
+        CANNOT_APPLY("Not Authorized to Apply", 8),
+        NOT_POSTED("Not Posted", 2);
 
         public static APPLY_STATUS getApplicationStatusfromString(String text)
                 throws JbmnplsParsingException {
