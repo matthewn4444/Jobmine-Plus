@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.Applications;
 import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
@@ -179,9 +180,11 @@ public class InterviewsNotifierService extends Service {
                 try {
                     result = checkApplications();
                 } catch (JbmnplsLoggedOutException e) {
+                    BugSenseHandler.sendException(e);
                     e.printStackTrace();
                     return false;
                 } catch (IOException e) {
+                    BugSenseHandler.sendException(e);
                     e.printStackTrace();
                     return false;
                 }
@@ -277,9 +280,11 @@ public class InterviewsNotifierService extends Service {
            try {
                html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.INTERVIEWS);
            } catch (JbmnplsLoggedOutException e) {
+               BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
            } catch (IOException e) {
+               BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
            }
@@ -290,6 +295,7 @@ public class InterviewsNotifierService extends Service {
                parser.execute(Interviews.GROUPS_OUTLINE, html);
                parser.execute(Interviews.SPECIAL_OUTLINE, html);
            } catch (JbmnplsParsingException e) {
+               BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
            }

@@ -14,7 +14,7 @@
     <string name="login_tou_text">"By logging in, you accept the "</string>
     <string name="login_tou_text_click"><u>terms of use</u></string>
     <string name="login_tou_title">Terms of Use</string>
-    <string name="login_tou_message"><b>These Terms of Use are effective on April 20, 2013.</b>\n\nBy using this application, I (Matthew Ng) have no liability for what job you may get. This application is mainly used to view your jobs (applications, short list and interviews). <b>These Terms of Use affect your legal rights and obligations. If you do not agree to be bound by all of these Terms of Use, do not access or use the Service.</b>\n\nUniversity of Waterloo owns the content of the JobMine website. I have used the content to display it in this application. The content in this application is not altered to negativity affect the user. \n\n<b>Terms</b>\n<b>1.</b>You must be a student of the University of Waterloo to use this Service.\n<b>2.</b>Matthew Ng and this application is not liable for your decisions or outcome of JobMine.\n<b>3.</b>You may not use the Service for any illegal or unauthorized purpose. You must agree to all laws and regulations of Canada.</string>
+    <string name="login_tou_message"><b>These Terms of Use are effective on June 2, 2013.</b>\n\nBy using this application, I (Matthew Ng) have no liability for what job you may get. This application is mainly used to view your jobs (applications, short list and interviews). <b>These Terms of Use affect your legal rights and obligations. If you do not agree to be bound by all of these Terms of Use, do not access or use the Service.</b>\n\nUniversity of Waterloo owns the content of the JobMine website. I have used the content to display it in this application. The content in this application is not altered to negativity affect the user. \n\n<b>Terms</b>\n<b>1.</b>You must be a student of the University of Waterloo to use this Service.\n<b>2.</b>Matthew Ng and this application is not liable for your decisions or outcome of JobMine.\n<b>3.</b>Logging crash reports are enabled by default and cannot be opted out. The information in the crash reports will not be used in anyway to harm users. The reports are only used to fix errors in the application.\n<b>4.</b>You may not use the Service for any illegal or unauthorized purpose. You must agree to all laws and regulations of Canada.</string>
     
     <string name="settings_inter_note_cate_title">Interviews Notification</string>
     <string name="settings_inter_note_summary">Periodically check if there are new interviews</string>
@@ -29,10 +29,14 @@
     <string name="settings_login_cate_title">Login</string>
     <string name="settings_auto_login_summary">Check to auto log in on startup</string>
     <string name="settings_auto_login_title">Auto login</string>
-    
+
+    <string name="settings_crash_report_cate_title">Crash Reports</string>
+    <string name="settings_crash_report_data_summary">Allow mobile data to send crash reports.</string>
+    <string name="settings_crash_report_data_title">Allow data to send</string>
+
     <string name="action_bar_online">Online</string>
     <string name="menuitem_logout">Logout</string>
-    
+
     <string name="job_details_grades">Grades are required</string>
     <string name="job_details_loc_title">Location of Job</string>
     <string name="job_details_dates_title">Apply Between</string>
@@ -40,7 +44,7 @@
     <string name="job_details_cecs_title">CECS Field Co-ordinator</string>
     <string name="job_details_disc_title">Disciplines</string>
     <string name="job_details_lvls_title">Levels</string>
-    
+
     <string name="tutorial_online_text">View jobs\nonline or offline</string>
     <string name="tutorial_logout_text">You can select logout\nfrom the menu</string>
     <string name="tutorial_end">Touch to close</string>

@@ -105,7 +105,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
             if (status == APPLY_STATUS.ALREADY_APPLIED) {
                 return HIGHLIGHTING.GREAT;
-            } else if (status == APPLY_STATUS.CANNOT_APPLY) {
+            } else if (status == APPLY_STATUS.CANNOT_APPLY || status == APPLY_STATUS.NOT_POSTED) {
                 return HIGHLIGHTING.BAD;
             }
             return HIGHLIGHTING.NORMAL;

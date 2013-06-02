@@ -24,6 +24,7 @@ import org.apache.http.params.HttpProtocolParams;
 
 import android.util.Log;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 
 public final class JbmnplsHttpClient {
@@ -184,6 +185,7 @@ public final class JbmnplsHttpClient {
                 updateTimestamp();
                 return LOGGED.IN;
             } catch (IOException e) {
+                BugSenseHandler.sendException(e);
                 e.printStackTrace();
                 return LOGGED.OFFLINE;
             } finally {

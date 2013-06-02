@@ -15,6 +15,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+
+import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
@@ -221,6 +223,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         try {
             timeDate = TIME_FORMAT.parse(timeString);
         } catch (ParseException e) {
+            BugSenseHandler.sendException(e);
             e.printStackTrace();
             throw new JbmnplsParsingException("Couldn't convert time from interviews page");
         }

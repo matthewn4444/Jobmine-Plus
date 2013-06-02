@@ -2,8 +2,6 @@
      Example: res/values/hidden_strings.xml
  -->
     <resources>
-        <string name="map_api_key">You put the google maps api key here</string>
-        <string name="fingerprint">You put the fingerprint of this app here</string>
-        <string name="username">You Jobmine username for testing</string>
-        <string name="password">You Jobmine password for testing</string>
+        <string name="admob_id">ADMOB KEY</string>
+        <string name="bugsence_api_key">BUGSENCE KEY</string>
     </resources>

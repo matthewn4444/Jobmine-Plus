@@ -14,6 +14,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
+
+import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoggedInActivityBase;
@@ -399,15 +401,19 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 return NO_PROBLEM;
             } catch (HiddenColumnsException e) {
                 e.printStackTrace();
+                BugSenseHandler.sendException(e);
                 return HIDDEN_COLUMNS_ERROR;
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
+                BugSenseHandler.sendException(e);
                 return PARSING_ERROR;
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
+                BugSenseHandler.sendException(e);
                 return FORCED_LOGGEDOUT;
             } catch (IOException e) {
                 e.printStackTrace();
+                BugSenseHandler.sendException(e);
                 return NETWORK_ERROR;
             }
         }
