@@ -91,6 +91,10 @@
                     <label for='shortlist-normal'>Has shortlist data</label>
                     <input id='shortlist-normal' name='shortlist' value='0' type='radio'/>
                 </li>
+                <li>
+                    <label for='shortlist-test'>Shortlist test data</label>
+                    <input id='shortlist-test' name='shortlist' value='1' type='radio'/>
+                </li>
             </ul>
         </section>
         <script>
@@ -102,6 +106,7 @@
                     value = o.val();
                 switch(page) {
                     case "applications": 
+                    case "shortlist": 
                     case "interviews":
                         $.ajax({
                             url: urlChange,

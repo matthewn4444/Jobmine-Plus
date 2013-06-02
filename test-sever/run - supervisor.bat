@@ -1,5 +1,5 @@
 @echo off
-supervisor app.js
+supervisor --extensions "js|html" app.js
 if errorlevel == 1 (
     pause
 )

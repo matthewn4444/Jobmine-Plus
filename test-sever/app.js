@@ -1,7 +1,18 @@
 var express = require('express'),
+    cons = require("consolidate"),
+    swig = require("swig"),
     fs = require("fs"),
     app = express();
-    
+
+app.engine('.html', cons.swig);
+app.set('view engine', 'html');
+
+swig.init({
+    root: 'pages/',
+    allowErrors: true
+});
+app.set('views', 'pages/');
+
 app.configure(function () {
     app.use(express.static(__dirname + '/public'));
      app.use(express.bodyParser());
@@ -15,51 +26,59 @@ var selected = {
 
 var html = {
     applications: [
-        "applications-none.html",
-        "applications-no-active.html",
-        "applications-both-employed.html",
-        "applications-both-not-employed.html"
+        "applications-none",
+        "applications-no-active",
+        "applications-both-employed",
+        "applications-both-not-employed"
     ],
     interviews: [
-        "interviews-none.html",
-        "interviews-2jobs.html",
-        "interviews-3jobs.html"
+        "interviews-none",
+        "interviews-2jobs",
+        "interviews-3jobs"
     ],
     shortlist: [
-        "shortlist.html"
+        "shortlist",
+        "shortlist-test"
     ]
 };
 
-var cache = {};
+var cachedData = {};
+
+function getCachedData(path) {
+    if (cachedData.hasOwnProperty(path)) {
+        return cachedData[path];
+    }
+    var data;
+    if (fs.existsSync(path + ".js")) {
+        data = cachedData[path] = require(path);
+    } else {
+        data = cachedData[path] = 0;
+    }
+    return data;
+}
 
 app.get("/applications/", function(req, res){
-    var file = "pages/" + html.applications[selected.applications];
-    if (cache.applications) {
-        var data = cache.applications[selected.applications];
-        res.send(data);
-    } else {
-        res.send("Cannot send data, failed on server");
-    }
+    var file = html.applications[selected.applications];
+    if (data = getCachedData("./data/" + file))
+        res.render(file + ".html", {data: data.data});
+    else 
+        res.render(file + ".html");
 });
 
 app.get("/interviews/", function(req, res){
-    var file = "pages/" + html.interviews[selected.interviews];
-    if (cache.interviews) {
-        var data = cache.interviews[selected.interviews];
-        res.send(data);
-    } else {
-        res.send("Cannot send data, failed on server");
-    }
+    var file = html.interviews[selected.interviews];
+    if (data = getCachedData("./data/" + file))
+        res.render(file + ".html", {data: data.data});
+    else 
+        res.render(file + ".html");
 });
 
 app.get("/shortlist/", function(req, res){
-    var file = "pages/" + html.shortlist[selected.shortlist];
-    if (cache.shortlist) {
-        var data = cache.shortlist[selected.shortlist];
-        res.send(data);
-    } else {
-        res.send("Cannot send data, failed on server");
-    }
+    var file = html.shortlist[selected.shortlist];
+    if (data = getCachedData("./data/" + file))
+        res.render(file + ".html", {data: data.data});
+    else 
+        res.render(file + ".html");
 });
 
 app.post("/changepage/", function(req, res) {
@@ -82,38 +101,5 @@ app.get("/selected/", function(req, res) {
         data: selected
     });
 });
-
-// Read pages into cache
-(function() {
-    var queue = [];
-    function readToCache() {
-        if (queue.length > 0) {
-            var item = queue.shift(),
-                file = item.file,
-                page = item.page,
-                num = item.num;
-            if (fs.existsSync(file)) {
-                fs.readFile(file, function(e, data){
-                    if (e) return console.dir(e);
-                    data = data.toString();
-                    if (!cache[page]) {
-                        cache[page] = [];
-                    }
-                    cache[page].push(data);
-                    readToCache();
-                });
-            } else {
-                readToCache();
-            }
-        }
-    }
-    for (var page in html) {
-        for (var i in html[page]) {
-            var file = "pages/" + html[page][i];
-            queue.push({file: file, page: page, num: i});
-        }
-    }
-    readToCache();
-})();
 
 app.listen(1111);
