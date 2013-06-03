@@ -309,6 +309,7 @@ public class Job {
 
     static public enum STATUS {
         APPLIED("Applied", 3),
+        CANCELLED("Cancelled", 9),
         NOT_POSTED("Not Posted", 2),
         NO_RESUME("No Resumes Available", 2),
         NOT_SELECTED("Not Selected", 10),
