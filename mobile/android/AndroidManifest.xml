@@ -2,22 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jobmineplus.mobile"
     android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="1.1" >
 
     <meta-data android:value="true" android:name="ADMOB_ALLOW_LOCATION_FOR_ADS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-sdk android:minSdkVersion="8" />
-
-    <!--
-    If you want to run debug mode (like autologin and stuff) remove
-    the android:name="...."
-            
-    To run in debug mode, add this to application's attributes below
-            
-            android:name=".debug.DebugApplication"
-    -->
 
     <application
         android:theme="@style/Theme.Sherlock.Light.DarkActionBar"
@@ -72,6 +63,20 @@
 		        <action android:name="com.android.vending.INSTALL_REFERRER" />
 		    </intent-filter>
 		</receiver>
+		
+		<!-- MobFox Integration -->
+		<activity
+        android:name="com.adsdk.sdk.banner.InAppWebView"
+        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+
+	    <activity
+	        android:name="com.adsdk.sdk.mraid.MraidActivity"
+	        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize" />
+	
+	    <activity
+	        android:name="com.adsdk.sdk.video.RichMediaActivity"
+	        android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"
+	        android:hardwareAccelerated="false" />
         
         
         <service android:name=".services.InterviewsNotifierService" />    
