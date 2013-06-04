@@ -183,12 +183,20 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         Job job = parseRowTableOutline(outline, jobData);
         Calendar now = Calendar.getInstance();
         Calendar interviewEndTime = new GregorianCalendar();
-        interviewEndTime.setTime(job.getInterviewEndTime());
-        log(DISPLAY_DATE_FORMAT.format(now.getTime()), DISPLAY_DATE_FORMAT.format(interviewEndTime.getTime()));
-        if (now.after(interviewEndTime)) {
-            addJobToListByTabId(TABS.FINISHED, job);
-        } else {
+
+        // Check to see if there are interview times given
+        Date interviewEnd = job.getInterviewEndTime();
+        Date interviewStart = job.getInterviewStartTime();
+        if (interviewEnd == null && interviewStart == null) {
             addJobToListByTabId(TABS.COMING_UP, job);
+        } else {
+            interviewEndTime.setTime(interviewEnd != null ? interviewEnd : interviewStart);
+            log(DISPLAY_DATE_FORMAT.format(now.getTime()), DISPLAY_DATE_FORMAT.format(interviewEndTime.getTime()));
+            if (now.after(interviewEndTime)) {
+                addJobToListByTabId(TABS.FINISHED, job);
+            } else {
+                addJobToListByTabId(TABS.COMING_UP, job);
+            }
         }
         addJob(job);
     }
