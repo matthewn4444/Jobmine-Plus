@@ -960,7 +960,10 @@ public class Job {
         String returnStr = "";
         int i = 1;
         int size = array.length;
-        if (size != 0) {
+        if (size > 0) {
+            if (array[0] == null) {
+                return "";
+            }
             returnStr = array[0].toString();
             for (; i < size; i++) {
                 returnStr += delimiter.toString() + array[i].toString().trim();
