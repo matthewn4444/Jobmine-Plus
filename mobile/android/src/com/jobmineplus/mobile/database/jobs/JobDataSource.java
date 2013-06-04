@@ -82,7 +82,9 @@ public final class JobDataSource extends DataSourceBase {
             } catch(Exception e) {
                 e.printStackTrace();
             } finally {
-                database.endTransaction();
+                if (database.isOpen()) {
+                    database.endTransaction();
+                }
                 database.setLockingEnabled(true);
             }
         }
