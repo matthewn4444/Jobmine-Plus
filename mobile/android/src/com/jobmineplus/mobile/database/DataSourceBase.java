@@ -28,6 +28,9 @@ public abstract class DataSourceBase {
         }
         whereStr += where.get(i).first + "=?";
 
+        if (!database.isOpen()) {
+            open();
+        }
         long affected = database.update(table, values, whereStr, new String[]{where.get(i).second + ""});
         if (affected == 0) {
             affected = database.insertOrThrow(table, null, values);
