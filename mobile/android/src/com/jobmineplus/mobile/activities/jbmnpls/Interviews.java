@@ -220,12 +220,15 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
             int minutesOffset) throws JbmnplsParsingException{
         Date retDate = (Date)date.clone();
         Date timeDate;
+        if (timeString.equals("")) {
+            return date;
+        }
         try {
             timeDate = TIME_FORMAT.parse(timeString);
         } catch (ParseException e) {
-            BugSenseHandler.sendException(e);
             e.printStackTrace();
-            throw new JbmnplsParsingException("Couldn't convert time from interviews page");
+            BugSenseHandler.sendExceptionMessage("Cannot convert string, given: ", timeString, e);
+            return date;
         }
         retDate.setHours(timeDate.getHours());
         retDate.setMinutes(timeDate.getMinutes() + minutesOffset);
