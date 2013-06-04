@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Pair;
 
+import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.database.DataSourceBase;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -107,7 +108,12 @@ public final class PageDataSource extends DataSourceBase{
         String[] idStrings = retStr.split(",");
         ArrayList<Integer> ids = new ArrayList<Integer>(idStrings.length);
         for (int i = 0; i < idStrings.length; i++) {
-            ids.add(Integer.parseInt(idStrings[i]));
+            try {
+                ids.add(Integer.parseInt(idStrings[i]));
+            } catch(NumberFormatException e) {
+                e.printStackTrace();
+                BugSenseHandler.sendExceptionMessage("Weird parsing ", idStrings[i], e);
+            }
         }
         cursor.close();
         return ids;
