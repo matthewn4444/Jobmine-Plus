@@ -70,8 +70,9 @@ public class TableParser {
         String headers = html.substring(thStart, thEnd);
 
         // Check to see if we have the correct number of headers
-        if (countText(headers, "</th>") !=  numOfColumns) {
-            throw new HiddenColumnsException();
+        int realNumOfColumns = countText(headers, "</th>");
+        if (realNumOfColumns !=  numOfColumns) {
+            throw new HiddenColumnsException("Need " + numOfColumns + " but only have " + realNumOfColumns);
         }
 
         int end = html.indexOf("</table>", thEnd);

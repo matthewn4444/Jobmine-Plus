@@ -389,9 +389,10 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             publishProgress(getString(R.string.wait_post_message));
 
             sw.start();
+            String html = "empty";
             try {
                 backBtnDisabled = true;
-                String html = activity.onRequestData(params);
+                html = activity.onRequestData(params);
                 timestamp = System.currentTimeMillis();
                 if (html == null) {
                     backBtnDisabled = false;
@@ -401,19 +402,19 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 return NO_PROBLEM;
             } catch (HiddenColumnsException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
+                BugSenseHandler.sendExceptionMessage("html: ", html, e);
                 return HIDDEN_COLUMNS_ERROR;
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
+                BugSenseHandler.sendExceptionMessage("html: ", html, e);
                 return PARSING_ERROR;
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
+                BugSenseHandler.sendExceptionMessage("html: ", html, e);
                 return FORCED_LOGGEDOUT;
             } catch (IOException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
+                BugSenseHandler.sendExceptionMessage("html: ", html, e);
                 return NETWORK_ERROR;
             }
         }
