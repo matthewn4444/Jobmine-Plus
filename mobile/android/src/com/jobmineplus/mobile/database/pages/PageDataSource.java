@@ -166,6 +166,9 @@ public final class PageDataSource extends DataSourceBase{
         .append("='").append(username).append('\'');
 
         // Run query
+        if (!database.isOpen()) {
+            open();
+        }
         Cursor cursor = database.rawQuery(sb.toString(), null);
         if (cursor != null) {
             cursor.moveToFirst();
