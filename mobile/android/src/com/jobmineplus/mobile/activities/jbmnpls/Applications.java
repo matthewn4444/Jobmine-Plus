@@ -86,8 +86,10 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-        int jobId = getCurrentList().get(arg2).getId();
-        goToDescription(jobId);
+        if (arg2 < getCurrentList().size()) {
+            int jobId = getCurrentList().get(arg2).getId();
+            goToDescription(jobId);
+        }
     }
 
     @Override
