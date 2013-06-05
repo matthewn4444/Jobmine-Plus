@@ -109,6 +109,15 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
             }
             Date l = lhs.getInterviewStartTime();
             Date r = rhs.getInterviewStartTime();
+
+            if (l == null && r == null) {
+                return 0;
+            } else if (l == null) {
+                return descending ? -1 : 1;
+            } else if (r == null) {
+                return descending ? 1 : -1;
+            }
+
             if (descending) {
                 return l.after(r) ? -1 : 1;
             } else {
