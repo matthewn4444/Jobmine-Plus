@@ -55,7 +55,9 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     public static boolean isNetworkConnected() {
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mMobile = connManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        return (mWifi.isConnected() || mMobile.isConnected()) && isNetworkAvailable();
+        boolean wifiConnected = mWifi != null ? mWifi.isConnected() : false;
+        boolean mobileConnected = mMobile != null ? mMobile.isConnected() : false;
+        return (wifiConnected || mobileConnected) && isNetworkAvailable();
     }
 
     public static boolean isNetworkAvailable() {
