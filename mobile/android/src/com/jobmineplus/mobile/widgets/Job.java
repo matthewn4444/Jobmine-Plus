@@ -3,10 +3,12 @@ package com.jobmineplus.mobile.widgets;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 import android.text.TextUtils;
+
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -838,6 +840,15 @@ public class Job {
     // ===========
     //  Methods
     // ===========
+    public boolean pastNow() {
+        if (interviewStartTime == null && interviewEndTime == null) {
+            return false;
+        }
+        Calendar now = Calendar.getInstance();
+        Date endTime = interviewEndTime != null ? interviewEndTime : interviewStartTime;
+        return now.after(endTime);
+    }
+
     public String grabDescriptionData(JbmnplsHttpClient client) throws IOException {
         // Get the html
         String html;

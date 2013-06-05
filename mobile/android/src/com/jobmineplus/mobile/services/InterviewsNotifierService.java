@@ -145,6 +145,7 @@ public class InterviewsNotifierService extends Service {
         implements TableParser.OnTableParseListener {
         private final TableParser parser = new TableParser();
         private ArrayList<Job> pulledJobs;
+        private HashMap<String, ArrayList<Job>> pulledInterviewsJobs;
         private HashMap<String, ArrayList<Job>> pulledAppsJobs;
         private int nextTimeout = 0;
         private Context ctx;
@@ -272,8 +273,11 @@ public class InterviewsNotifierService extends Service {
 
         private Boolean crawlInterviews() {
             // Get interviews data from the database
-           ArrayList<Integer> ids = pageSource.getJobsIds(client.getUsername(), Interviews.PAGE_NAME);
+           HashMap<String, ArrayList<Integer>> ids = pageSource.getJobsIdMap(client.getUsername(), Interviews.PAGE_NAME);
            pulledJobs = new ArrayList<Job>();
+           pulledInterviewsJobs = new HashMap<String, ArrayList<Job>>();
+           pulledInterviewsJobs.put(Interviews.TABS.COMING_UP, new ArrayList<Job>());
+           pulledInterviewsJobs.put(Interviews.TABS.FINISHED, new ArrayList<Job>());
 
            // Pull the interview data off the website
            String html;
@@ -304,7 +308,7 @@ public class InterviewsNotifierService extends Service {
            if (ids == null) {
                // First time getting interviews, so we need to add it to the database
                jobSource.addJobs(pulledJobs);
-               pageSource.addPage(client.getUsername(), Interviews.PAGE_NAME, pulledJobs, System.currentTimeMillis());
+               pageSource.addPage(client.getUsername(), Interviews.PAGE_NAME, pulledInterviewsJobs, System.currentTimeMillis());
            } else {
                // Parse out which are the new interviews
                if (pulledJobs.isEmpty()) {
@@ -313,8 +317,15 @@ public class InterviewsNotifierService extends Service {
 
                // Parse the new interviews; remove all jobs that are already existing
                int newCount = 0;
+               ArrayList<Integer> comingUpJobIds = ids.get(Interviews.TABS.COMING_UP);
+               ArrayList<Integer> finishedJobIds = ids.get(Interviews.TABS.FINISHED);
                for (int i = 0; i < pulledJobs.size(); i++) {
-                   if (!ids.contains(pulledJobs.get(i).getId())) {
+                   if (!comingUpJobIds.contains(pulledJobs.get(i).getId())) {
+                       newCount++;
+                   }
+               }
+               for (int i = 0; i < pulledJobs.size(); i++) {
+                   if (!finishedJobIds.contains(pulledJobs.get(i).getId())) {
                        newCount++;
                    }
                }
@@ -351,6 +362,11 @@ public class InterviewsNotifierService extends Service {
                 pulledAppsJobs.get(Applications.LISTS.ACTIVE_JOBS).add(job);
             } else {
                 job = Interviews.parseRowTableOutline(outline, jobData);
+                if (job.pastNow()) {
+                    pulledInterviewsJobs.get(Interviews.TABS.FINISHED).add(job);
+                } else {
+                    pulledInterviewsJobs.get(Interviews.TABS.COMING_UP).add(job);
+                }
             }
             pulledJobs.add(job);
         }

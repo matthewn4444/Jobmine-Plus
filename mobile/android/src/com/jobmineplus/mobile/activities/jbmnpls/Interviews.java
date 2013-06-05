@@ -3,11 +3,9 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 
 import android.app.Activity;
@@ -165,7 +163,6 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         return job;
     }
 
-
     //====================
     //  Override Methods
     //====================
@@ -190,22 +187,10 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
 
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = parseRowTableOutline(outline, jobData);
-        Calendar now = Calendar.getInstance();
-        Calendar interviewEndTime = new GregorianCalendar();
-
-        // Check to see if there are interview times given
-        Date interviewEnd = job.getInterviewEndTime();
-        Date interviewStart = job.getInterviewStartTime();
-        if (interviewEnd == null && interviewStart == null) {
-            addJobToListByTabId(TABS.COMING_UP, job);
+        if (job.pastNow()) {
+            addJobToListByTabId(TABS.FINISHED, job);
         } else {
-            interviewEndTime.setTime(interviewEnd != null ? interviewEnd : interviewStart);
-            log(DISPLAY_DATE_FORMAT.format(now.getTime()), DISPLAY_DATE_FORMAT.format(interviewEndTime.getTime()));
-            if (now.after(interviewEndTime)) {
-                addJobToListByTabId(TABS.FINISHED, job);
-            } else {
-                addJobToListByTabId(TABS.COMING_UP, job);
-            }
+            addJobToListByTabId(TABS.COMING_UP, job);
         }
         addJob(job);
     }
