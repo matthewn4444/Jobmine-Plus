@@ -71,7 +71,7 @@ public class TableParser {
 
         // Check to see if we have the correct number of headers
         int realNumOfColumns = countText(headers, "</th>");
-        if (realNumOfColumns !=  numOfColumns) {
+        if (realNumOfColumns <  numOfColumns) {
             throw new HiddenColumnsException("Need " + numOfColumns + " but only have " + realNumOfColumns);
         }
 
