@@ -269,7 +269,11 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
             setDate(3, job.getInterviewStartTime(), "On <b>");
             setDate(4, job.getInterviewStartTime(), job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
             setText(5, job.getRoomInfo(), "At <b>");
-            setText(6, job.getInterviewType().toString(), true);
+            if (job.getInterviewType() != null) {
+                setText(6, job.getInterviewType().toString(), true);
+            } else {
+                hide(6);
+            }
             setText(7, job.getInstructions());
             return HIGHLIGHTING.NORMAL;
         }
