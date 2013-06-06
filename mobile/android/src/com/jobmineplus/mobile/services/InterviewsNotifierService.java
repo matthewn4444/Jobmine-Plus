@@ -319,14 +319,18 @@ public class InterviewsNotifierService extends Service {
                int newCount = 0;
                ArrayList<Integer> comingUpJobIds = ids.get(Interviews.TABS.COMING_UP);
                ArrayList<Integer> finishedJobIds = ids.get(Interviews.TABS.FINISHED);
-               for (int i = 0; i < pulledJobs.size(); i++) {
-                   if (!comingUpJobIds.contains(pulledJobs.get(i).getId())) {
-                       newCount++;
+               if (comingUpJobIds != null) {
+                   for (int i = 0; i < pulledJobs.size(); i++) {
+                       if (!comingUpJobIds.contains(pulledJobs.get(i).getId())) {
+                           newCount++;
+                       }
                    }
                }
-               for (int i = 0; i < pulledJobs.size(); i++) {
-                   if (!finishedJobIds.contains(pulledJobs.get(i).getId())) {
-                       newCount++;
+               if (finishedJobIds != null) {
+                   for (int i = 0; i < pulledJobs.size(); i++) {
+                       if (!finishedJobIds.contains(pulledJobs.get(i).getId())) {
+                           newCount++;
+                       }
                    }
                }
 
