@@ -407,13 +407,16 @@ public class Job {
         public static LEVEL getLevelfromString(String text)
                 throws JbmnplsParsingException {
             if (text != null) {
+                if (text.equals("")) {
+                    return null;
+                }
                 for (LEVEL b : LEVEL.values()) {
                     if (text.equalsIgnoreCase(b.toString())) {
                         return b;
                     }
                 }
             }
-            throw new JbmnplsParsingException("State: Cannot match value '"
+            throw new JbmnplsParsingException("Level: Cannot match value '"
                     + text + "'");
         }
 
