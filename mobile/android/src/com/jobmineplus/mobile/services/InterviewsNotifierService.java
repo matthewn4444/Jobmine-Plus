@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.activities.SimpleActivityBase;
 import com.jobmineplus.mobile.activities.jbmnpls.Applications;
 import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
@@ -162,6 +163,10 @@ public class InterviewsNotifierService extends Service {
 
         @Override
         protected Boolean doInBackground(Integer... params) {
+            if (!SimpleActivityBase.isJobmineOnline()) {
+                return true;
+            }
+
             nextTimeout = params[0];
 
             pageSource.open();
@@ -291,6 +296,10 @@ public class InterviewsNotifierService extends Service {
                BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
+           }
+
+           if (html == null) {
+               return true;
            }
 
            // Parse the html into jobs (except the canncelled jobs)
