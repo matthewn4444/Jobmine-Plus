@@ -23,7 +23,7 @@ import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.database.users.UserDataSource;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
-import com.jobmineplus.mobile.exceptions.JbmnplsInfiniteLoopException;
+import com.jobmineplus.mobile.exceptions.InfiniteLoopException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
@@ -402,7 +402,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 }
                 activity.parseWebpage(html);
                 return NO_PROBLEM;
-            } catch (JbmnplsInfiniteLoopException e) {
+            } catch (InfiniteLoopException e) {
                 e.printStackTrace();
                 BugSenseHandler.sendExceptionMessage("html: ", html, e);
                 return INFINITE_LOOP_ERROR;
