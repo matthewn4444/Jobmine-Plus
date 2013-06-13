@@ -10,6 +10,7 @@
         <string name="jobmine_offline_message">Jobmine is offline.</string>
         <string name="hidden_column_message">Jobmine Plus cannot display data because you have hidden columns. Please go to the Jobmine website and show all columns you have hid under customize.</string>
         <string name="parsing_error_message">This page is incompatible with the current site. A bug report has been sent.</string>
+        <string name="infinite_loop_error_message">There was a problem parsing the webpage, if possible, send the original JobMine webpage (html) to jobmineplus@gmail.com</string>
         <string name="network_error">There was an error getting the webpage. Please try again.</string>
         <string name="interviews_ticket_text">You have a new interview!</string>
         <string name="go_offline_message">"JobMine is currently offline, would you like to go into offline mode?"</string>

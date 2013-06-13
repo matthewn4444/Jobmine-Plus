@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
+import com.jobmineplus.mobile.exceptions.JbmnplsInfiniteLoopException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;
 
@@ -187,7 +188,7 @@ public class TableParser {
 
         // Chances are, these parts will never run
         if (row >= INFINITE_LOOP_LIMIT) {
-            throw new JbmnplsParsingException("We ran an infinite loop looking for column data.");
+            throw new JbmnplsInfiniteLoopException("We ran an infinite loop looking for column data.");
         }
         throw new JbmnplsParsingException("Went to end of table but found no information.");
     }
