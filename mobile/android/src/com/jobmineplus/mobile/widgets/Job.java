@@ -264,6 +264,7 @@ public class Job {
         CANCELLED("Cancelled", 9),
         AVAILABLE("Applications Available", 2),
         FILLED("Filled", 6),
+        RESET("Reset", 1),
         POSTED("Posted", 1),
         SCREENED("Screened", 4),
         RANKING_COMPLETED("Ranking Completed", 8),
