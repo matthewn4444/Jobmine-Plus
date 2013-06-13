@@ -75,6 +75,11 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
             supportInvalidateOptionsMenu();
         }
         onlineModeChanged(flag);
+        if (flag) {
+            Toast.makeText(this, R.string.set_online_mode_message, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.set_offline_mode_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     // Online mode set by user
