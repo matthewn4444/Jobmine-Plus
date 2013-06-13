@@ -8,7 +8,7 @@
         <string name="wait_post_message">Fetching data&#8230;</string>
         <string name="login_not_available">Jobmine is not available at this time.</string>
         <string name="jobmine_offline_message">Jobmine is offline.</string>
-        <string name="hidden_column_message">Jobmine Plus cannot display data because you have hidden columns. Please go to the Jobmine website and show all columns you have hid under customize.</string>
+        <string name="hidden_column_message">Jobmine Plus cannot display data because you may have hidden columns. Please unhide your all columns. If you think you have not hidden any columns, email the webpage (html) to jobmineplus@gmail.com</string>
         <string name="parsing_error_message">This page is incompatible with the current site. A bug report has been sent.</string>
         <string name="infinite_loop_error_message">There was a problem parsing the webpage, if possible, send the original JobMine webpage (html) to jobmineplus@gmail.com</string>
         <string name="network_error">There was an error getting the webpage. Please try again.</string>
