@@ -12,7 +12,6 @@ import android.view.View.OnClickListener;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.appbrain.AppBrain;
 import com.jobmineplus.mobile.R;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
@@ -78,7 +77,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
 
     @Override
     public void onBackPressed() {
-        AppBrain.getAds().showInterstitial(this);
+//        AppBrain.getAds().showInterstitial(this);
         finish();
     }
 
