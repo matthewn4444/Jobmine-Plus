@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jobmineplus.mobile"
     android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-    android:versionCode="5"
-    android:versionName="1.1.3" >
+    android:versionCode="6"
+    android:versionName="1.1.4" >
 
     <meta-data android:value="true" android:name="ADMOB_ALLOW_LOCATION_FOR_ADS" />
     <uses-permission android:name="android.permission.INTERNET" />
