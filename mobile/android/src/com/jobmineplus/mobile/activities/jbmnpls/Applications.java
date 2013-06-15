@@ -161,7 +161,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
             if (isOneOf(status, "Selected", "Scheduled", "Employed") || status == "Ranking Completed"
                     && applications.listContainsId(LISTS.ACTIVE_JOBS, job.getId())) {
                 return HIGHLIGHTING.GREAT;
-            } else if (isOneOf(status, "Unfilled", "Ranking Completed", "Not Ranked")) {
+            } else if (isOneOf(status, "Unfilled", "Ranking Completed", "Not Ranked", "Sign Off")) {
                 return HIGHLIGHTING.BAD;
             } else if (isOneOf(status, "Not Selected", "Cancelled")) {
                 return HIGHLIGHTING.WORSE;

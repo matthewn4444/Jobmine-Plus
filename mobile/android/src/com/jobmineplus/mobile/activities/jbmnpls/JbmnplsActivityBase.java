@@ -436,7 +436,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             super.onPostExecute(reasonForFailure);
             String renderMsg = sw.elapsed() + " ms to render";
             log(renderMsg);
-            toast(renderMsg);
             if (reasonForFailure == NO_PROBLEM) {
                 onRequestComplete(true);
             } else {

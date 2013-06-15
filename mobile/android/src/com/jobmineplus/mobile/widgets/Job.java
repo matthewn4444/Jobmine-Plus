@@ -314,6 +314,7 @@ public class Job {
         APPLIED("Applied", 3),
         CANCELLED("Cancelled", 9),
         NOT_POSTED("Not Posted", 2),
+        SIGN_OFF("Sign Off", 3),
         NO_RESUME("No Resumes Available", 2),
         NOT_SELECTED("Not Selected", 10),
         NOT_RANKED("Not Ranked", 7),
