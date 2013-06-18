@@ -129,7 +129,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         // Hide virtual keyboard
         InputMethodManager inputManager = (InputMethodManager) this
                 .getSystemService(Context.INPUT_METHOD_SERVICE);
-        if (inputManager != null) {
+        if (inputManager != null && this.getCurrentFocus() != null) {
             inputManager.hideSoftInputFromWindow(this.getCurrentFocus()
                     .getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
         }
