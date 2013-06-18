@@ -29,6 +29,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
 import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.JobminePlusMobileLog;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.StopWatch;
@@ -404,23 +405,28 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 return NO_PROBLEM;
             } catch (InfiniteLoopException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendExceptionMessage("html: ", html, e);
+                BugSenseHandler.sendException(e);
+                JobminePlusMobileLog.sendException(activity, html, e);
                 return INFINITE_LOOP_ERROR;
             } catch (HiddenColumnsException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendExceptionMessage("html: ", html, e);
+                BugSenseHandler.sendException(e);
+                JobminePlusMobileLog.sendException(activity, html, e);
                 return HIDDEN_COLUMNS_ERROR;
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendExceptionMessage("html: ", html, e);
+                BugSenseHandler.sendException(e);
+                JobminePlusMobileLog.sendException(activity, html, e);
                 return PARSING_ERROR;
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendExceptionMessage("html: ", html, e);
+                BugSenseHandler.sendException(e);
+                JobminePlusMobileLog.sendException(activity, html, e);
                 return FORCED_LOGGEDOUT;
             } catch (IOException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendExceptionMessage("html: ", html, e);
+                BugSenseHandler.sendException(e);
+                JobminePlusMobileLog.sendException(activity, html, e);
                 return NETWORK_ERROR;
             }
         }
