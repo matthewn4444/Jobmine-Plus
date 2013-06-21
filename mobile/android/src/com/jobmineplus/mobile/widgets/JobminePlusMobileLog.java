@@ -19,14 +19,10 @@ public final class JobminePlusMobileLog {
     private static String version = null;
 
     private JbmnplsHttpClient client;
-    private LogPostTask task;
+    //private LogPostTask task;
 
     private JobminePlusMobileLog() {
         client = new JbmnplsHttpClient();
-    }
-
-    private void newTask() {
-        task = new LogPostTask();
     }
 
     static private void insureInstance() {
@@ -50,28 +46,27 @@ public final class JobminePlusMobileLog {
                 version = "Unknown";
             }
         }
-        synchronized (lock) {
-            if (instance.task == null) {
-                instance.newTask();
-                String stackTrace = Log.getStackTraceString(e);
-                instance.task.execute(text, e.getLocalizedMessage(), stackTrace);
-                instance.task = null;
-            }
-        }
+        String stackTrace = Log.getStackTraceString(e);
+        instance.spawnTask(text, e.getLocalizedMessage(), stackTrace);
     }
 
-    private HttpResponse internalSendException(String text, String exceptionMessage, String stackTrace) {
-        List<NameValuePair> postData = new ArrayList<NameValuePair>(2);
-        postData.add(new BasicNameValuePair("message", exceptionMessage));
-        postData.add(new BasicNameValuePair("version", version));
-        postData.add(new BasicNameValuePair("trace", stackTrace));
-        if (text != null && !text.isEmpty()) {
-            postData.add(new BasicNameValuePair("text", text));
-        }
-        return instance.client.post(postData, SEND_HANDLED_EXCEPTION_URL);
+    private void spawnTask(String text, String exceptionMessage, String stackTrace) {
+        LogPostTask task = new LogPostTask();
+        task.execute(text, exceptionMessage, stackTrace);
     }
 
     private final class LogPostTask extends AsyncTask<String, Void, Void> {
+        private HttpResponse internalSendException(String text, String exceptionMessage, String stackTrace) {
+            List<NameValuePair> postData = new ArrayList<NameValuePair>(2);
+            postData.add(new BasicNameValuePair("message", exceptionMessage));
+            postData.add(new BasicNameValuePair("version", version));
+            postData.add(new BasicNameValuePair("trace", stackTrace));
+            if (text != null && !text.isEmpty()) {
+                postData.add(new BasicNameValuePair("text", text));
+            }
+            return instance.client.post(postData, SEND_HANDLED_EXCEPTION_URL);
+        }
+
         @Override
         protected Void doInBackground(String... params) {
             // Try again, if fail again then give up
