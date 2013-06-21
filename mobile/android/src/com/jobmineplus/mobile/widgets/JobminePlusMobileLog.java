@@ -61,9 +61,7 @@ public final class JobminePlusMobileLog {
             postData.add(new BasicNameValuePair("message", exceptionMessage));
             postData.add(new BasicNameValuePair("version", version));
             postData.add(new BasicNameValuePair("trace", stackTrace));
-            if (text != null && !text.isEmpty()) {
-                postData.add(new BasicNameValuePair("text", text));
-            }
+            postData.add(new BasicNameValuePair("text", text != null ? text : ""));
             return instance.client.post(postData, SEND_HANDLED_EXCEPTION_URL);
         }
 
