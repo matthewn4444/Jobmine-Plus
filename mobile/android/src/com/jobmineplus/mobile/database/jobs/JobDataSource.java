@@ -152,6 +152,10 @@ public final class JobDataSource extends DataSourceBase {
         }
         sb.deleteCharAt(sb.length() - 1);       // Remove last comma
 
+        if (!database.isOpen()) {
+            open();
+        }
+
         // Get all the jobs
         Cursor cursor = getCursorJobsByIdList(sb.toString());
         if (cursor.moveToFirst()) {
