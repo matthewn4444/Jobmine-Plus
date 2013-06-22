@@ -206,6 +206,9 @@ public final class JobDataSource extends DataSourceBase {
     // =================
 
     private Cursor getCursorByJobId(int id) {
+        if (!database.isOpen()) {
+            open();
+        }
         Cursor cursor = null;
         synchronized (this) {
             cursor = database.query(JobTable.TABLE_JOB,
