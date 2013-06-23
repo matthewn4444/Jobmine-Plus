@@ -40,9 +40,17 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     protected final static ColumnInfo COLUMN8  = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
     protected final static ColumnInfo COLUMN9  = new ColumnInfo(9, ColumnInfo.NUMERIC);
 
-    public static final TableParserOutline ACTIVE_OUTLINE =
+    // When there are 9 columns
+    protected final static ColumnInfo COLUMN7_9TOTAL  = new ColumnInfo(7, ColumnInfo.DATE, DATE_FORMAT);
+    protected final static ColumnInfo COLUMN8_9TOTAL  = new ColumnInfo(8, ColumnInfo.NUMERIC);
+
+    public static final TableParserOutline ACTIVE_OUTLINE_10_COLS =
             new TableParserOutline("UW_CO_STU_APPSV$scroll$0", 10,
                     COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
+
+    public static final TableParserOutline ACTIVE_OUTLINE_9_COLS =
+            new TableParserOutline("UW_CO_STU_APPSV$scroll$0", 9,
+                    COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN7_9TOTAL, COLUMN8_9TOTAL);
 
     public static final TableParserOutline ALL_OUTLINE =
             new TableParserOutline("UW_CO_APPS_VW2$scrolli$0", 12,
@@ -57,14 +65,21 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     //  Static Public Methods
     //============================
     public static Job parseRowTableOutline(TableParserOutline outline, Object... jobData) {
-        Job.STATUS status = (Job.STATUS)jobData[5];
         int id = (Integer) jobData[0];
+        if (jobData.length == 8) {
+            Job.STATUS status = (Job.STATUS)jobData[5];
 
-        //Applications constructor
-        return new Job(          id,    (String)    jobData[1],
-                (String)    jobData[2], (String)    jobData[3],
-                (Job.STATE) jobData[4],                 status,
-                (Date)      jobData[6], (Integer)   jobData[7]);
+            //Applications constructor
+            return new Job(          id,    (String)    jobData[1],
+                    (String)    jobData[2], (String)    jobData[3],
+                    (Job.STATE) jobData[4],                 status,
+                    (Date)      jobData[6], (Integer)   jobData[7]);
+        } else {
+            return new Job(          id,    (String)    jobData[1],
+                    (String)    jobData[2], (String)    jobData[3],
+                    (Job.STATE) jobData[4],Job.STATUS.getDefault(),
+                    (Date)      jobData[5], (Integer)   jobData[6]);
+        }
     }
 
     //====================
@@ -95,7 +110,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     @Override
     protected void parseWebpage(String html) {
         clearAllLists();
-        parser.execute(ACTIVE_OUTLINE, html);
+        parser.execute(ACTIVE_OUTLINE_10_COLS, ACTIVE_OUTLINE_9_COLS, html);
         parser.execute(ALL_OUTLINE, html);
     }
 

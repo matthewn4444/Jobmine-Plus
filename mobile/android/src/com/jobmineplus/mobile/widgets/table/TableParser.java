@@ -49,9 +49,24 @@ public class TableParser {
      * html from it based on the id of the table.
      * This will parse the table by getting the <tr>....</tr> code from
      * the html and serve it to parseTable.
+     * Passing an outline as a backup tries to parse the html with a second
+     * outline if the first one fails
      * @param html
      */
     public void execute(TableParserOutline outline, String html) {
+        execute(outline, null, html);
+    }
+
+    public void execute(TableParserOutline outline, TableParserOutline outlineBackup, String html) {
+        try {
+            internalExecute(outline, html);
+        } catch(HiddenColumnsException e) {
+            internalExecute(outlineBackup, html);
+        }
+    }
+
+
+    private void internalExecute(TableParserOutline outline, String html) {
         if (listener == null) {
             throw new JbmnplsParsingException(
                     "You did not attach a listener to the table parsing function.");
@@ -87,6 +102,7 @@ public class TableParser {
             throw new JbmnplsParsingException(e.getMessage());
         }
     }
+
 
     /**
      * This parses the table based on the table HTML. This requires the HTML to be
