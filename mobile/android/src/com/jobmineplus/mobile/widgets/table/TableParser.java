@@ -114,7 +114,6 @@ public class TableParser {
      */
     private void parseTable(TableParserOutline outline, String html) {
         ColumnInfo[] columnInfo = outline.getColumnInfo();
-        int numOfColumns = outline.columnLength();
         SimpleHtmlParser parser = new SimpleHtmlParser(html);
         int row = 0;
         Object[] passedObj = new Object[columnInfo.length];
@@ -122,7 +121,7 @@ public class TableParser {
             int column = 0;
 
             // Check if there is another TD, if not we are done
-            int position = html.indexOf("<td", parser.getPosition());
+            int position = html.indexOf("<tr", parser.getPosition());
             if (position == -1) { return; }
             parser.setPosition(position);
 
@@ -193,9 +192,6 @@ public class TableParser {
                   }
                   passedObj[i] = value;
             }
-
-            // Skip the html till we get to the next row
-            parser.skipColumns(numOfColumns - column);
 
             // Now we pass the values back to the activities to make jobs
             listener.onRowParse(outline, passedObj);
