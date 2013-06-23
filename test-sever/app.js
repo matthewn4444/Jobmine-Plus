@@ -29,7 +29,8 @@ var html = {
         "applications-none",
         "applications-no-active",
         "applications-both-employed",
-        "applications-both-not-employed"
+        "applications-both-not-employed",
+        "applications-test"
     ],
     interviews: [
         "interviews-none",
