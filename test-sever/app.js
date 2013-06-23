@@ -9,7 +9,8 @@ app.set('view engine', 'html');
 
 swig.init({
     root: 'pages/',
-    allowErrors: true
+    allowErrors: true,
+    filters: require("./swig/filters")
 });
 app.set('views', 'pages/');
 
@@ -18,30 +19,28 @@ app.configure(function () {
      app.use(express.bodyParser());
 });
 
-var selected = {
-    applications: 0,
-    interviews: 0,
-    shortlist: 0
-};
 
-var html = {
-    applications: [
-        "applications-none",
-        "applications-no-active",
-        "applications-both-employed",
-        "applications-both-not-employed",
-        "applications-test"
-    ],
-    interviews: [
-        "interviews-none",
-        "interviews-2jobs",
-        "interviews-3jobs"
-    ],
-    shortlist: [
-        "shortlist",
-        "shortlist-test"
-    ]
-};
+// Items
+var selected = {};
+var html = {};
+var dataRender = {};
+
+// Read the files inside "pages"
+var files = fs.readdirSync("./pages/files");
+for (var i = 0; i < files.length; i++) {
+    var filename = files[i].substring(0, files[i].lastIndexOf(".")),
+        firstHyphen = filename.indexOf("-"),
+        category = filename.substr(0, firstHyphen),
+        name = filename.substring(firstHyphen + 1);
+    if (!html[category]) {  
+        html[category] = [filename];
+        selected[category] = 0;
+        dataRender[category] = [name];
+    } else {
+        html[category].push(filename);
+        dataRender[category].push(name);
+    }
+}
 
 var cachedData = {};
 
@@ -58,29 +57,25 @@ function getCachedData(path) {
     return data;
 }
 
-app.get("/applications/", function(req, res){
-    var file = html.applications[selected.applications];
-    if (data = getCachedData("./data/" + file))
-        res.render(file + ".html", {data: data.data});
-    else 
-        res.render(file + ".html");
+app.get("/", function(req, res){
+    res.render("index.html", {data: dataRender});
 });
 
-app.get("/interviews/", function(req, res){
-    var file = html.interviews[selected.interviews];
-    if (data = getCachedData("./data/" + file))
-        res.render(file + ".html", {data: data.data});
-    else 
-        res.render(file + ".html");
-});
+function routePage(page) {
+    app.get("/" + page + "/", function(req, res){
+        var file = html[page][selected[page]];
+        if (data = getCachedData("./data/" + file))
+            res.render("files/" + file + ".html", {data: data.data});
+        else 
+            res.render("files/" + file + ".html");
+    });
+}
 
-app.get("/shortlist/", function(req, res){
-    var file = html.shortlist[selected.shortlist];
-    if (data = getCachedData("./data/" + file))
-        res.render(file + ".html", {data: data.data});
-    else 
-        res.render(file + ".html");
-});
+for (var i in dataRender) {
+    if (dataRender.hasOwnProperty(i)) {
+        routePage(i);
+    }
+}
 
 app.post("/changepage/", function(req, res) {
     var p = req.body;

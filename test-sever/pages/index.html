@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Jbmn+ App Local Testing</title>
+        <script src='/jquery-1.8.2.min.js'></script>
+        <style>
+            * {
+                font-family:Verdana, Arial;
+                -moz-box-sizing:border-box;
+                -webkit-box-sizing:border-box;
+                -ms-box-sizing:border-box;
+                -o-box-sizing:border-box;
+                box-sizing:border-box;
+                color:#444;
+                user-select:none;
+                -moz-user-select:none;
+                -webkit-user-select:none;
+                -ms-user-select:none;
+                -o-user-select:none;
+            }
+            span.title {
+                display:block;
+                border-bottom:1px solid #CCC;
+                margin: 10px;
+                padding: 0 20px;
+            }
+            span.title a{
+                font-family: Century Gothic, Verdana, Arial;
+                font-size:20px;
+                color: #777;
+                text-decoration:none;
+            }
+            span.title a:hover {
+                color:black;
+            }
+            label:hover {   
+                color: #068BBF;
+            }
+            input {
+                float:left;
+                margin-right:20px;
+            }
+            ul li {
+                list-style-type: none;
+            }
+        </style>
+    </head>
+    <body>
+    {% for category in data %}
+        {% set cateName = loop.key|lower %}
+        <section class='{{ cateName }}'>
+            <span class='title'><a href='/{{ cateName }}/' title='Preview in new tab' target='_blank'>{{ cateName|capitalize }}</a></span>
+            <ul class='{{ cateName }}'>
+            {% for item in category  %}
+                <li>
+                    <label for='{{ cateName }}-{{ item }}'>{{ item|presentable }}</label>
+                    <input id='{{ cateName }}-{{ item }}' name='{{ cateName }}' value='{{ loop.index - 1 }}' type='radio'/>
+                </li>
+            {% endfor %}
+            </ul>
+        </section>
+    {% endfor %}
+        <script>
+            var urlChange = "/changePage/",
+                urlGet = "/selected/";
+            $("input").change(function(){    
+                var o = $(this),
+                    page = o.attr("name"),
+                    value = o.val();
+                switch(page) {
+                    {% for category in data %}
+                    case "{{ loop.key|lower }}": 
+                    {% endfor %}
+                        $.ajax({
+                            url: urlChange,
+                            type: "POST",
+                            dataType: "json",
+                            cache: false,
+                            data: {
+                                page: page,
+                                number: value
+                            }, 
+                            success: function(response){
+                                if (!response || !response.success) {
+                                    alert("Failed to get response");
+                                }
+                            }
+                        });
+                        break;
+                }
+            });
+            // Retrieve the selected values from the server
+            (function() {
+                $.get(urlGet, function(response){
+                    if (response && response.success && response.data) {
+                        for (var page in response.data) {
+                            var val = response.data[page];
+                            console.log(val)
+                            $("section." + page + " input[value='" + val + "']")
+                                .attr("checked", "checked").siblings().removeAttr("selected");
+                        }
+                    } else {
+                        alert("Cannot get the selected values from the server");
+                    }
+                });
+            })();
+        </script>
+    </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
