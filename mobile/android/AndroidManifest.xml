@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jobmineplus.mobile"
     android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen"
-    android:versionCode="9"
+    android:versionCode="10"
     android:versionName="1.1.7" >
 
     <meta-data android:value="true" android:name="ADMOB_ALLOW_LOCATION_FOR_ADS" />
