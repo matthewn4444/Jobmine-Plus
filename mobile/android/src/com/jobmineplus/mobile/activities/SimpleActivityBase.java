@@ -11,7 +11,6 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
-
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
@@ -40,7 +39,9 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         if (!preferences.getBoolean("settingsEnableDataCrashReports", false)) {
             BugSenseHandler.sendDataOverWiFiOnly();
         }
-        BugSenseHandler.initAndStartSession(SimpleActivityBase.this, getString(R.string.bugsence_api_key));
+        if (!isDebug()) {
+            BugSenseHandler.initAndStartSession(SimpleActivityBase.this, getString(R.string.bugsence_api_key));
+        }
         super.onCreate(arg0);
     }
 

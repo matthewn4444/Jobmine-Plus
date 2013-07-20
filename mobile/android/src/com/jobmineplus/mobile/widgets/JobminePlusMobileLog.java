@@ -7,7 +7,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.content.Context;
+import com.jobmineplus.mobile.activities.SimpleActivityBase;
+
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -35,12 +36,15 @@ public final class JobminePlusMobileLog {
         }
     }
 
-    public static void sendException(Context ctx, String text, Exception e) {
+    public static void sendException(SimpleActivityBase activity, String text, Exception e) {
+        if (activity.isDebug()) {
+            return;
+        }
         insureInstance();
 
         if (version == null) {
             try {
-                version = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
+                version = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionName;
             } catch (NameNotFoundException e1) {
                 e1.printStackTrace();
                 version = "Unknown";
