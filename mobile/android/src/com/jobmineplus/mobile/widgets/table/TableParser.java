@@ -28,7 +28,7 @@ import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
  *
  */
 public class TableParser {
-    private final int INFINITE_LOOP_LIMIT = 300;
+    private final int INFINITE_LOOP_LIMIT = 1000;
     private OnTableParseListener listener;
     private static final SimpleDateFormat DATE_FORMAT_SPACE = new SimpleDateFormat("d MMM yyyy", Locale.getDefault());
     private static final SimpleDateFormat DATE_FORMAT_DASH = new SimpleDateFormat("d-MMM-yyyy", Locale.getDefault());
