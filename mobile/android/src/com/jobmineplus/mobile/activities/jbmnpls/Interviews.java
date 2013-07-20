@@ -20,9 +20,9 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
 
 public class Interviews extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener {
 
@@ -43,52 +43,53 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     //======================
     // Table Definitions
     //======================
-    private final static ColumnInfo COLUMN_1_INFO_ID   = new ColumnInfo(1, ColumnInfo.ID);
-    private final static ColumnInfo COLUMN_2_INFO_TEXT = new ColumnInfo(2, ColumnInfo.TEXT);
-    private final static ColumnInfo COLUMN_3_INFO_TEXT = new ColumnInfo(3, ColumnInfo.TEXT);
-    private final static ColumnInfo COLUMN_4_INFO_DATE = new ColumnInfo(4, ColumnInfo.DATE, DATE_FORMAT);
-    private final static ColumnInfo COLUMN_7_INFO_DATE = new ColumnInfo(7, ColumnInfo.TEXT);
 
     // First Table
     public static final TableParserOutline INTERVIEWS_OUTLINE = new TableParserOutline(
-            "UW_CO_STUD_INTV$scroll$0", 13,
-            COLUMN_1_INFO_ID,                              // Job Id
-            COLUMN_2_INFO_TEXT,                             // Employer
-            COLUMN_3_INFO_TEXT,                             // Title
-            COLUMN_4_INFO_DATE,                             // Date
-            new ColumnInfo(5, ColumnInfo.INTERVIEW_TYPE),   // Type
-            COLUMN_7_INFO_DATE,                             // Start time
-            new ColumnInfo(8, ColumnInfo.NUMERIC),          // Length
-            new ColumnInfo(9, ColumnInfo.TEXT),             // Room
-            new ColumnInfo(10, ColumnInfo.TEXT),            // Instructions
-            new ColumnInfo(11, ColumnInfo.TEXT));           // Interviewer
+            "UW_CO_STUD_INTV$scroll$0",
+            HEADER.BLANK,
+            HEADER.JOB_ID,
+            HEADER.EMPLOYER_NAME,
+            HEADER.JOB_TITLE,
+            HEADER.DATE,
+            HEADER.TYPE,
+            HEADER.SELECT_TIME,
+            HEADER.START_TIME,
+            HEADER.LENGTH,
+            HEADER.ROOM,
+            HEADER.INSTRUCTIONS,
+            HEADER.INTERVIEWER,
+            HEADER.JOB_STATUS);
 
     // Second Table
     public static final TableParserOutline GROUPS_OUTLINE = new TableParserOutline(
-            "UW_CO_GRP_STU_V$scroll$0", 9,
-            COLUMN_1_INFO_ID,                              // Job Id
-            COLUMN_2_INFO_TEXT,                             // Employer
-            COLUMN_3_INFO_TEXT,                             // Title
-            COLUMN_4_INFO_DATE,                             // Date
-            new ColumnInfo(5, ColumnInfo.TEXT),             // Start time
-            new ColumnInfo(6, ColumnInfo.TEXT),             // End time
-            COLUMN_7_INFO_DATE,                             // Room
-            new ColumnInfo(8, ColumnInfo.TEXT));            // Instruction
+            "UW_CO_GRP_STU_V$scroll$0",
+            HEADER.BLANK,
+            HEADER.JOB_ID,
+            HEADER.EMPLOYER_NAME,
+            HEADER.JOB_TITLE,
+            HEADER.DATE,
+            HEADER.START_TIME,
+            HEADER.END_TIME,
+            HEADER.ROOM,
+            HEADER.INSTRUCTIONS);
 
     // Third Table
     public static final TableParserOutline SPECIAL_OUTLINE = new TableParserOutline(
-            "UW_CO_NSCHD_JOB$scroll$0", 5,
-            COLUMN_1_INFO_ID,                               // Job Id
-            COLUMN_2_INFO_TEXT,                             // Employer
-            COLUMN_3_INFO_TEXT,                             // Title
-            new ColumnInfo(4, ColumnInfo.TEXT));            // Instruction
+            "UW_CO_NSCHD_JOB$scroll$0",
+            HEADER.BLANK,
+            HEADER.JOB_IDENTIFIER,
+            HEADER.EMPLOYER_NAME,
+            HEADER.JOB_TITLE,
+            HEADER.INSTRUCTIONS);
 
     // Fourth Table
     public static final TableParserOutline CANCELLED_OUTLINE = new TableParserOutline(
-            "UW_CO_SINT_CANC$scroll$0", 4,
-            COLUMN_1_INFO_ID,                               // Job Id
-            COLUMN_2_INFO_TEXT,                             // Employer
-            COLUMN_3_INFO_TEXT);                            // Title
+            "UW_CO_SINT_CANC$scroll$0",
+            HEADER.BLANK,
+            HEADER.JOB_ID,
+            HEADER.EMPLOYER,
+            HEADER.JOB_TITLE);
 
     //================================
     //  Sorting Jobs
@@ -137,27 +138,27 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     //============================
     public static Job parseRowTableOutline(TableParserOutline outline, Object... jobData) {
         Job job = null;
-        int id = (Integer) jobData[0];
-        String employer = (String) jobData[1];
-        String title = (String) jobData[2];
+        int id = (Integer) jobData[1];
+        String employer = (String) jobData[2];
+        String title = (String) jobData[3];
 
         if (outline.equals(SPECIAL_OUTLINE)) {
-            job = new Job(id, employer, title, (String) jobData[3]);
+            job = new Job(id, employer, title, (String) jobData[4]);
         } else if (outline.equals(CANCELLED_OUTLINE)) {
             job = new Job(id, employer, title);
         } else {
-            Date interviewDay = (Date) jobData[3];
+            Date interviewDay = (Date) jobData[4];
             if (outline.equals(INTERVIEWS_OUTLINE)) {
                 job = new Job(id, employer, title,
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0),
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[5], (Integer) jobData[6]),
-                        (Job.INTERVIEW_TYPE) jobData[4], (String) jobData[7], (String) jobData[8],
-                        (String) jobData[9]);
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[7], 0),
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[7], (Integer) jobData[8]),
+                        (Job.INTERVIEW_TYPE) jobData[5], (String) jobData[9], (String) jobData[10],
+                        (String) jobData[11]);
             } else {    //GROUPS_OUTLINE
                 job = new Job(id, employer, title,
-                        getDateFromDateWithTimeString(interviewDay, (String) jobData[4], 0),
                         getDateFromDateWithTimeString(interviewDay, (String) jobData[5], 0),
-                        (String) jobData[6], (String) jobData[7]);
+                        getDateFromDateWithTimeString(interviewDay, (String) jobData[6], 0),
+                        (String) jobData[7], (String) jobData[8]);
             }
         }
         return job;

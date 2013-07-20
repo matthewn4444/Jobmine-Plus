@@ -268,7 +268,7 @@ public class InterviewsNotifierService extends Service {
 
             // Pull data from the application webpage
             String html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.APPLICATIONS);
-            parser.execute(Applications.ACTIVE_OUTLINE_10_COLS, Applications.ACTIVE_OUTLINE_9_COLS, html);
+            parser.execute(Applications.ACTIVE_OUTLINES, html);
             parser.execute(Applications.ALL_OUTLINE, html);
 
             // Put data into storage
@@ -370,7 +370,8 @@ public class InterviewsNotifierService extends Service {
             if (outline == Applications.ALL_OUTLINE) {
                 job = Applications.parseRowTableOutline(outline, jobData);
                 pulledAppsJobs.get(Applications.LISTS.ALL_JOBS).add(job);
-            } else if (outline == Applications.ACTIVE_OUTLINE_10_COLS || outline == Applications.ACTIVE_OUTLINE_9_COLS) {
+            } else if (outline == Applications.ACTIVE_OUTLINES[0] || outline == Applications.ACTIVE_OUTLINES[1]
+                    || outline == Applications.ACTIVE_OUTLINES[2]) {
                 job = Applications.parseRowTableOutline(outline, jobData);
                 pulledAppsJobs.get(Applications.LISTS.ACTIVE_JOBS).add(job);
             } else {

@@ -128,6 +128,21 @@ public class SimpleHtmlParser {
     }
 
     /**
+     * Moves the position after searched text and will return the next position.
+     * Throws error when text is not found.
+     * @param text
+     * @return position
+     */
+    public int skipText(String text) {
+        int index = html.indexOf(text, position);
+        if (index == -1) {
+            throw new JbmnplsParsingException("Cannot find " + text + " in html.");
+        }
+        position = index + text.length();
+        return position;
+    }
+
+    /**
      * Finds the text of the tag you are looking for in the HTML. Will update the
      * position to end of the element. If cannot find, it will return null.
      * @param html

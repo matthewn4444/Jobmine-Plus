@@ -11,9 +11,10 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.table.ColumnInfo;
+import com.jobmineplus.mobile.widgets.Job.STATUS;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
 
 public class Applications extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener{
 
@@ -21,6 +22,8 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     //  Declaration Objects
     //======================
     public final static String PAGE_NAME = Applications.class.getName();
+    public final static String ACTIVE_TABLE_ID = "UW_CO_STU_APPSV$scroll$0";
+    public final static String ALL_TABLE_ID = "UW_CO_APPS_VW2$scrolli$0";
 
     public final static class LISTS {
         final public static String ALL_JOBS = "All";
@@ -31,30 +34,26 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     protected final static String DATE_FORMAT = "d-MMM-yyyy";
     private final TableParser parser = new TableParser();
 
-    protected final static ColumnInfo COLUMNID = new ColumnInfo(0, ColumnInfo.ID);
-    protected final static ColumnInfo COLUMN1  = new ColumnInfo(1, ColumnInfo.TEXT);
-    protected final static ColumnInfo COLUMN2  = new ColumnInfo(2, ColumnInfo.TEXT);
-    protected final static ColumnInfo COLUMN4  = new ColumnInfo(4, ColumnInfo.TEXT);
-    protected final static ColumnInfo COLUMN5  = new ColumnInfo(5, ColumnInfo.STATE);
-    protected final static ColumnInfo COLUMN6  = new ColumnInfo(6, ColumnInfo.STATUS);
-    protected final static ColumnInfo COLUMN8  = new ColumnInfo(8, ColumnInfo.DATE, DATE_FORMAT);
-    protected final static ColumnInfo COLUMN9  = new ColumnInfo(9, ColumnInfo.NUMERIC);
+    public static final TableParserOutline[] ACTIVE_OUTLINES = {
+        // 10 Columns
+        new TableParserOutline(ACTIVE_TABLE_ID,
+                HEADER.JOB_ID, HEADER.JOB_TITLE, HEADER.EMPLOYER, HEADER.UNIT, HEADER.TERM,
+                HEADER.JOB_STATUS, HEADER.APP_STATUS, HEADER.VIEW_DETAILS, HEADER.LAST_DAY_TO_APPLY, HEADER.NUM_APPS),
 
-    // When there are 9 columns
-    protected final static ColumnInfo COLUMN7_9TOTAL  = new ColumnInfo(7, ColumnInfo.DATE, DATE_FORMAT);
-    protected final static ColumnInfo COLUMN8_9TOTAL  = new ColumnInfo(8, ColumnInfo.NUMERIC);
+        // 9 Columns
+        new TableParserOutline(ACTIVE_TABLE_ID,
+                HEADER.JOB_ID, HEADER.JOB_TITLE, HEADER.EMPLOYER, HEADER.UNIT, HEADER.TERM,
+                HEADER.JOB_STATUS, HEADER.VIEW_DETAILS, HEADER.LAST_DAY_TO_APPLY, HEADER.NUM_APPS),
 
-    public static final TableParserOutline ACTIVE_OUTLINE_10_COLS =
-            new TableParserOutline("UW_CO_STU_APPSV$scroll$0", 10,
-                    COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
+        // 9 Columns with App Status
+        new TableParserOutline(ACTIVE_TABLE_ID,
+                HEADER.JOB_ID, HEADER.JOB_TITLE, HEADER.EMPLOYER, HEADER.UNIT, HEADER.TERM,
+                HEADER.JOB_STATUS, HEADER.APP_STATUS, HEADER.VIEW_DETAILS, HEADER.NUM_APPS, HEADER.LAST_DAY_TO_APPLY)
+    };
 
-    public static final TableParserOutline ACTIVE_OUTLINE_9_COLS =
-            new TableParserOutline("UW_CO_STU_APPSV$scroll$0", 9,
-                    COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN7_9TOTAL, COLUMN8_9TOTAL);
-
-    public static final TableParserOutline ALL_OUTLINE =
-            new TableParserOutline("UW_CO_APPS_VW2$scrolli$0", 12,
-                    COLUMNID, COLUMN1, COLUMN2, COLUMN4, COLUMN5, COLUMN6, COLUMN8, COLUMN9);
+    public static final TableParserOutline ALL_OUTLINE = new TableParserOutline(ALL_TABLE_ID,
+            HEADER.JOB_ID, HEADER.JOB_TITLE, HEADER.EMPLOYER, HEADER.UNIT, HEADER.TERM,
+            HEADER.JOB_STATUS, HEADER.APP_STATUS, HEADER.VIEW_DETAILS, HEADER.LAST_DAY_TO_APPLY, HEADER.NUM_APPS);
 
     protected static final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
@@ -66,19 +65,24 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     //============================
     public static Job parseRowTableOutline(TableParserOutline outline, Object... jobData) {
         int id = (Integer) jobData[0];
-        if (jobData.length == 8) {
-            Job.STATUS status = (Job.STATUS)jobData[5];
 
-            //Applications constructor
+        if (outline == ACTIVE_OUTLINES[0] || outline == ALL_OUTLINE) {
+            Job.STATUS status = (Job.STATUS)jobData[6];
             return new Job(          id,    (String)    jobData[1],
-                    (String)    jobData[2], (String)    jobData[3],
-                    (Job.STATE) jobData[4],                 status,
-                    (Date)      jobData[6], (Integer)   jobData[7]);
-        } else {
+                    (String)    jobData[2], (String)    jobData[4],
+                    (Job.STATE) jobData[5],                 status,
+                    (Date)      jobData[8], (Integer)   jobData[9]);
+        } else if (outline == ACTIVE_OUTLINES[1]) {
             return new Job(          id,    (String)    jobData[1],
-                    (String)    jobData[2], (String)    jobData[3],
-                    (Job.STATE) jobData[4],Job.STATUS.getDefault(),
-                    (Date)      jobData[5], (Integer)   jobData[6]);
+                    (String)    jobData[2], (String)    jobData[4],
+                    (Job.STATE) jobData[5],     STATUS.getDefault(),
+                    (Date)      jobData[7], (Integer)   jobData[8]);
+        } else {    // ACTIVE_OUTLINES[2]
+            Job.STATUS status = (Job.STATUS)jobData[6];
+            return new Job(          id,    (String)    jobData[1],
+                    (String)    jobData[2], (String)    jobData[4],
+                    (Job.STATE) jobData[5],                 status,
+                    (Date)      jobData[9], (Integer)   jobData[8]);
         }
     }
 
@@ -110,7 +114,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     @Override
     protected void parseWebpage(String html) {
         clearAllLists();
-        parser.execute(ACTIVE_OUTLINE_10_COLS, ACTIVE_OUTLINE_9_COLS, html);
+        parser.execute(ACTIVE_OUTLINES, html);
         parser.execute(ALL_OUTLINE, html);
     }
 

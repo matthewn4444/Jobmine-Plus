@@ -12,9 +12,9 @@ import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
-import com.jobmineplus.mobile.widgets.table.ColumnInfo;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
 
 public class Shortlist extends JbmnplsListActivityBase implements TableParser.OnTableParseListener {
 
@@ -25,14 +25,15 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     private final TableParser parser = new TableParser();
 
     public static final TableParserOutline SHORTLIST_OUTLINE =
-            new TableParserOutline("UW_CO_STUJOBLST$scrolli$0", 9,
-                    new ColumnInfo(0, ColumnInfo.ID),
-                    new ColumnInfo(1, ColumnInfo.TEXT),
-                    new ColumnInfo(2, ColumnInfo.TEXT),
-                    new ColumnInfo(4, ColumnInfo.TEXT),
-                    new ColumnInfo(5, ColumnInfo.APPLY_STATUS),
-                    new ColumnInfo(6, ColumnInfo.DATE, DATE_FORMAT),
-                    new ColumnInfo(7, ColumnInfo.NUMERIC));
+            new TableParserOutline("UW_CO_STUJOBLST$scrolli$0",
+                    HEADER.JOB_IDENTIFIER,
+                    HEADER.JOB_TITLE,
+                    HEADER.EMPLOYER_NAME,
+                    HEADER.UNIT_NAME_1,
+                    HEADER.LOCATION,
+                    HEADER.APPLY,
+                    HEADER.LAST_DATE_TO_APPLY,
+                    HEADER.NUM_APPS);
 
     protected final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
@@ -64,9 +65,9 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = new Job(  // Shortlist constructor
                 (Integer)           jobData[0],     (String)jobData[1],
-                (String)            jobData[2],     (String)jobData[3],
-                (Job.APPLY_STATUS)  jobData[4],     (Date)  jobData[5],
-                (Integer)           jobData[6]);
+                (String)            jobData[2],     (String)jobData[4],
+                (Job.APPLY_STATUS)  jobData[5],     (Date)  jobData[6],
+                (Integer)           jobData[7]);
         addJob(job);
     }
 
