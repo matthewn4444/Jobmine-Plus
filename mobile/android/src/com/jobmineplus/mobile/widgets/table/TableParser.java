@@ -14,7 +14,7 @@ import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
 import com.jobmineplus.mobile.widgets.Job.INTERVIEW_TYPE;
 import com.jobmineplus.mobile.widgets.Job.STATE;
 import com.jobmineplus.mobile.widgets.Job.STATUS;
-import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 /**
  * For this class, you need to have one for each table you are parsing
@@ -235,7 +235,7 @@ public class TableParser {
                         break;
 
                     // Interview Type
-                    case TYPE:
+                    case INTER_TYPE:
                         value = INTERVIEW_TYPE.getTypefromString(text);
                         break;
 

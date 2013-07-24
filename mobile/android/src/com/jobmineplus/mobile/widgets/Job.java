@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
@@ -472,6 +473,61 @@ public class Job {
             interview_type = s;
         }
         private String interview_type;
+    }
+
+    static public enum HEADER {
+        // Common
+        JOB_ID("job id", "Job ID"),
+        JOB_TITLE("job title", "Job Title"),
+        EMPLOYER("employer", "Employer"),
+        JOB_STATUS("job status", "Job Status"),
+
+        // Applications
+        UNIT("unit", "Unit"),
+        TERM("term", "Term"),
+        APP_STATUS("app. status", "Application Status"),
+        VIEW_DETAILS("view details", "View Details"),
+        LAST_DAY_TO_APPLY("last day to apply", "Last Day to Apply"),
+        NUM_APPS("# apps", "Number of Apps"),
+        VIEW_PACKAGE("view package", "View Package"),
+
+        // Interviews
+        EMPLOYER_NAME("employer name", "Employer"),
+        DATE("date", "Date"),
+        INTER_TYPE("type", "Type"),
+        SELECT_TIME("select/view time", "Interview Select Time"),
+        START_TIME("start time", "Start Time"),
+        END_TIME("end time", "Finished Time"),
+        LENGTH("length", "Length"),
+        ROOM("room", "Room Info"),
+        INSTRUCTIONS("instructions", "Instructions"),
+        INTERVIEWER("interviewer", "Interviewer"),
+
+        // Shortlist
+        JOB_IDENTIFIER("job identifier", "Job ID"),
+        UNIT_NAME_1("unit name 1", "Unit"),
+        LOCATION("location", "Job Location"),
+        APPLY("apply", "Application Status"),
+        LAST_DATE_TO_APPLY("last date to apply", "Last Date to Apply"),
+
+        BLANK("", "");
+
+        @Override
+        public String toString() {
+            return header;
+        }
+
+        public String readable() {
+            return readable;
+        }
+
+        private HEADER(String headerName, String readableName) {
+            header = headerName;
+            readable = readableName;
+        }
+
+        private String header;
+        private String readable;
     }
 
     static public final String DESCR_URL_PREFIX = "https://jobmine.ccol.uwaterloo.ca/psc/SS/EMPLOYEE/WORK/c/UW_CO_STUDENTS.UW_CO_JOBDTLS?UW_CO_JOB_ID=";
@@ -986,5 +1042,106 @@ public class Job {
             }
         }
         return returnStr;
+    }
+
+    // ===================
+    //  HeaderComparator
+    // ===================
+    public static final class HeaderComparator implements Comparator<Job> {
+        public static enum DIRECTION {
+            ASCEND, DESCEND
+        };
+
+        private HEADER header;
+        private DIRECTION direction;
+
+        public HeaderComparator() {
+            direction = DIRECTION.ASCEND;
+        }
+
+        public HeaderComparator(HEADER headerName) {
+            header = headerName;
+            direction = DIRECTION.ASCEND;
+        }
+
+        public HeaderComparator(HEADER headerName, DIRECTION sortDirection) {
+            header = headerName;
+            direction = sortDirection;
+        }
+
+        public void setHeader(HEADER headerName) {
+            header = headerName;
+        }
+
+        public void setDirection(DIRECTION sortDirection) {
+            direction = sortDirection;
+        }
+
+        @Override
+        public int compare(Job j1, Job j2) {
+            int result = 0;
+            switch(header) {
+                // Strings
+                case JOB_TITLE:
+                    result =  j1.getTitle().compareTo(j2.getTitle());
+                    break;
+                case EMPLOYER:
+                case EMPLOYER_NAME:
+                    result =  j1.getEmployer().compareTo(j2.getEmployer());
+                    break;
+                case TERM:
+                    result =  j1.getTerm().compareTo(j2.getTerm());
+                    break;
+                case ROOM:
+                    result =  j1.getRoomInfo().compareTo(j2.getRoomInfo());
+                    break;
+                case INSTRUCTIONS:
+                    result =  j1.getInstructions().compareTo(j2.getInstructions());
+                    break;
+                case INTERVIEWER:
+                    result =  j1.getInterviewer().compareTo(j2.getInterviewer());
+                    break;
+                case LOCATION:
+                    result =  j1.getLocation().compareTo(j2.getLocation());
+                    break;
+
+                // Integers
+                case NUM_APPS:
+                    result =  j1.getNumberOfApplications() - j2.getNumberOfApplications();
+                    break;
+                case LENGTH:
+                    result =  j1.getInterviewLengthInMinutes() - j2.getInterviewLengthInMinutes();
+                    break;
+
+                // Dates
+                case LAST_DAY_TO_APPLY:
+                case LAST_DATE_TO_APPLY:
+                case DATE:
+                    result =  j1.getLastDateToApply().compareTo(j2.getLastDateToApply());
+                    break;
+
+                case START_TIME:
+                    result =  j1.getInterviewStartTime().compareTo(j2.getInterviewStartTime());
+                    break;
+                case END_TIME:
+                    result =  j1.getInterviewEndTime().compareTo(j2.getInterviewEndTime());
+                    break;
+
+                // Other
+                case INTER_TYPE:
+                    result =  j1.getInterviewType().toString().compareTo(j2.getInterviewType().toString());
+                    break;
+                case APPLY:
+                    result =  j1.getApplicationStatus().toString().compareTo(j2.getApplicationStatus().toString());
+                    break;
+                case APP_STATUS:
+                case JOB_STATUS:
+                    result =  j1.getDisplayStatus().toString().compareTo(j2.getDisplayStatus().toString());
+                    break;
+                default:
+                    throw new RuntimeException("Cannot sort the headers of " + header);
+            }
+            return direction == DIRECTION.ASCEND ? result : -result;
+        }
     }
 }

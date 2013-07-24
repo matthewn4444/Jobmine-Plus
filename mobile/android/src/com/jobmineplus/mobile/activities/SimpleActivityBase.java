@@ -109,10 +109,14 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
      * (non-Javadoc)
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
+    protected int getActionBarId() {
+        return R.menu.actionbar;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
        MenuInflater inflater = getSupportMenuInflater();
-       inflater.inflate(R.menu.actionbar, menu);
+       inflater.inflate(getActionBarId(), menu);
        return super.onCreateOptionsMenu(menu);
     }
 
@@ -132,6 +136,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         case R.id.action_online:
             setOnlineMode(!isOnlineMode);
             setOnlineIcon(item);
+            break;
         }
         return true;
     }

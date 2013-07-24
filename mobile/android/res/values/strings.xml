@@ -34,6 +34,7 @@
     <string name="settings_crash_report_data_summary">Allow mobile data to send crash reports.</string>
     <string name="settings_crash_report_data_title">Allow data to send</string>
 
+    <string name="action_bar_sort">Sort</string>
     <string name="action_bar_online">Online</string>
     <string name="menuitem_logout">Logout</string>
 

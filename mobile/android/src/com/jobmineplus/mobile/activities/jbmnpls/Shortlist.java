@@ -14,7 +14,7 @@ import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
-import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Shortlist extends JbmnplsListActivityBase implements TableParser.OnTableParseListener {
 
@@ -23,6 +23,13 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //======================
     protected final static String DATE_FORMAT = "d MMM yyyy";
     private final TableParser parser = new TableParser();
+
+    private static final HEADER[] SORT_HEADERS = {
+        HEADER.JOB_TITLE,
+        HEADER.EMPLOYER_NAME,
+        HEADER.LOCATION,
+        HEADER.APPLY
+    };
 
     public static final TableParserOutline SHORTLIST_OUTLINE =
             new TableParserOutline("UW_CO_STUJOBLST$scrolli$0",
@@ -61,7 +68,6 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
         goToDescription(jobId);
     }
 
-
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = new Job(  // Shortlist constructor
                 (Integer)           jobData[0],     (String)jobData[1],
@@ -69,6 +75,11 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
                 (Job.APPLY_STATUS)  jobData[5],     (Date)  jobData[6],
                 (Integer)           jobData[7]);
         addJob(job);
+    }
+
+    @Override
+    public HEADER[] getTableHeaders() {
+        return SORT_HEADERS;
     }
 
     @Override

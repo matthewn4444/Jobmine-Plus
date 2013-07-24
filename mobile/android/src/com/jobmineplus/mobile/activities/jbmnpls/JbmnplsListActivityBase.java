@@ -9,10 +9,17 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.pages.PageResult;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
+import com.jobmineplus.mobile.widgets.Job.HeaderComparator;
+import com.jobmineplus.mobile.widgets.Job.HeaderComparator.DIRECTION;
 
 public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implements OnItemClickListener{
 
@@ -22,6 +29,14 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     private ListView list;
     private TextView emptyText;
     private ArrayAdapter<Job> adapter;
+    private MenuItem sortSelected;
+    private boolean sortedAscending = false;
+    private HeaderComparator sortComparer = new Job.HeaderComparator();
+
+    //====================
+    //  Abstract Methods
+    //====================
+    public abstract HEADER[] getTableHeaders();
 
     //====================
     //  Override Methods
@@ -69,6 +84,61 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         if (pullData) {
             jobsToDatabase();
         }
+    }
+
+    @Override
+    protected int getActionBarId() {
+        return R.menu.actionbar_with_sort;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       boolean flag = super.onCreateOptionsMenu(menu);
+       MenuItem item = menu.findItem(R.id.action_sort);
+       SubMenu sub = item.getSubMenu();
+       sub.clear();
+
+       // Because SherlockActionBar renders text differently, the tabbing is different
+       String prefex = sub instanceof SubMenuBuilder ? " \t" : " \t\t";
+       HEADER[] headers = getTableHeaders();
+       for (int i = 0; i < headers.length; i++) {
+           HEADER header = headers[i];
+           sub.add(1, i, Menu.NONE, prefex + header.readable());
+       }
+       return flag;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        HEADER[] headers = getTableHeaders();
+        if (id >= 0 && id < headers.length) {
+            if (sortSelected != null && item != sortSelected) {
+                sortSelected.setTitle(" " + ((String)sortSelected.getTitle()).substring(1));
+                sortedAscending = true;
+            } else {
+                sortedAscending = !sortedAscending;
+            }
+            item.setTitle((sortedAscending ? "£" : "¥") + ((String)item.getTitle()).substring(1));
+            sort(headers[id], sortedAscending);
+            sortSelected = item;
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+    //=================================
+    //  Sorting
+    //=================================
+    protected void sort(HEADER header) {
+        sort(header, true);
+    }
+
+    protected void sort(HEADER header, boolean ascend) {
+        sortComparer.setHeader(header);
+        sortComparer.setDirection(ascend ? DIRECTION.ASCEND : DIRECTION.DESCEND);
+        adapter.sort(sortComparer);
     }
 
     //=================================

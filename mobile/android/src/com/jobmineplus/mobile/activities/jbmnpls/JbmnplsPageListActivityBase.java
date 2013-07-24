@@ -10,15 +10,25 @@ import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
+
+import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.pages.PageMapResult;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
+import com.jobmineplus.mobile.widgets.Job.HeaderComparator.DIRECTION;
 
 public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
 
     private HashMap<String, ArrayList<Job>> lists;
 
     private static final String DISPLAYNAME = "displayname";
+    private Job.HeaderComparator comparer = new Job.HeaderComparator();
+    private MenuItem sortSelected;
+    private boolean sortedAscending = false;
 
     //====================
     //  Abstract Methods
@@ -30,6 +40,8 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
      * @return: the array adapter that is suppose to be made for the current tab
      */
     protected abstract ArrayAdapter<Job> makeAdapterFromList (ArrayList<Job> list);
+
+    public abstract HEADER[] getTableHeaders();
 
     //====================
     //  Override Methods
@@ -92,6 +104,49 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         return null;
     }
 
+    @Override
+    protected int getActionBarId() {
+        return R.menu.actionbar_with_sort;
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+       boolean flag = super.onCreateOptionsMenu(menu);
+       MenuItem item = menu.findItem(R.id.action_sort);
+       SubMenu sub = item.getSubMenu();
+       sub.clear();
+
+       // Because SherlockActionBar renders text differently, the tabbing is different
+       String prefex = sub instanceof SubMenuBuilder ? " \t" : " \t\t";
+       HEADER[] headers = getTableHeaders();
+       for (int i = 0; i < headers.length; i++) {
+           HEADER header = headers[i];
+           sub.add(1, i, Menu.NONE, prefex + header.readable());
+       }
+       return flag;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        HEADER[] headers = getTableHeaders();
+        if (id >= 0 && id < headers.length) {
+            if (sortSelected != null && item != sortSelected) {
+                sortSelected.setTitle(" " + ((String)sortSelected.getTitle()).substring(1));
+                sortedAscending = true;
+            } else {
+                sortedAscending = !sortedAscending;
+            }
+            item.setTitle((sortedAscending ? "£" : "¥") + ((String)item.getTitle()).substring(1));
+            sort(headers[id], sortedAscending);
+            sortSelected = item;
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
+
     //====================
     //  List Alters
     //====================
@@ -115,15 +170,29 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
 
     public void updateLists() {
         for (String tag : lists.keySet()) {
-            ListFragment frag = (ListFragment) getFragment(tag);
-            ((PageListFragment)frag).showEmptyText();
+            PageListFragment frag = (PageListFragment) getFragment(tag);
+            frag.showEmptyText();
             ArrayAdapter<Job> adapter = makeAdapterFromList(lists.get(tag));
-            frag.setListAdapter(adapter);
+            frag.setArrayAdapter(adapter);
         }
     }
 
     public void addJobToListByTabId(String displayName, Job job) {
         lists.get(displayName).add(job);
+    }
+
+    protected void sort(HEADER header) {
+        sort(header, true);
+    }
+
+    protected void sort(HEADER header, boolean ascend) {
+        // Update the current list, then the others
+        comparer.setHeader(header);
+        comparer.setDirection(ascend ? DIRECTION.ASCEND : DIRECTION.DESCEND);
+        for (String tag : lists.keySet()) {
+            ArrayAdapter<Job> adapter = ((PageListFragment) getFragment(tag)).getArrayAdapter();
+            adapter.sort(comparer);
+        }
     }
 
     //====================
@@ -160,6 +229,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     public final static class PageListFragment extends ListFragment {
         private boolean showEmptyText = false;
         public String displayName;
+        private ArrayAdapter<Job> arrayAdapter;
 
         public final static PageListFragment newInstance() {
             return new PageListFragment();
@@ -171,6 +241,15 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             if (getView() != null) {
                 setEmptyText(getString(R.string.empty_job_list));
             }
+        }
+
+        public void setArrayAdapter(ArrayAdapter<Job> adapter) {
+            arrayAdapter = adapter;
+            super.setListAdapter(adapter);
+        }
+
+        public ArrayAdapter<Job> getArrayAdapter() {
+            return arrayAdapter;
         }
 
         @Override

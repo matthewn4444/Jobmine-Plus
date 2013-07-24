@@ -22,7 +22,7 @@ import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
-import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Interviews extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener {
 
@@ -40,6 +40,14 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         final public static String FINISHED = "Finished";
     }
 
+    public final static HEADER[] SORT_HEADERS = {
+        HEADER.JOB_TITLE,
+        HEADER.EMPLOYER,
+        HEADER.INTER_TYPE,
+        HEADER.START_TIME,
+        HEADER.INTERVIEWER
+    };
+
     //======================
     // Table Definitions
     //======================
@@ -52,7 +60,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
             HEADER.EMPLOYER_NAME,
             HEADER.JOB_TITLE,
             HEADER.DATE,
-            HEADER.TYPE,
+            HEADER.INTER_TYPE,
             HEADER.SELECT_TIME,
             HEADER.START_TIME,
             HEADER.LENGTH,
@@ -167,6 +175,11 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     //====================
     //  Override Methods
     //====================
+    @Override
+    public HEADER[] getTableHeaders() {
+        return SORT_HEADERS;
+    }
+
     @Override
     protected String setUp(Bundle savedInstanceState) {
         pageName = PAGE_NAME;

@@ -14,7 +14,7 @@ import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.STATUS;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
-import com.jobmineplus.mobile.widgets.table.TableParserOutline.HEADER;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Applications extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener{
 
@@ -30,6 +30,12 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
         final public static String ACTIVE_JOBS = "Active";
         final public static String REJECTED_JOBS = "Rejected";
     }
+
+    public final static HEADER[] SORT_HEADERS = {
+        HEADER.JOB_TITLE,
+        HEADER.EMPLOYER,
+        HEADER.APP_STATUS
+    };
 
     protected final static String DATE_FORMAT = "d-MMM-yyyy";
     private final TableParser parser = new TableParser();
@@ -102,6 +108,11 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
         createTab(LISTS.ACTIVE_JOBS);
         createTab(LISTS.REJECTED_JOBS);
         createTab(LISTS.ALL_JOBS);
+    }
+
+    @Override
+    public HEADER[] getTableHeaders() {
+        return SORT_HEADERS;
     }
 
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
