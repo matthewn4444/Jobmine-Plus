@@ -268,12 +268,14 @@ public class InterviewsNotifierService extends Service {
 
             // Pull data from the application webpage
             String html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.APPLICATIONS);
-            parser.execute(Applications.ACTIVE_OUTLINES, html);
-            parser.execute(Applications.ALL_OUTLINE, html);
+            if (html != null) {
+                parser.execute(Applications.ACTIVE_OUTLINES, html);
+                parser.execute(Applications.ALL_OUTLINE, html);
 
-            // Put data into storage
-            jobSource.addJobs(pulledJobs);
-            pageSource.addPage(client.getUsername(), Applications.PAGE_NAME, pulledAppsJobs, System.currentTimeMillis());
+                // Put data into storage
+                jobSource.addJobs(pulledJobs);
+                pageSource.addPage(client.getUsername(), Applications.PAGE_NAME, pulledAppsJobs, System.currentTimeMillis());
+            }
         }
 
         private Boolean crawlInterviews() {
