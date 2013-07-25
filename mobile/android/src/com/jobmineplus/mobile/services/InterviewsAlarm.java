@@ -1,5 +1,7 @@
 package com.jobmineplus.mobile.services;
 
+import com.jobmineplus.mobile.R;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -71,7 +73,8 @@ public class InterviewsAlarm extends BroadcastReceiver {
             return;
         }
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ctx);
-        int nextTimeout = Integer.parseInt(preferences.getString("settingsCheckFreq", "10")) * 60;
+        int nextTimeout = Integer.parseInt(preferences.getString("settingsCheckFreq",
+                context.getString(R.string.settings_check_freq_default_value))) * 60;
 
         // Start the service
         Intent interviewsService = new Intent(context, InterviewsNotifierService.class);
