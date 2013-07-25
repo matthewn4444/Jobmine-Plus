@@ -70,7 +70,6 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
                 new LoginTask().execute(username, password);
             } else {
                 setOnlineMode(false);
-                client.setLoginCredentials(username, password);
             }
         }
     }

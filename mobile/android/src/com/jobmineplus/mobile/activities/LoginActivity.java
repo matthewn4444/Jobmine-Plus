@@ -156,6 +156,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
         Intent in = new Intent(this, HomeActivity.class);
         in.putExtra("username", username);
         in.putExtra("password", password);
+        client.setLoginCredentials(username, password);
         startActivity(in);
         finish();
     }
