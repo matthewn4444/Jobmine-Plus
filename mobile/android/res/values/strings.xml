@@ -25,6 +25,7 @@
     
     <string name="settings_check_freq_summary">The time checks interviews periodically</string>
     <string name="settings_check_freq_title">Check frequency</string> 
+    <string name="settings_check_freq_default_value">10</string>
 
     <string name="settings_login_cate_title">Login</string>
     <string name="settings_auto_login_summary">Check to auto log in on startup</string>

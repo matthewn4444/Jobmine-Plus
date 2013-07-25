@@ -48,7 +48,8 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
     }
 
     protected void startInterviewsAlarm() {
-        int timeoutSec = Integer.parseInt(preferences.getString("settingsCheckFreq", "10"));
+        int timeoutSec = Integer.parseInt(preferences.getString("settingsCheckFreq",
+                getString(R.string.settings_check_freq_default_value)));
         interviewsAlarm.scheduleNextAlarm(timeoutSec * 60, client.getUsername(), client.getPassword());
     }
 

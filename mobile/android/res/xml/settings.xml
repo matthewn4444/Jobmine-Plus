@@ -15,6 +15,7 @@
             android:dependency="settingsEnableInterCheck">
         </CheckBoxPreference>
         <ListPreference 
+            android:defaultValue="@string/settings_check_freq_default_value"
             android:key="settingsCheckFreq"
             android:entries="@array/checkFreq"
             android:entryValues="@array/checkFreqValues"
