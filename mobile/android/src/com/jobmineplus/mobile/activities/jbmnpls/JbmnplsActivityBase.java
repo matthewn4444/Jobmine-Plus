@@ -22,6 +22,7 @@ import com.jobmineplus.mobile.activities.LoggedInActivityBase;
 import com.jobmineplus.mobile.database.jobs.JobDataSource;
 import com.jobmineplus.mobile.database.pages.PageDataSource;
 import com.jobmineplus.mobile.database.users.UserDataSource;
+import com.jobmineplus.mobile.debug.DebugHomeActivity;
 import com.jobmineplus.mobile.exceptions.HiddenColumnsException;
 import com.jobmineplus.mobile.exceptions.InfiniteLoopException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
@@ -200,11 +201,19 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Activity Movements
     // ======================
     protected void goToHomeActivity(String reasonMsg) {
-        startActivityWithMessage(HomeActivity.class, reasonMsg);
+        if (isDebug()) {
+            startActivityWithMessage(DebugHomeActivity.class, reasonMsg);
+        } else {
+            startActivityWithMessage(HomeActivity.class, reasonMsg);
+        }
     }
 
     protected void goToHomeActivity() {
-        startActivity(HomeActivity.class);
+        if (isDebug()) {
+            startActivity(DebugHomeActivity.class);
+        } else {
+            startActivity(HomeActivity.class);
+        }
     }
 
     protected void goToDescription(int jobId) {

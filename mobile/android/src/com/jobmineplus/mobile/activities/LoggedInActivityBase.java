@@ -87,10 +87,14 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
         finish();
     }
 
+    protected int getMenuId() {
+        return R.menu.main_menu;
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater menuInflater = getSupportMenuInflater();
-        menuInflater.inflate(R.menu.main_menu, menu);
+        menuInflater.inflate(getMenuId(), menu);
         return super.onCreateOptionsMenu(menu);
     }
 

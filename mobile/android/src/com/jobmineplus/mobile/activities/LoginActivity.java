@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.users.UserDataSource;
+import com.jobmineplus.mobile.debug.DebugHomeActivity;
 import com.jobmineplus.mobile.widgets.JbmnplsAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
@@ -153,7 +154,7 @@ public class LoginActivity extends SimpleActivityBase implements OnClickListener
     }
 
     protected void goToHomeActivityAndLogin(String username, String password) {
-        Intent in = new Intent(this, HomeActivity.class);
+        Intent in = new Intent(this, isDebug() ? DebugHomeActivity.class : HomeActivity.class);
         in.putExtra("username", username);
         in.putExtra("password", password);
         client.setLoginCredentials(username, password);
