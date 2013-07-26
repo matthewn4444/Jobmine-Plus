@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menuitem_localhost" android:title="@string/menuitem_localhost"></item>
+    <item android:id="@+id/menuitem_logout" android:title="@string/menuitem_logout"></item>
+</menu>

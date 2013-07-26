@@ -38,6 +38,8 @@
     <string name="action_bar_sort">Sort</string>
     <string name="action_bar_online">Online</string>
     <string name="menuitem_logout">Logout</string>
+    <string name="menuitem_localhost">Use localhost</string>
+    <string name="menuitem_online">Use Online</string>
 
     <string name="job_details_grades">Grades are required</string>
     <string name="job_details_loc_title">Location of Job</string>

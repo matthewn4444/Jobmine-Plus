@@ -23,10 +23,12 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     };
     private boolean prevEnabledInterviewCheck = false;
 
-    private static final String PREFIX_PATH = "com.jobmineplus.mobile";
     private static final int RESULT_FROM_SETTINGS = 1;
     public static final String INTENT_REASON = "reason";
     public static final String PREF_SEEN_TUTORIAL = "settingsSeenTutorial";
+
+    protected static final String PREFIX_PATH = "com.jobmineplus.mobile.";
+    protected static final String PREFIX_ACTIVITY_PATH = "activities.jbmnpls.";
 
     private Builder alert;
     private View tutorialView;
@@ -89,7 +91,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     public boolean goToActivityForResult(String activityName) {
         Class<?> name = null;
         try {
-            name = Class.forName(PREFIX_PATH + activityName);
+            name = Class.forName(PREFIX_PATH + PREFIX_ACTIVITY_PATH + activityName);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return false;
@@ -102,7 +104,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     public boolean goToActivity(String activityName) {
         Class<?> name = null;
         try {
-            name = Class.forName(PREFIX_PATH + activityName);
+            name = Class.forName(PREFIX_PATH + PREFIX_ACTIVITY_PATH + activityName);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
             return false;
@@ -123,9 +125,9 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             String name = ((TextView)arg0.findViewWithTag("text")).getText().toString();
             if (name.equals("Settings")) {
                 prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
-                goToActivityForResult(".activities.jbmnpls." + name);
+                goToActivityForResult(name);
             } else {
-                goToActivity(".activities.jbmnpls." + name);
+                goToActivity(name);
             }
         }
     }
