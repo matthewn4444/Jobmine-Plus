@@ -23,12 +23,6 @@
 	        android:text="@string/tutorial_online_text" 
 	        />
     </LinearLayout>
-    <TextView 
-        android:layout_height="fill_parent"
-        android:layout_width="fill_parent"
-        android:gravity="center"
-        android:textColor="#FFFFFF"
-        android:text="@string/tutorial_end"/>
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="fill_parent"

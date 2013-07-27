@@ -11,6 +11,7 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -52,6 +53,10 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //====================
     @Override
     protected void defineUI(Bundle savedInstanceState) {
+        // Create the tutorial and set the content of this activity
+        new TutorialHelper(this, R.layout.joblist,
+                R.layout.tutorial_sorting, R.string.pref_seen_sorting_tutorial);
+
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
         setAdapter(new ShortlistAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));

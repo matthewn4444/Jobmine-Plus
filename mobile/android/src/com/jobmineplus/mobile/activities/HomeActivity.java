@@ -34,7 +34,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
 
         // Create the tutorial and set the content of this activity
         new TutorialHelper(this, R.layout.home,
-                R.layout.tutorial, R.string.pref_seen_home_tutorial);
+                R.layout.tutorial_home, R.string.pref_seen_home_tutorial);
 
         connectUI();
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);

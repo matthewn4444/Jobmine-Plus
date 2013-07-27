@@ -43,7 +43,9 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //====================
     @Override
     protected void defineUI(Bundle savedInstanceState) {
-        setContentView(R.layout.joblist);
+        if (findViewById(android.R.id.empty) == null) {
+            setContentView(R.layout.joblist);
+        }
         list = (ListView) findViewById(R.id.list);
         emptyText = (TextView) findViewById(android.R.id.empty);
         list.setVisibility(View.INVISIBLE);

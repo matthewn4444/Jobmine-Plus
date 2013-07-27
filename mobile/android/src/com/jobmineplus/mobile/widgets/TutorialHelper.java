@@ -1,20 +1,26 @@
 package com.jobmineplus.mobile.widgets;
 
 import com.bugsense.trace.BugSenseHandler;
+import com.jobmineplus.mobile.R;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 public class TutorialHelper implements OnClickListener{
     private String prefKey;
-    private View tutorialView;
+    private ViewGroup tutorialView;
     private FrameLayout frameLayout;
     private SharedPreferences pref;
 
@@ -37,10 +43,21 @@ public class TutorialHelper implements OnClickListener{
             inflator.inflate(tutorialLayoutResId, frameLayout);
 
             try {
-                tutorialView = frameLayout.getChildAt(numChildren);
+                tutorialView = (ViewGroup)frameLayout.getChildAt(numChildren);
+
+                // Attach the event and background
                 tutorialView.setOnClickListener(this);
                 tutorialView.setBackgroundColor(Color.argb(99, 0, 0, 0));
                 tutorialView.setClickable(true);
+
+                // Attach the touch to close text
+                TextView textView = new TextView(activity);
+                textView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+                        LayoutParams.FILL_PARENT));
+                textView.setGravity(Gravity.CENTER);
+                textView.setTextColor(Color.WHITE);
+                textView.setText(R.string.tutorial_end);
+                frameLayout.addView(textView);
             } catch (Exception e) {
                 e.printStackTrace();
                 BugSenseHandler.sendException(e);

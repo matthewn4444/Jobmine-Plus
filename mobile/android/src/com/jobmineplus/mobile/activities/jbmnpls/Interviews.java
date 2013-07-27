@@ -20,6 +20,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
@@ -188,6 +189,10 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
 
     @Override
     protected void defineUI(Bundle savedInstanceState) {
+        // Create the tutorial and set the content of this activity
+        new TutorialHelper(this, R.layout.tabs,
+                R.layout.tutorial_sorting, R.string.pref_seen_sorting_tutorial);
+
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
         createTab(TABS.COMING_UP);

@@ -49,6 +49,8 @@
     <string name="job_details_disc_title">Disciplines</string>
     <string name="job_details_lvls_title">Levels</string>
 
+    <!-- Tutorial -->
+    <string name="tutorial_sorting_text">Click here to sort specific headers</string>
     <string name="tutorial_online_text">View jobs\nonline or offline</string>
     <string name="tutorial_logout_text">You can select logout\nfrom the menu</string>
     <string name="tutorial_end">Touch to close</string>
@@ -57,4 +59,5 @@
 
     <!-- Preference Keys -->
     <string name="pref_seen_home_tutorial">settingsSeenTutorial</string>
+    <string name="pref_seen_sorting_tutorial">settingsSeenSortingTutorial</string>
 </resources>

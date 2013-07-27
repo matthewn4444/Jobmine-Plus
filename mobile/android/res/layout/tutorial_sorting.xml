@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <LinearLayout
+        style="@style/wrap"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="15dp"
+        android:layout_marginRight="71dp"
+        android:orientation="vertical"
+        >
+	    <ImageView
+           style="@style/wrap"
+	        android:layout_gravity="top|right"
+	        android:contentDescription="@string/empty"
+	        android:src="@drawable/white_arrow_up" 
+	        />
+	    <TextView
+	        style="@style/wrap"
+	        android:textColor="#FFFFFF"
+	        android:textSize="20sp"
+	        android:gravity="right"
+	        android:text="@string/tutorial_sorting_text" 
+	        />
+    </LinearLayout>
+</RelativeLayout>
+        
