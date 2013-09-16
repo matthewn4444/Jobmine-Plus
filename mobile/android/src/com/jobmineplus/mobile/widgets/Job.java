@@ -404,8 +404,8 @@ public class Job {
     }
 
     static public enum LEVEL {
-        JUNIOR("Junior"), INTERMEDIATE("Intermediate"), SENIOR("Senior"), BACHELOR(
-                "Bachelor"), MASTERS("Masters"), PHD("Ph.D.");
+        JUNIOR("Junior"), INTERMEDIATE("Intermediate"), SENIOR("Senior"), BACHELORS(
+                "Bachelors"), MASTERS("Masters"), PHD("Ph.D.");
 
         public static LEVEL getLevelfromString(String text)
                 throws JbmnplsParsingException {
