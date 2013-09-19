@@ -338,10 +338,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // ====================================
 
     protected void requestData() throws RuntimeException {
-        if (dataUrl == null) {
-            throw new RuntimeException(
-                    "Class that extended JbmnPlsActivityBase without specifying a dataurl.");
-        }
         if (isOnline()) {
             if (!isReallyOnline()) {
                 confirm.show();

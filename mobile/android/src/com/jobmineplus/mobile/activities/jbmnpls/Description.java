@@ -50,7 +50,7 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
             throw new JbmnplsParsingException(
                     "This id does not have a job object");
         }
-        return ""; // Can be anything because we override onRequestData()
+        return null; // Null means no values
     }
 
     @Override
