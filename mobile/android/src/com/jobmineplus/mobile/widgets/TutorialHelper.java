@@ -23,6 +23,7 @@ public class TutorialHelper implements OnClickListener{
     private ViewGroup tutorialView;
     private FrameLayout frameLayout;
     private SharedPreferences pref;
+    private TextView clickToCloseText;
 
     public TutorialHelper(Activity activity, int activityLayoutResId, int tutorialLayoutResId, int preferenceResId) {
         this(activity, activityLayoutResId, tutorialLayoutResId, activity.getString(preferenceResId));
@@ -51,13 +52,13 @@ public class TutorialHelper implements OnClickListener{
                 tutorialView.setClickable(true);
 
                 // Attach the touch to close text
-                TextView textView = new TextView(activity);
-                textView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
+                clickToCloseText = new TextView(activity);
+                clickToCloseText.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT,
                         LayoutParams.FILL_PARENT));
-                textView.setGravity(Gravity.CENTER);
-                textView.setTextColor(Color.WHITE);
-                textView.setText(R.string.tutorial_end);
-                frameLayout.addView(textView);
+                clickToCloseText.setGravity(Gravity.CENTER);
+                clickToCloseText.setTextColor(Color.WHITE);
+                clickToCloseText.setText(R.string.tutorial_end);
+                frameLayout.addView(clickToCloseText);
             } catch (Exception e) {
                 e.printStackTrace();
                 BugSenseHandler.sendException(e);
@@ -74,6 +75,7 @@ public class TutorialHelper implements OnClickListener{
         // Once clicked the tutorial, we do not need to see it again
         if (v.equals(tutorialView)) {
             // Tutorial is finished
+            frameLayout.removeView(clickToCloseText);
             frameLayout.removeView(tutorialView);
             Editor editor = pref.edit();
             editor.putBoolean(prefKey, true);
