@@ -97,14 +97,7 @@ public class SimpleHtmlParser {
         text = result.second;
 
         if (text.charAt(0) == '<') {
-            int greaterThan = text.indexOf('>', 1);
-            int space = text.indexOf(' ', 1);
-            if (greaterThan == space) {
-                throw new JbmnplsParsingException("Cannot find " + tag + " in html.");
-            }
-            greaterThan = greaterThan == -1 ? text.length() : greaterThan;
-            space = space == -1 ? text.length() : space;
-            tag = text.substring(1, Math.min(greaterThan, space));
+            tag = findCurrentTag(text, 0);
             text = getTextInNextElement(text, tag, 0);
             position = holdPosition;
             return text;
@@ -113,6 +106,52 @@ public class SimpleHtmlParser {
         text = text.replaceAll("&nbsp;", "").trim();
         position = holdPosition;
         return text;
+    }
+
+    /**
+     * Finds the text inside the current html tag
+     * Like getTextInNextElement, it will recusively look for the text
+     * inside the tag. The current tag is where the current position inside
+     * the html the parser is using.
+     * @return text inside the current element
+     */
+    public String getTextInCurrentElement() {
+        int lessThan = html.lastIndexOf("<", position);
+        if (lessThan == -1) {
+            throw new JbmnplsParsingException("Cannot find text in current element");
+        }
+        position = lessThan;
+        String tag = findCurrentTag(html, position);
+        return getTextInNextElement(tag);
+    }
+
+    /**
+     * Gets the tag string where the position is inside the text.
+     * If you call this within text (not html tag), it will look for the parent tag
+     * If you call this within a tag definition, it will find the name of that tag
+     * This is not smart for complex html, you must use this with valid html
+     * syntax.
+     * @param text
+     * @param pos
+     * @return tag
+     */
+    private String findCurrentTag(String text, int pos) {
+        int lessThan = text.lastIndexOf("<", pos);
+        if (lessThan == -1 || text.length() <= lessThan + 1) {
+            throw new JbmnplsParsingException("Cannot find last tag in html.");
+        }
+        // If captured the ending tag then skip the slash but find the tag name
+        if (text.charAt(lessThan+1) == '/') {
+            lessThan++;
+        }
+        int greaterThan = text.indexOf('>', lessThan);
+        int space = text.indexOf(' ', lessThan);
+        if (greaterThan == space) {
+            throw new JbmnplsParsingException("Cannot find last tag in html.");
+        }
+        greaterThan = greaterThan == -1 ? text.length() : greaterThan;
+        space = space == -1 ? text.length() : space;
+        return text.substring(lessThan + 1, Math.min(greaterThan, space));
     }
 
     /**
