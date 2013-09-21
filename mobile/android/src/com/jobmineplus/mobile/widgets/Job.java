@@ -510,6 +510,10 @@ public class Job {
         APPLY("apply", "Application Status"),
         LAST_DATE_TO_APPLY("last date to apply", "Last Date to Apply"),
 
+        // Job Search
+        OPENINGS("openings", "Openings"),
+        SHORTLIST("shortlist", "Short List"),
+
         BLANK("", "");
 
         @Override
