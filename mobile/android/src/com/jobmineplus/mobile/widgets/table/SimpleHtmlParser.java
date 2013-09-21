@@ -168,16 +168,23 @@ public class SimpleHtmlParser {
 
     /**
      * Moves the position after searched text and will return the next position.
+     * If you have multiple text to skip, then add them as arguments, order does matter
+     * as it will go from text to next text.
      * Throws error when text is not found.
-     * @param text
+     * @param text (can be multiple)
      * @return position
      */
-    public int skipText(String text) {
-        int index = html.indexOf(text, position);
-        if (index == -1) {
-            throw new JbmnplsParsingException("Cannot find " + text + " in html.");
+    public int skipText(String... textArr) {
+        int index, i;
+        String text;
+        for (i = 0; i < textArr.length; i++) {
+            text = textArr[i];
+            index = html.indexOf(text, position);
+            if (index == -1) {
+                throw new JbmnplsParsingException("Cannot find " + text + " in html.");
+            }
+            position = index + text.length();
         }
-        position = index + text.length();
         return position;
     }
 
