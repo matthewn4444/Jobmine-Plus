@@ -366,6 +366,7 @@ public class Job {
         ALREADY_APPLIED("Already Applied", 3),
         CANNOT_APPLY("Not Authorized to Apply", 8),
         NO_RESUME("No Resumes Available", 2),
+        NO_APPS("No Apps Available", 2),
         NOT_POSTED("Not Posted", 2);
 
         public static APPLY_STATUS getApplicationStatusfromString(String text)
