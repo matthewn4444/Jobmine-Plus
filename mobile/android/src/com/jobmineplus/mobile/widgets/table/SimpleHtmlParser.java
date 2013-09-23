@@ -108,6 +108,51 @@ public class SimpleHtmlParser {
         return text;
     }
 
+
+    /**
+     * This finds the attribute's value inside the current element
+     * @param attribute to find
+     * @return the value inside the attribute or null if attribute doesnt exist
+     */
+    public String getAttributeInCurrentElement(String attribute) {
+        int lessThan = html.lastIndexOf("<", position);
+        if (lessThan == -1) {
+            throw new JbmnplsParsingException("Cannot find attribute in current element");
+        }
+        position = lessThan;
+
+        // See if we are in the closing tag, go to the last opening tag of the same tag
+        if (html.charAt(position + 1) == '/') {
+            String tag = findCurrentTag(html, position);
+            position = html.lastIndexOf("<" + tag, position);
+            if (position == -1) {
+                throw new JbmnplsParsingException("Cannot find attribute in current element");
+            }
+        }
+
+        // Find either the end of the tag or the attribute
+        Pair<Integer, String> result = indexOfFirstOccurance(html, position, attribute + "=", ">");
+        if (result == null) {
+            throw new JbmnplsParsingException("Cannot find attribute in current element.");
+        }
+        if (result.second == ">") {
+            return null;
+        }
+        int attrStart = result.first + result.second.length();
+
+        // See what type of quotes it is using and find the other quote that surrounds the value
+        Character quoteChar = html.charAt(attrStart);
+        if (quoteChar != '"' && quoteChar != '\'') {
+            throw new JbmnplsParsingException("Cannot find attribute in current element. (Cannot parse attribute)");
+        }
+        attrStart++;
+        int attrEnd = html.indexOf(quoteChar, attrStart);
+        if (attrEnd == -1) {
+            throw new JbmnplsParsingException("Cannot find attribute in current element. (Cannot parse attribute)");
+        }
+        return html.substring(attrStart, attrEnd);
+    }
+
     /**
      * Finds the text inside the current html tag
      * Like getTextInNextElement, it will recusively look for the text
@@ -144,14 +189,11 @@ public class SimpleHtmlParser {
         if (text.charAt(lessThan+1) == '/') {
             lessThan++;
         }
-        int greaterThan = text.indexOf('>', lessThan);
-        int space = text.indexOf(' ', lessThan);
-        if (greaterThan == space) {
+        Pair<Integer, String> result = indexOfFirstOccurance(text, lessThan, " ", ">");
+        if (result == null) {
             throw new JbmnplsParsingException("Cannot find last tag in html.");
         }
-        greaterThan = greaterThan == -1 ? text.length() : greaterThan;
-        space = space == -1 ? text.length() : space;
-        return text.substring(lessThan + 1, Math.min(greaterThan, space));
+        return text.substring(lessThan + 1, result.first);
     }
 
     /**
@@ -209,4 +251,39 @@ public class SimpleHtmlParser {
         end += closing.length();
         return new Pair<Integer, String>(end, text);
     }
+
+    /**
+     * This internal function will find the first occurance of one of the specfied strings
+     * passed in.
+     * For example, if you pass         indexOfFirstOccurance("foo", "bar", "thing");
+     * it will look in the text for each and return the position and string that appears first
+     *
+     * For a sentence like    "I am Matthew and I like foo and bar with thing"
+     * The first occurance would be "foo" at index 21
+     * @param text This is the string to search
+     * @param indexFrom Like indexOf, this index is where searching starts from
+     * @param strings A list of words to search
+     * @return a pair of the position and found text, null if cannot find any
+     */
+    private Pair<Integer, String> indexOfFirstOccurance(String text, int indexFrom, String... strings) {
+        int[] positions = new int[strings.length];
+        int smallest = text.length();
+        int smallestIndex = -1;
+        for (int i = 0; i < strings.length; i++) {
+            positions[i] = text.indexOf(strings[i], indexFrom);
+
+            // Record the index if this came first
+            if (positions[i] < smallest) {
+                smallestIndex = i;
+                smallest = positions[i];
+            }
+        }
+
+        // Could not find any of the strings in the text
+        if (positions[smallestIndex] == -1) {
+            return null;
+        }
+        return new Pair<Integer, String>(positions[smallestIndex], strings[smallestIndex]);
+    }
+
 }
