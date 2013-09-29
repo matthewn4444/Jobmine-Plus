@@ -21,6 +21,10 @@ public class DatabaseTask<Result> extends AsyncTask<DatabaseTask.Action, Void, R
         execute(Action.GET);
     }
 
+    public boolean isFinished() {
+        return getStatus() == Status.FINISHED;
+    }
+
     @Override
     protected Result doInBackground(Action... params) {
         if (params[0] == Action.PUT) {

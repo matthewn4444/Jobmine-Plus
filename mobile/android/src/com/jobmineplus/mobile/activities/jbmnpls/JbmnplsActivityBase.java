@@ -321,6 +321,9 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     protected void jobsToDatabase() {
         if (isReallyOnline()) {
+            if (databaseTask.isFinished()) {
+                databaseTask = new DatabaseTask<Long>(this);
+            }
             databaseTask.executePut();
         }
     }
