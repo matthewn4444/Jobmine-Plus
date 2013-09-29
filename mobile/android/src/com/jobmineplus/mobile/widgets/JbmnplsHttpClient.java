@@ -341,64 +341,66 @@ public final class JbmnplsHttpClient {
         }
     }
 
-    public String postJobmineHtml (List<NameValuePair> postData, String url) throws JbmnplsLoggedOutException {
+    public String postJobmineHtml (List<NameValuePair> postData, String url) throws JbmnplsLoggedOutException, IOException {
         synchronized(lock) {
-            HttpResponse response = internalPost(postData, url);
-            String html;
-            if (response == null) {
-                return null;
-            }
+            InputStream in = null;
+            BufferedReader reader = null;
             try {
-                html = getJbmnHtmlFromHttpResponse(response);
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new JbmnplsLoggedOutException();
+                // Attempt 3 times if logged out
+                boolean loggedIn = false;
+                for (int i = 0; i < MAX_LOGIN_ATTEMPTS; i++) {
+                    if (in != null) {
+                        in.close();
+                        in = null;
+                    }
+
+                    HttpResponse response = internalPost(postData, url);
+                    if (response != null) {
+                        in = response.getEntity().getContent();
+                        reader = new BufferedReader(new InputStreamReader(in,
+                                DEFAULT_HTML_ENCODER), BUFFER_READER_SIZE);
+
+                        // Validates the html to make sure we logged in
+                        // If failed to login, try it again 2 more times
+                        LOGGED result = validateLoginJobmine(reader);
+                        if (result == LOGGED.IN) {
+                            loggedIn = true;
+                            break;
+                        } else if (result == LOGGED.OFFLINE) {
+                            throw new JbmnplsLoggedOutException();
+                        }
+                    } else {
+                        return null;
+                    }
+                    if (login() == LOGGED.OFFLINE) {
+                        throw new JbmnplsLoggedOutException();
+                    }
+                }
+                if (!loggedIn) {
+                    throw new JbmnplsLoggedOutException();
+                }
+
+                // Successfully logged in
+                StringBuilder str = new StringBuilder();
+                String line = null;
+                while ((line = reader.readLine()) != null) {
+                    str.append(line);
+                }
+                updateTimestamp();
+                return str.toString();
+            } catch (IOException e) {
+                throw e;
             } finally {
                 if (canAbort && pendingAbort) {
                     pendingAbort = false;
                 }
-            }
-            return html;
-        }
-    }
-
-    //===================
-    //  HTML Conversion
-    //===================
-    public String getJbmnHtmlFromHttpResponse(HttpResponse response) {
-        return getJbmnHtmlFromHttpResponse(response, DEFAULT_HTML_ENCODER);
-    }
-
-    public String getJbmnHtmlFromHttpResponse(HttpResponse response, String encoder) {
-        InputStream in = null;
-        StringBuilder str = new StringBuilder();
-
-        try {
-            in = response.getEntity().getContent();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in, encoder), BUFFER_READER_SIZE);
-
-            // Validates the html to make sure we logged in
-            if (validateLoginJobmine(reader) != LOGGED.IN) {
-                return null;
-           }
-
-            String line = null;
-            while((line = reader.readLine()) != null) {
-                str.append(line);
-            }
-        } catch(IOException e) {        // Temp
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
+                if (in != null) {
+                    try {
+                        in.close();
+                    } catch(IOException e) {}
                 }
             }
         }
-        updateTimestamp();
-        return str.toString();
     }
 
     //========================
