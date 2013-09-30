@@ -9,6 +9,19 @@
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
+            <LinearLayout style="@style/category_button_row">
+                <com.jobmineplus.mobile.widgets.OpacityLinearLayout
+                    android:id="@+id/search_button"
+                    style="@style/category_button">
+                    <ImageView
+                        style="@style/category_button_image"
+                        android:contentDescription="@string/empty"
+                        android:src="@drawable/home_applications_icon" />
+                    <com.jobmineplus.mobile.widgets.TextViewPlus
+                        android:text="@+string/jobsearch_title"
+                        style="@style/category_button_text"/>
+                </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+            </LinearLayout>
 	        <LinearLayout style="@style/category_button_row">
 	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
 	                android:id="@+id/apps_button"

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <!-- Job Type -->
+    <string-array name="job_search_type">
+        <item>Co-op</item>
+        <item>Co-op ARCH</item>
+        <item>Co-op CA</item>
+        <item>Co-op TEACH</item>
+        <item>Co-op PHARM</item>
+        <item>Co-op UAE</item>
+        <item>Alumni</item>
+        <item>Graduating</item>
+        <item>Other</item>
+        <item>Summer</item>
+    </string-array>
+    
+    <!-- Job Filter -->
+    <string-array name="job_search_filter">
+        <item>Approved</item>
+        <item>Apps Avail</item>
+        <item>Cancelled</item>
+        <item>Posted</item>
+    </string-array>
+    
+    <!-- Locations -->
+    <string-array name="job_search_location">
+	    <item>All locations</item>
+		<item>Africa</item>
+		<item>Africa &gt; Ghana</item>
+		<item>Africa &gt; Kenya</item>
+		<item>Africa &gt; Nigeria</item>
+		<item>Africa &gt; Rwanda</item>
+		<item>Asia</item>
+		<item>Asia &gt; India</item>
+		<item>Asia &gt; Pakistan</item>
+		<item>Asia &gt; Philippines</item>
+		<item>Australia/New Zealand</item>
+		<item>Canada</item>
+		<item>Canada &gt; Eastern Canada</item>
+		<item>Canada &gt; National Capital Region</item>
+		<item>Canada &gt; Northern Canada</item>
+		<item>Canada &gt; Ontario</item>
+		<item>Canada &gt; Ontario &gt; Central Ontario</item>
+		<item>Canada &gt; Ontario &gt; Eastern Ontario</item>
+		<item>Canada &gt; Ontario &gt; GTA</item>
+		<item>Canada &gt; Ontario &gt; GTA &gt; Central East</item>
+		<item>Canada &gt; Ontario &gt; GTA &gt; GTA Central West</item>
+		<item>Canada &gt; Ontario &gt; GTA &gt; GTA North</item>
+		<item>Canada &gt; Ontario &gt; GTA &gt; Toronto</item>
+		<item>Canada &gt; Ontario &gt; GTA &gt; Toronto &gt; Toronto Downtown</item>
+		<item>Canada &gt; Ontario &gt; Hamilton/Niagara Region</item>
+		<item>Canada &gt; Ontario &gt; Northern Ontario</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; Brantford Region</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; Grey Bruce Region</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; Guelph Region</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; London Region</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; Sarnia Region</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; Waterloo Region</item>
+		<item>Canada &gt; Ontario &gt; South-West Ontario &gt; Windsor Region</item>
+		<item>Canada &gt; Quebec</item>
+		<item>Canada &gt; Quebec &gt; Montreal Region</item>
+		<item>Canada &gt; Western Canada</item>
+		<item>Caribbean/South America</item>
+		<item>Central America</item>
+		<item>Europe</item>
+		<item>Mexico</item>
+		<item>Middle East</item>
+		<item>Middle East &gt; Iran</item>
+		<item>Middle East &gt; Oman</item>
+		<item>Middle East &gt; Qatar</item>
+		<item>Middle East &gt; Saudi Arabia</item>
+		<item>Middle East &gt; UAE</item>
+		<item>United States</item>
+	</string-array>
+	
+    <string-array name="job_search_disciplines_values">
+        <item></item>
+		<item>4</item>
+		<item>5</item>
+		<item>6</item>
+		<item>7</item>
+		<item>8</item>
+		<item>31</item>
+		<item>92</item>
+		<item>90</item>
+		<item>88</item>
+		<item>102</item>
+		<item>91</item>
+		<item>89</item>
+		<item>9</item>
+		<item>10</item>
+		<item>68</item>
+		<item>77</item>
+		<item>11</item>
+		<item>13</item>
+		<item>107</item>
+		<item>76</item>
+		<item>108</item>
+		<item>15</item>
+		<item>14</item>
+		<item>106</item>
+		<item>80</item>
+		<item>78</item>
+		<item>16</item>
+		<item>17</item>
+		<item>69</item>
+		<item>18</item>
+		<item>65</item>
+		<item>109</item>
+		<item>81</item>
+		<item>66</item>
+		<item>2</item>
+		<item>94</item>
+		<item>93</item>
+		<item>19</item>
+		<item>20</item>
+		<item>21</item>
+		<item>22</item>
+		<item>23</item>
+		<item>82</item>
+		<item>26</item>
+		<item>83</item>
+		<item>28</item>
+		<item>70</item>
+		<item>79</item>
+		<item>45</item>
+		<item>29</item>
+		<item>30</item>
+		<item>32</item>
+		<item>71</item>
+		<item>33</item>
+		<item>84</item>
+		<item>97</item>
+		<item>96</item>
+		<item>34</item>
+		<item>95</item>
+		<item>36</item>
+		<item>35</item>
+		<item>37</item>
+		<item>38</item>
+		<item>39</item>
+		<item>40</item>
+		<item>72</item>
+		<item>41</item>
+		<item>104</item>
+		<item>101</item>
+		<item>98</item>
+		<item>99</item>
+		<item>100</item>
+		<item>42</item>
+		<item>73</item>
+		<item>74</item>
+		<item>43</item>
+		<item>44</item>
+		<item>46</item>
+		<item>105</item>
+		<item>63</item>
+		<item>47</item>
+		<item>48</item>
+		<item>49</item>
+		<item>50</item>
+		<item>51</item>
+		<item>52</item>
+		<item>53</item>
+		<item>54</item>
+		<item>56</item>
+		<item>87</item>
+		<item>86</item>
+		<item>58</item>
+		<item>103</item>
+		<item>60</item>
+    </string-array>
+    
+    <string-array name="job_search_disciplines">
+		<item>(None)</item>
+		<item>AHS-(unspecified)</item>
+		<item>AHS-Hlth Studies &amp; Gerontology</item>
+		<item>AHS-Kinesiology</item>
+		<item>AHS-Rec. &amp; Leisure Studies</item>
+		<item>AHS-Rec./Business Management</item>
+		<item>ARCH-Architecture</item>
+		<item>ARTS MASTERS-Economics</item>
+		<item>ARTS MASTERS-Exp Digital Media</item>
+		<item>ARTS MASTERS-Literary Studies</item>
+		<item>ARTS MASTERS-Political Science</item>
+		<item>ARTS MASTERS-Public Service</item>
+		<item>ARTS MASTERS-Rhet/Comm Design</item>
+		<item>ARTS-(unspecified)</item>
+		<item>ARTS-Anthropology</item>
+		<item>ARTS-Arts &amp; Business</item>
+		<item>ARTS-Digital Arts Comm</item>
+		<item>ARTS-Economics</item>
+		<item>ARTS-English</item>
+		<item>ARTS-English Literature</item>
+		<item>ARTS-Financial Management</item>
+		<item>ARTS-Global Engagement</item>
+		<item>ARTS-HR Management</item>
+		<item>ARTS-History</item>
+		<item>ARTS-International Trade</item>
+		<item>ARTS-Management Accounting</item>
+		<item>ARTS-Philosophy</item>
+		<item>ARTS-Political Science</item>
+		<item>ARTS-Psychology</item>
+		<item>ARTS-Rhetoric &amp; Prof Writing</item>
+		<item>ARTS-Sociology</item>
+		<item>All Business (unspecified)</item>
+		<item>All Finance (unspecified)</item>
+		<item>All Health Informatics</item>
+		<item>All Info Tech (unspecified)</item>
+		<item>CA-Chartered Accounting</item>
+		<item>ENG MASTERS-Civil</item>
+		<item>ENG MASTERS-Management Science</item>
+		<item>ENG-(unspecified)</item>
+		<item>ENG-Chemical</item>
+		<item>ENG-Civil</item>
+		<item>ENG-Computer</item>
+		<item>ENG-Electrical</item>
+		<item>ENG-Environmental</item>
+		<item>ENG-Geological</item>
+		<item>ENG-Management</item>
+		<item>ENG-Mechanical</item>
+		<item>ENG-Mechatronics</item>
+		<item>ENG-Nanotechnology</item>
+		<item>ENG-Software</item>
+		<item>ENG-Systems Design</item>
+		<item>ENV- (unspecified)</item>
+		<item>ENV-Env &amp; Resource Studies</item>
+		<item>ENV-Environment &amp; Business</item>
+		<item>ENV-Geog &amp; Env Management</item>
+		<item>ENV-Geomatics</item>
+		<item>ENV-International Development</item>
+		<item>ENV-Knowledge Integration</item>
+		<item>ENV-Planning</item>
+		<item>MATH MASTERS-Health Info</item>
+		<item>MATH- (unspecified)</item>
+		<item>MATH-Actuarial Science</item>
+		<item>MATH-Applied Mathematics</item>
+		<item>MATH-Bioinformatics</item>
+		<item>MATH-Business Administration</item>
+		<item>MATH-Combinatorics &amp; Optimizat</item>
+		<item>MATH-Computational Math</item>
+		<item>MATH-Computer Science</item>
+		<item>MATH-Computing &amp; Financial Mgm</item>
+		<item>MATH-Fin Analysis &amp; Risk Mgmt</item>
+		<item>MATH-IT Management</item>
+		<item>MATH-Mathematical Economics</item>
+		<item>MATH-Mathematical Finance</item>
+		<item>MATH-Mathematical Optimization</item>
+		<item>MATH-Mathematical Physics</item>
+		<item>MATH-Mathematical Studies</item>
+		<item>MATH-Pure Mathematics</item>
+		<item>MATH-Scientific Computation</item>
+		<item>MATH-Statistics</item>
+		<item>MATH-Statistics for Health</item>
+		<item>MATH-Teaching</item>
+		<item>SCI- (unspecified)</item>
+		<item>SCI-Biochemistry</item>
+		<item>SCI-Bioinformatics</item>
+		<item>SCI-Biology</item>
+		<item>SCI-Biotechnology/Economics</item>
+		<item>SCI-Chemistry</item>
+		<item>SCI-Earth Sciences</item>
+		<item>SCI-Environmental Science</item>
+		<item>SCI-Geology and Hydrogeology</item>
+		<item>SCI-Optometry</item>
+		<item>SCI-Pharmacy</item>
+		<item>SCI-Physics</item>
+		<item>SCI-Psychology</item>
+		<item>SCI-Science/Business</item>
+    </string-array>
+    
+</resources>

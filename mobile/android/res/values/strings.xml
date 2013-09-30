@@ -10,6 +10,7 @@
     <string name="shortlist_title">Shortlist</string>
     <string name="interviews_title">Interviews</string>
     <string name="settings_title">Settings</string>
+    <string name="jobsearch_title">Job Search</string>
     
     <string name="login_tou_text">"By logging in, you accept the "</string>
     <string name="login_tou_text_click"><u>terms of use</u></string>
@@ -48,6 +49,24 @@
     <string name="job_details_cecs_title">CECS Field Co-ordinator</string>
     <string name="job_details_disc_title">Disciplines</string>
     <string name="job_details_lvls_title">Levels</string>
+
+    <!-- Job Seach -->
+    <string name="job_level_junior">Junior</string>
+    <string name="job_level_intermediate">Intermediate</string>
+    <string name="job_level_senior">Senior</string>
+    <string name="job_level_bachelor">Bachelor</string>
+    <string name="job_level_masters">Masters</string>
+    <string name="job_level_phD">Ph.D.</string>
+    <string name="job_search_disciplines_title">Disciplines</string>
+    <string name="job_search_location_title">Location</string>
+    <string name="job_search_term_title">Co-op Term*</string>
+    <string name="job_search_filter_title">Job Search Filter*</string>
+    <string name="job_search_type_title">Job Type*</string>
+    <string name="job_search_employer_title">Employer\'s Name</string>
+    <string name="job_search_title_title">Job Title</string>
+    <string name="job_search_level_title">Job Level</string>
+
+    <string name="job_search_type_unauth">You are not authorised to search by that job type.</string>
 
     <!-- Tutorial -->
     <string name="tutorial_sorting_text">Click here to sort specific headers</string>

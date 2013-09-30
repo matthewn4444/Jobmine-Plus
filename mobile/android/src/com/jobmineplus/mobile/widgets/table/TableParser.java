@@ -186,6 +186,7 @@ public class TableParser {
                     case EMPLOYER:
                     case EMPLOYER_NAME:
                     case UNIT:
+                    case UNIT_NAME:
                     case UNIT_NAME_1:
                     case TERM:
                     case ROOM:
@@ -198,6 +199,7 @@ public class TableParser {
                         break;
 
                     // Integers
+                    case OPENINGS:
                     case NUM_APPS:
                     case LENGTH:
                         value = text == "" ? 0 : Integer.parseInt(text);
@@ -258,12 +260,14 @@ public class TableParser {
                     case VIEW_DETAILS:
                     case VIEW_PACKAGE:
                     case SELECT_TIME:
+                    case SHORTLIST:
                     case BLANK:
                         break;
 
                     default:
                       throw new JbmnplsParsingException(
-                              "Cannot parse column with invalid type. Row= " + row + ", type= " + headers[i]);
+                              "Cannot parse column with invalid type. Row= " + row +
+                              ", type= " + headers[i] + ", did you add them here?");
                 }
                 passedObj[i] = value;
             }

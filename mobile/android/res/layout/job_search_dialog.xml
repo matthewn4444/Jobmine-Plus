@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/details_layout"
+    android:layout_width="fill_parent"
+    android:background="@color/background"
+    android:layout_height="fill_parent" >
+
+    <LinearLayout
+        style="@style/description_layout">
+        
+        <!-- Disciplines -->
+        <TextView
+            style="@style/job_search_text"
+            android:text="@string/job_search_disciplines_title"/>
+        <Spinner
+            android:id="@+id/job_search_disciples1"
+            style="@style/job_search_displines"/>
+        <Spinner
+            android:id="@+id/job_search_disciples2"
+            style="@style/job_search_displines"/>
+        <Spinner
+            android:id="@+id/job_search_disciples3"
+            style="@style/job_search_displines"/>
+        
+        <!-- Term -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_term_title"/>
+        <Spinner
+            android:id="@+id/job_search_term"
+            style="@style/job_search_style"/>
+        
+        <!-- Location -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_location_title"/>
+        <Spinner
+            android:id="@+id/job_search_location"
+            android:entries="@array/job_search_location"
+            style="@style/job_search_style"/>
+        
+        <!-- Job Search Filter -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_filter_title"/>
+        <Spinner
+            android:id="@+id/job_search_filter"
+            android:entries="@array/job_search_filter"
+            style="@style/job_search_style"/>
+        
+        <!-- Job Type -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_type_title"/>
+        <Spinner
+            android:id="@+id/job_search_type"
+            android:entries="@array/job_search_type"
+            style="@style/job_search_style"/>
+
+        <!-- Employer Name -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_employer_title"/>
+        <EditText android:id="@+id/job_search_employer"
+            android:inputType="text"
+            style="@style/job_search_style"/>
+        
+        <!-- Job Title -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_title_title"/>
+        <EditText android:id="@+id/job_search_title"
+            android:inputType="text"
+            style="@style/job_search_style"/>
+                
+        <!-- Job Level -->
+        <TextView 
+            style="@style/job_search_text"
+            android:text="@string/job_search_level_title"/>
+        <LinearLayout 
+            android:layout_height="wrap_content"
+            android:weightSum="1"
+            android:orientation="horizontal"
+            android:layout_width="fill_parent">
+	        <LinearLayout
+	            style="@style/job_search_checkbox_layout"> 
+	            <CheckBox 
+	                android:id="@+id/job_search_junior"
+	                style="@style/job_search_text"
+	                android:text="@string/job_level_junior"/>
+	            <CheckBox 
+	                android:id="@+id/job_search_intermediate"
+                    style="@style/job_search_text"
+                    android:text="@string/job_level_intermediate"/>
+	            <CheckBox 
+	                android:id="@+id/job_search_senior"
+                    style="@style/job_search_text"
+                    android:text="@string/job_level_senior"/>
+            </LinearLayout>
+            <LinearLayout 
+                style="@style/job_search_checkbox_layout">
+                <CheckBox 
+	                android:id="@+id/job_search_bachelor"
+                    style="@style/job_search_text"
+                    android:text="@string/job_level_bachelor"/>
+                <CheckBox 
+	                android:id="@+id/job_search_masters"
+                    style="@style/job_search_text"
+                    android:text="@string/job_level_masters"/>
+                <CheckBox 
+	                android:id="@+id/job_search_phD"
+                    style="@style/job_search_text"
+                    android:text="@string/job_level_phD"/>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

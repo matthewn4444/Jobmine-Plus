@@ -46,6 +46,10 @@
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name" />
         <activity
+            android:name=".activities.jbmnpls.JobSearch"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name" />
+        <activity
             android:name=".activities.jbmnpls.Settings"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name" />
@@ -69,6 +73,10 @@
             android:label="@string/app_name" />
         <activity
             android:name=".debug.DebugInterviews"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name=".debug.DebugJobSearch"
             android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name" />
 

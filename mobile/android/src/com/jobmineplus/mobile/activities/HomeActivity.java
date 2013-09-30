@@ -13,6 +13,7 @@ import com.jobmineplus.mobile.widgets.TutorialHelper;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
     protected int[] buttonLayouts = {
+            R.id.search_button,
             R.id.apps_button,
             R.id.shortlist_button,
             R.id.interviews_button,
@@ -106,7 +107,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
             goToActivityForResult(name);
         } else {
-            goToActivity(name);
+            goToActivity(name.replace(" ", ""));
         }
     }
 
