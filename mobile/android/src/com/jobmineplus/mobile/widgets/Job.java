@@ -514,7 +514,8 @@ public class Job {
 
         // Job Search
         OPENINGS("openings", "Openings"),
-        SHORTLIST("shortlist", "Short List"),
+        SHORTLIST("short list", "Short List"),
+        UNIT_NAME("unit name", "Unit"),
 
         BLANK("", "");
 
