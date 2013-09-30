@@ -49,7 +49,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         Date now = new Date();
         int hour = now.getHours();
         int day = now.getDay();
-        return (day == 6 && hour >= JBMN_ONLINE_TIME || day == 0)
+        return (day == 6 && hour >= JBMN_ONLINE_TIME || day <= 1)
                 || (hour >= JBMN_ONLINE_TIME && hour < JBMN_OFFLINE_TIME);
     }
 
