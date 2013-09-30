@@ -362,6 +362,7 @@ public class Job {
     }
 
     static public enum APPLY_STATUS {
+        BLANK("", 1),
         APPLY("Apply", 3),
         ALREADY_APPLIED("Already Applied", 3),
         CANNOT_APPLY("Not Authorized to Apply", 8),
