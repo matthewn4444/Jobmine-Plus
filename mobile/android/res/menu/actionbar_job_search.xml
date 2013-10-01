@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_search"
+        android:orderInCategory="98"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_action_search"
+        android:title="@string/action_bar_sort">
+    </item>
+    <item
+        android:id="@+id/action_sort"
+        android:orderInCategory="99"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_sort"
+        android:title="@string/action_bar_sort">
+        <menu></menu>
+    </item>
+    <item
+        android:id="@+id/action_online"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/ic_online"
+        android:title="@string/action_bar_online"/>
+</menu>

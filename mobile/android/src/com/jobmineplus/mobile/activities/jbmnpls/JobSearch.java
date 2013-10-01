@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import com.actionbarsherlock.view.MenuItem;
 import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
@@ -124,8 +125,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
         setAdapter(new JobSearchAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
     }
 
-    protected String getUrl() {
-        return JbmnplsHttpClient.GET_LINKS.SEARCH;
+    @Override
+    protected int getActionBarId() {
+        return R.menu.actionbar_job_search;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_search) {
+            showSearchDialog();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
@@ -239,9 +252,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
             throw new InvalidParameterException(
                     "Cannot show search dialog if data is not parsed and set yet.");
         }
-        searchDialog = new JobSearchDialog(this);
-        searchDialog.setOnJobSearchListener(this);
-        searchDialog.setProperties(properties);
+        if (searchDialog == null) {
+            searchDialog = new JobSearchDialog(this);
+            searchDialog.setOnJobSearchListener(this);
+            searchDialog.setProperties(properties);
+        }
         searchDialog.show();
     }
 
@@ -254,6 +269,10 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     public void onSearch(JobSearchProperties prop) {
         addTask(SearchRequestTask.SEARCH, "Searching...");
+    }
+
+    protected String getUrl() {
+        return JbmnplsHttpClient.GET_LINKS.SEARCH;
     }
 
     protected void showAlert(String message) {
@@ -454,6 +473,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     parser.skipText("ICStateNum");
                     stateNum = parser.getAttributeInCurrentElement("value");
 
+                    clearList();
                     tableParser.execute(JOBSEARCH_OUTLINE, response);
                     properties.acceptChanges();
                     break;
