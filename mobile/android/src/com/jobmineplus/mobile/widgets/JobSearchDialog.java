@@ -179,6 +179,11 @@ public class JobSearchDialog extends Builder implements
     @Override
     public void onClick(DialogInterface dialog, int which) {
         if (which == Dialog.BUTTON_NEGATIVE) {
+            listener.onCancel();
+
+            // Reject any changes to the job type and set it back
+            properties.jobType.rejectChange();
+            setJobTypeSpinner(properties.jobType.get());
         }
     }
 
@@ -340,5 +345,6 @@ public class JobSearchDialog extends Builder implements
     public interface OnJobSearchListener {
         public void onJobTypeChange(Spinner spinner, JobSearchProperties.JOBTYPE type);
         public void onSearch(JobSearchProperties properties);
+        public void onCancel();
     }
 }

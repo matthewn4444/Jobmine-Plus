@@ -119,6 +119,26 @@ public final class JobSearchProperties {
         levelPhD = new Property<Boolean>();
     }
 
+    public void rejectChanges() {
+        disciplines1.rejectChange();
+        disciplines2.rejectChange();
+        disciplines3.rejectChange();
+
+        term.rejectChange();
+        location.rejectChange();
+        filter.rejectChange();
+        jobType.rejectChange();
+        employer.rejectChange();
+        title.rejectChange();
+
+        levelJunior.rejectChange();
+        levelIntermediate.rejectChange();
+        levelSenior.rejectChange();
+        levelBachelors.rejectChange();
+        levelMasters.rejectChange();
+        levelPhD.rejectChange();
+    }
+
     public void acceptChanges() {
         disciplines1.acceptChange();
         disciplines2.acceptChange();

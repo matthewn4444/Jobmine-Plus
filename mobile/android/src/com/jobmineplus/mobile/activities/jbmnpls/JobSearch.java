@@ -56,6 +56,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private SearchRequestTask jobSearchPageTask;
 
     private boolean enableSearch = true;
+    private boolean firstSearch;
 
     private JobSearchDialog searchDialog;
 
@@ -103,6 +104,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         alert = new Builder(this);
         alert.setNegativeButton(android.R.string.ok, null);
         alert.create();
+        firstSearch = true;
     }
 
     @Override
@@ -243,13 +245,16 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onRequestComplete(boolean pullData) {
         // Coming from HomeActivity
-        if (searchDialog == null && pullData) {     // TODO Change to first time here boolean
+        if (firstSearch && pullData) {     // TODO Change to first time here boolean
             showSearchDialog();
         } else {
             super.onRequestComplete(pullData);
         }
     }
 
+    //=======================
+    //  Handle Search Icon
+    //=======================
     @Override
     protected void onlineModeChanged(boolean flag) {
         setSearchEnabled(flag);
@@ -283,6 +288,34 @@ public class JobSearch extends JbmnplsListActivityBase implements
         }
     }
 
+    //=======================
+    //  OnJobSearchListener
+    //=======================
+    @Override
+    public void onJobTypeChange(Spinner spinner, JobSearchProperties.JOBTYPE type) {
+        properties.jobType.set(type);
+        addTask(SearchRequestTask.JOBTYPE);
+    }
+
+    @Override
+    public void onSearch(JobSearchProperties prop) {
+        firstSearch = false;        // No that you search, it is not the first time anymore
+        addTask(SearchRequestTask.SEARCH, "Searching...");
+    }
+
+    @Override
+    public void onCancel() {
+        if (jobSearchPageTask != null) {
+            jobSearchPageTask.cancel(true);
+        }
+        if (firstSearch) {
+            finish();
+        }
+    }
+
+    //==================
+    //  Miscellaneous
+    //==================
     private void showSearchDialog() {
         if (properties == null) {
             throw new InvalidParameterException(
@@ -296,17 +329,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
             }
             searchDialog.show();
         }
-    }
-
-    @Override
-    public void onJobTypeChange(Spinner spinner, JobSearchProperties.JOBTYPE type) {
-        properties.jobType.set(type);
-        addTask(SearchRequestTask.JOBTYPE);
-    }
-
-    @Override
-    public void onSearch(JobSearchProperties prop) {
-        addTask(SearchRequestTask.SEARCH, "Searching...");
     }
 
     protected String getUrl() {
