@@ -65,6 +65,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     // Job search post properties
     private String icsID;
     private String stateNum;
+    private int numJobs;
 
     public final static HEADER[] SORT_HEADERS = {
         HEADER.JOB_TITLE,
@@ -427,6 +428,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         public static final int LOGOUT_RESULT = 3;
         public static final int LOST_STATE_RESULT = 4;
         public static final int CANCELLED = 5;
+        public static final int PARSING_ERROR = 6;
 
         public static final String LOGOUT_STRING = "uw_signin.css";
         public static final String LOST_STATE_STRING = "return to your most recent active page";
@@ -533,6 +535,15 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     parser.skipText("ICStateNum");
                     stateNum = parser.getAttributeInCurrentElement("value");
 
+                    // Find the number of jobs in the result
+                    parser.skipText("PSGRIDCOUNTER");
+                    String pageInfo = parser.getTextInCurrentElement();
+                    try {
+                        numJobs = Integer.parseInt(pageInfo.substring(pageInfo.lastIndexOf("of") + 3));
+                    } catch (NumberFormatException e) {
+                        throw new JbmnplsParsingException("Cannot find the number of jobs in the search result");
+                    }
+
                     clearList();
                     tableParser.execute(JOBSEARCH_OUTLINE, response);
                     properties.acceptChanges();
@@ -586,6 +597,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, response, e);
                 return LOST_STATE_RESULT;
+            } catch (JbmnplsParsingException e) {
+                e.printStackTrace();
+                BugSenseHandler.sendException(e);
+                JobminePlusMobileLog.sendException(activity, response, e);
+                return PARSING_ERROR;
             } catch (IOException e) {
                 e.printStackTrace();
                 BugSenseHandler.sendException(e);
@@ -643,6 +659,9 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 if (taskQueue.isEmpty()) {
                     showAlert(getString(R.string.job_search_type_unauth));
                 }
+                break;
+            case PARSING_ERROR:
+                goToHomeActivity(getString(R.string.search_parsing_error_message));
                 break;
             case UNKNOWN_COMMAND:
                 toast("Not possible to come here");
