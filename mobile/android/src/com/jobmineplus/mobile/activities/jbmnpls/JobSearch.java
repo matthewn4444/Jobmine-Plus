@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
@@ -54,7 +55,9 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private JobSearchProperties properties;
     private SearchRequestTask jobSearchPageTask;
 
-    JobSearchDialog searchDialog;
+    private boolean enableSearch = true;
+
+    private JobSearchDialog searchDialog;
 
     private AlertDialog.Builder alert;
 
@@ -133,7 +136,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_search) {
+        if (id == R.id.action_search && canSearch()) {
             showSearchDialog();
             return true;
         } else {
@@ -247,17 +250,52 @@ public class JobSearch extends JbmnplsListActivityBase implements
         }
     }
 
+    @Override
+    protected void onlineModeChanged(boolean flag) {
+        setSearchEnabled(flag);
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem switchButton = menu.findItem(R.id.action_search);
+        setSearchIcon(switchButton);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    private boolean canSearch() {
+        return enableSearch && isReallyOnline();
+    }
+
+    private void setSearchEnabled(boolean enable) {
+        synchronized (this) {
+            enableSearch = enable;
+            supportInvalidateOptionsMenu();
+        }
+    }
+
+    private void setSearchIcon(MenuItem button) {
+        boolean ableToSearch = canSearch();
+        button.setEnabled(ableToSearch);
+        if (ableToSearch) {
+            button.setIcon(R.drawable.ic_action_search);
+        } else {
+            button.setIcon(R.drawable.ic_action_search_disabled);
+        }
+    }
+
     private void showSearchDialog() {
         if (properties == null) {
             throw new InvalidParameterException(
                     "Cannot show search dialog if data is not parsed and set yet.");
         }
-        if (searchDialog == null) {
-            searchDialog = new JobSearchDialog(this);
-            searchDialog.setOnJobSearchListener(this);
-            searchDialog.setProperties(properties);
+        if (canSearch()) {
+            if (searchDialog == null) {
+                searchDialog = new JobSearchDialog(this);
+                searchDialog.setOnJobSearchListener(this);
+                searchDialog.setProperties(properties);
+            }
+            searchDialog.show();
         }
-        searchDialog.show();
     }
 
     @Override
