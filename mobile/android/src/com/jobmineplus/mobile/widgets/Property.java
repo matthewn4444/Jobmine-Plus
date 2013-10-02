@@ -34,8 +34,10 @@ public class Property<T> {
      * and change flag is gone
      */
     public void acceptChange() {
-        hasChanged = false;
-        oldData = null;
+        if (hasChanged()) {
+            hasChanged = false;
+            oldData = null;
+        }
     }
 
     /**
@@ -43,7 +45,9 @@ public class Property<T> {
      *  but want the status to have changed
      */
     public void updateChange() {
-        oldData = data;
+        if (hasChanged()) {
+            oldData = data;
+        }
     }
 
     /**
@@ -51,9 +55,11 @@ public class Property<T> {
      * old data
      */
     public void rejectChange() {
-        hasChanged = false;
-        data = oldData;
-        oldData = null;
+        if (hasChanged()) {
+            hasChanged = false;
+            data = oldData;
+            oldData = null;
+        }
     }
 
     /**
