@@ -245,7 +245,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onRequestComplete(boolean pullData) {
         // Coming from HomeActivity
-        if (firstSearch && pullData) {     // TODO Change to first time here boolean
+        if (firstSearch && pullData) {
             showSearchDialog();
         } else {
             super.onRequestComplete(pullData);
