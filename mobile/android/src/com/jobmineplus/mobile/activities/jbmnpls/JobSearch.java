@@ -561,8 +561,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
                         return CANCELLED;
                     }
 
-                    // TODO this request will also change some of the job levels, parse that
-
                     // Find the new state number
                     parser = new SimpleHtmlParser(response);
                     parser.skipText("id='ICStateNum'");

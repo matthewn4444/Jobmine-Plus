@@ -197,6 +197,24 @@ public class JobSearchDialog extends Builder implements
             properties.jobType.set(newType);
             if (properties.jobType.hasChanged()) {
                 listener.onJobTypeChange(typeSpinner, newType);
+
+                // Depending on which type is set, it will affect the checkboxes
+                switch(newType) {
+                case GRADUATING:
+                case ALUMNI:
+                case SUMMER:
+                    juniorChkbx.setChecked(false);
+                    intermediateChkbx.setChecked(false);
+                    seniorChkbx.setChecked(false);
+                    if (newType == JobSearchProperties.JOBTYPE.SUMMER) {
+                        bachelorChkbx.setChecked(false);
+                        mastersChkbx.setChecked(false);
+                        phdChkbx.setChecked(false);
+                    }
+                    break;
+                default:
+                    break;
+                }
             }
             break;
         case R.id.job_search_location:
