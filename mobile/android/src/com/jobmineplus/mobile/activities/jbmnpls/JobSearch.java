@@ -1,7 +1,6 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
-import java.security.InvalidParameterException;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -344,7 +343,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         if (jobSearchPageTask != null) {
             jobSearchPageTask.cancel(true);
         }
-        if (firstSearch) {
+        if (firstSearch && getList().isEmpty()) {
             finish();
         }
     }
@@ -353,9 +352,10 @@ public class JobSearch extends JbmnplsListActivityBase implements
     //  Miscellaneous
     //==================
     private void showSearchDialog() {
+        // Need to get search values, so we will get them
         if (properties == null) {
-            throw new InvalidParameterException(
-                    "Cannot show search dialog if data is not parsed and set yet.");
+            requestData();
+            return;
         }
         if (canSearch()) {
             if (searchDialog == null) {
@@ -580,7 +580,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     String pageInfo = parser.getTextInCurrentElement();
                     try {
                         int ofIndex = pageInfo.lastIndexOf("of");
-                        if (getList().size() == 0) {
+                        if (getList().isEmpty()) {
                             numJobs = 0;
                         } else {
                             numJobs = Integer.parseInt(pageInfo.substring(ofIndex + 3));
@@ -708,6 +708,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
             // Finish off some of the commands
             switch(currentCommand) {
             case SEARCH:
+                getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 searchDialog.dismiss();
                 onRequestComplete(true);
                 break;
