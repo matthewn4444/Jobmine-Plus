@@ -17,6 +17,7 @@ import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Pair;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
@@ -48,9 +49,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
     //  Declaration Objects
     //======================
     public final static String PAGE_NAME = JobSearch.class.getName();
+    public final static int INITIAL_RESULT_COUNT = 25;
+    public final static int RESULT_COUNT_100 = 100;
 
     // Task list
     private final Queue<Pair<Integer, String>> taskQueue = new LinkedList<Pair<Integer,String>>();
+    private final SparseIntArray jobPageArray = new SparseIntArray(200);
 
     private JobSearchProperties properties;
     private SearchRequestTask jobSearchPageTask;
@@ -66,6 +70,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private String icsID;
     private String stateNum;
     private int numJobs;
+    private int currentPage;
+    private int totalPages;
 
     public final static HEADER[] SORT_HEADERS = {
         HEADER.JOB_TITLE,
@@ -106,6 +112,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         alert.setNegativeButton(android.R.string.ok, null);
         alert.create();
         firstSearch = true;
+        currentPage = 0;
     }
 
     @Override
@@ -251,6 +258,34 @@ public class JobSearch extends JbmnplsListActivityBase implements
         } else {
             super.onRequestComplete(pullData);
         }
+    }
+
+    protected boolean jobExists(Job job) {
+        return jobPageArray.indexOfKey(job.getId()) >= 0;
+    }
+
+    @Override
+    protected void addJob(Job job) {
+        // If it does not exist in the map, then include it
+        if (!jobExists(job)) {
+            jobPageArray.append(job.getId(), currentPage);
+            super.addJob(job);
+        }
+    }
+
+    @Override
+    protected void clearList() {
+        super.clearList();
+        jobPageArray.clear();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (jobSearchPageTask != null) {
+            taskQueue.clear();
+            jobSearchPageTask.cancel(true);
+        }
+        super.onDestroy();
     }
 
     //=======================
@@ -530,6 +565,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
                         return CANCELLED;
                     }
 
+                    // Parse the jobs out
+                    clearList();
+                    tableParser.execute(JOBSEARCH_OUTLINE, response);
+                    properties.acceptChanges();
+
                     // Find the new state number
                     parser = new SimpleHtmlParser(response);
                     parser.skipText("ICStateNum");
@@ -539,16 +579,39 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     parser.skipText("PSGRIDCOUNTER");
                     String pageInfo = parser.getTextInCurrentElement();
                     try {
-                        numJobs = Integer.parseInt(pageInfo.substring(pageInfo.lastIndexOf("of") + 3));
+                        int ofIndex = pageInfo.lastIndexOf("of");
+                        if (getList().size() == 0) {
+                            numJobs = 0;
+                        } else {
+                            numJobs = Integer.parseInt(pageInfo.substring(ofIndex + 3));
+                        }
                     } catch (NumberFormatException e) {
                         throw new JbmnplsParsingException("Cannot find the number of jobs in the search result");
                     }
 
-                    clearList();
-                    tableParser.execute(JOBSEARCH_OUTLINE, response);
-                    properties.acceptChanges();
+                    // Find number of pages
+                    totalPages = numJobs == 0 ? 1 : (int)Math.ceil(numJobs * 1.0 / INITIAL_RESULT_COUNT);
+
+                    // Make a new task to view 100 jobs if there are more than 25 jobs
+                    if (numJobs > INITIAL_RESULT_COUNT) {
+                        addTask(VIEW100);
+                    }
                     break;
                 case VIEW100:
+                    postData.add(new BasicNameValuePair("ICAction", "UW_CO_JOBRES_VW$hviewall$0"));
+                    response = doPost(postData, getUrl());
+                    if (response == null) {
+                        return CANCELLED;
+                    }
+                    tableParser.execute(JOBSEARCH_OUTLINE, response);
+
+                    // Update the page total
+                    totalPages = (int) Math.ceil(numJobs * 1.0 / RESULT_COUNT_100);
+
+                    // Load next page
+                    if (getList().size() < numJobs) {
+                        // TODO get next page if there is a need to get next page
+                    }
                     break;
                 case VIEW25:
                     break;
@@ -646,6 +709,9 @@ public class JobSearch extends JbmnplsListActivityBase implements
             switch(currentCommand) {
             case SEARCH:
                 searchDialog.dismiss();
+                onRequestComplete(true);
+                break;
+            case VIEW100:
                 onRequestComplete(true);
                 break;
             }

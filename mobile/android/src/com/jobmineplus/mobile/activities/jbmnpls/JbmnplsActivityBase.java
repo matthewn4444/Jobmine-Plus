@@ -106,7 +106,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         allJobs = new ArrayList<Job>();
         jobDataSource = new JobDataSource(this);
         pageDataSource = new PageDataSource(this);
-        databaseTask = new DatabaseTask<Long>(this);
         jobDataSource.open();
         pageDataSource.open();
         pageName = null;
@@ -280,6 +279,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     private void doExecuteGetTask() {
         getSupportActionBar().setSubtitle(" ");
+        databaseTask = new DatabaseTask<Long>(this);
         databaseTask.executeGet();
     }
 
@@ -321,9 +321,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
 
     protected void jobsToDatabase() {
         if (isReallyOnline()) {
-            if (databaseTask.isFinished()) {
-                databaseTask = new DatabaseTask<Long>(this);
-            }
+            databaseTask = new DatabaseTask<Long>(this);
             databaseTask.executePut();
         }
     }
