@@ -59,7 +59,11 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
         super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
-        setAdapter(new ShortlistAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
+    }
+
+    @Override
+    public JbmnplsAdapterBase getAdapter() {
+        return new ShortlistAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList());
     }
 
     @Override

@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -16,6 +15,7 @@ import com.actionbarsherlock.view.SubMenu;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.pages.PageResult;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.HeaderComparator;
@@ -28,7 +28,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //=================
     private ListView list;
     private TextView emptyText;
-    private ArrayAdapter<Job> adapter;
+    private JbmnplsAdapterBase adapter;
     private MenuItem sortSelected;
     private boolean sortedAscending = false;
     private HeaderComparator sortComparer = new Job.HeaderComparator();
@@ -37,6 +37,8 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //  Abstract Methods
     //====================
     public abstract HEADER[] getTableHeaders();
+
+    public abstract JbmnplsAdapterBase getAdapter();
 
     //====================
     //  Override Methods
@@ -51,6 +53,10 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         list.setVisibility(View.INVISIBLE);
         list.setEmptyView(emptyText);
         list.setOnItemClickListener(this);
+
+        // Set up the adapter
+        adapter = getAdapter();
+        list.setAdapter(adapter);
     }
 
     @Override
@@ -146,23 +152,8 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //=================================
     //  Class Public/Protected Methods
     //=================================
-
-    /**
-     * If you are not using the Job object to be displayed on the
-     * page, please extend JobListAdapter and place the adapter
-     * on setUp();
-     * @param adapter
-     */
-    protected void setAdapter(ArrayAdapter<Job> newAdapter) {
-        adapter = newAdapter;
-    }
-
     protected void updateList() throws JbmnplsException{
-        if (adapter == null) {
-            throw new JbmnplsException("You have not set an adapter yet. Please use setAdapter(adapter).");
-        }
         adapter.notifyDataSetChanged();
-        list.setAdapter(adapter);
         if (!adapter.isEmpty()) {
             list.setVisibility(View.VISIBLE);
         }

@@ -30,6 +30,10 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
         return activity;
     }
 
+    public ArrayList<TItem> getList() {
+        return entries;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View viewObj = convertView;

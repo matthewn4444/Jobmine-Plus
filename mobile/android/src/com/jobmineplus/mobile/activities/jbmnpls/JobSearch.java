@@ -134,7 +134,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         super.defineUI(savedInstanceState);
-        setAdapter(new JobSearchAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList()));
+    }
+
+    @Override
+    public JbmnplsAdapterBase getAdapter() {
+        return new JobSearchAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList());
     }
 
     @Override
