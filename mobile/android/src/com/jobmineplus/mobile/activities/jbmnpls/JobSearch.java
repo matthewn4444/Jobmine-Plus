@@ -715,6 +715,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 searchDialog.dismiss();
                 onRequestComplete(true);
+                scrollToTop();
                 break;
             case VIEW100:
                 onRequestComplete(true);

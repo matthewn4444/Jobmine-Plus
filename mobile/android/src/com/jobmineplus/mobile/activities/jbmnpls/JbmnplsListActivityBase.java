@@ -159,6 +159,10 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         }
     }
 
+    protected void scrollToTop() {
+        list.setSelectionAfterHeaderView();
+    }
+
     protected ArrayList<Job> getList() {
         return allJobs;
     }
