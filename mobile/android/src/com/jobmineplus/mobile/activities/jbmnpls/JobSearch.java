@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.View;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
@@ -42,7 +44,8 @@ import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
 public class JobSearch extends JbmnplsListActivityBase implements
-                            OnJobSearchListener, TableParser.OnTableParseListener {
+                            OnJobSearchListener, TableParser.OnTableParseListener,
+                            OnScrollListener {
 
     //======================
     //  Declaration Objects
@@ -50,6 +53,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public final static String PAGE_NAME = JobSearch.class.getName();
     public final static int INITIAL_RESULT_COUNT = 25;
     public final static int RESULT_COUNT_100 = 100;
+    public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 40;
 
     // Task list
     private final Queue<Pair<Integer, String>> taskQueue = new LinkedList<Pair<Integer,String>>();
@@ -71,6 +75,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private int numJobs;
     private int currentPage;
     private int totalPages;
+    private boolean hasLoaded100;
+    private int currentListPosition;
 
     public final static HEADER[] SORT_HEADERS = {
         HEADER.JOB_TITLE,
@@ -112,6 +118,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         alert.create();
         firstSearch = true;
         currentPage = 0;
+        currentListPosition = 0;
     }
 
     @Override
@@ -291,6 +298,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
         super.onDestroy();
     }
 
+    @Override
+    protected void scrollToTop() {
+        currentListPosition = 0;
+        super.scrollToTop();
+    }
+
     //=======================
     //  Handle Search Icon
     //=======================
@@ -352,6 +365,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
         }
     }
 
+    //====================
+    //  Scroll Listener
+    //====================
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem,
+            int visibleItemCount, int totalItemCount) {
+        currentListPosition = firstVisibleItem + visibleItemCount;
+        fetchMoreIfNeeded();
+    }
+
+    @Override
+    public void onScrollStateChanged(AbsListView view, int scrollState) {
+    }
+
     //==================
     //  Miscellaneous
     //==================
@@ -378,6 +405,17 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void showAlert(String message) {
         alert.setMessage(message);
         alert.show();
+    }
+
+    protected void fetchMoreIfNeeded() {
+        int currentlyLoaded = getList().size();
+        if (currentlyLoaded - currentListPosition < FETCH_MORE_REACH_BOTTOM_COUNT   // If near the bottom of the list
+                && hasLoaded100                                                     // Has loaded 100 items
+                && numJobs > currentlyLoaded                                        // Anymore to load
+                && currentPage < totalPages                                         // No more pages to load?
+        && !jobSearchPageTask.isRunning()) {                                        // Not running any task currently
+            addTask(SearchRequestTask.NEXTPAGE);
+        }
     }
 
     //=================
@@ -438,7 +476,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
         }
     }
 
-
     //===========================
     //  All Purpose Task Runner
     //===========================
@@ -469,8 +506,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
         public static final int CANCELLED = 5;
         public static final int PARSING_ERROR = 6;
 
-        public static final String LOGOUT_STRING = "uw_signin.css";
         public static final String LOST_STATE_STRING = "return to your most recent active page";
+        public static final String EXCEPTION_STRING = "uw_exception.html";
 
         public SearchRequestTask(JobSearch a, String message) {
             super(a, message, message != null);
@@ -486,6 +523,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
             try {
                 switch(currentCommand) {
                 case SEARCH:
+                    getListView().setOnScrollListener(activity);
                     postData.add(new BasicNameValuePair("ICAction", "UW_CO_JOBSRCHDW_UW_CO_DW_SRCHBTN"));
 
                     // Location
@@ -574,12 +612,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     tableParser.execute(JOBSEARCH_OUTLINE, response);
                     properties.acceptChanges();
 
-                    // Find the new state number
-                    parser = new SimpleHtmlParser(response);
-                    parser.skipText("ICStateNum");
-                    stateNum = parser.getAttributeInCurrentElement("value");
-
                     // Find the number of jobs in the result
+                    parser = new SimpleHtmlParser(response);
                     parser.skipText("PSGRIDCOUNTER");
                     String pageInfo = parser.getTextInCurrentElement();
                     try {
@@ -613,14 +647,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     totalPages = (int) Math.ceil(numJobs * 1.0 / RESULT_COUNT_100);
 
                     // Load next page
-                    if (getList().size() < numJobs) {
-                        // TODO get next page if there is a need to get next page
-                    }
+                    fetchMoreIfNeeded();
                     break;
                 case VIEW25:
                     break;
                 case NEXTPAGE:
-                    break;
+                    int result = getNextPage(postData);
+
+                    // If finished loading all the pages, then remove the scroll event
+                    if (currentPage == totalPages) {
+                        getListView().setOnScrollListener(null);
+                    } else {
+                        fetchMoreIfNeeded();
+                    }
+                    return result;
                 case PREVPAGE:
                     break;
                 case LASTPAGE:
@@ -638,12 +678,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     if (response == null) {
                         return CANCELLED;
                     }
-
-                    // Find the new state number
-                    parser = new SimpleHtmlParser(response);
-                    parser.skipText("id='ICStateNum'");
-                    stateNum = parser.getAttributeInCurrentElement("value");
-
                     if (response.contains(getString(R.string.job_search_type_unauth))) {
                         properties.jobType.rejectChange();
                         return JOBTYPE_UNAUTH;
@@ -679,6 +713,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         protected String doPost(List<NameValuePair> data, String url)
                 throws JbmnplsLoggedOutException, IOException {
+            data.add(new BasicNameValuePair("ICElementNum", "0"));
+            data.add(new BasicNameValuePair("ICAJAX", "1"));
             data.add(new BasicNameValuePair("ICStateNum", stateNum));
             data.add(new BasicNameValuePair("ICSID", icsID));
             response = client.postJobmineHtml(data, url);
@@ -686,11 +722,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
             // Check response for authorization
             if (response == null) {
                 return null;
-            } else if (response.contains(LOGOUT_STRING)) {
-                throw new JbmnplsLoggedOutException();
+            } else if (response.contains(EXCEPTION_STRING)) {
+                throw new JbmnplsParsingException("Jobmine threw an exception.");
             } else if (response.contains(LOST_STATE_STRING)) {
                 throw new JbmnplsLostStateException();
             }
+
+            // Find the new state number
+            SimpleHtmlParser parser = new SimpleHtmlParser(response);
+            int startIndex = parser.skipText("ICStateNum", "=");
+            int endIndex = response.indexOf(";", startIndex);
+            if (endIndex == -1) {
+                throw new JbmnplsParsingException("Cannot find state number");
+            }
+            stateNum = response.substring(startIndex, endIndex);
             return response;
         }
 
@@ -698,6 +743,17 @@ public class JobSearch extends JbmnplsListActivityBase implements
         public void onCancel(DialogInterface dialog) {
             super.onCancel(dialog);
             client.abort();
+        }
+
+        private int getNextPage(List<NameValuePair> data) throws JbmnplsLoggedOutException, IOException {
+            data.add(new BasicNameValuePair("ICAction", "UW_CO_JOBRES_VW$hdown$0"));
+            response = doPost(data, getUrl());
+            if (response == null) {
+                return CANCELLED;
+            }
+            tableParser.execute(JOBSEARCH_OUTLINE, response);
+            currentPage++;
+            return NO_PROBLEM;
         }
 
         @Override
@@ -712,15 +768,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
             // Finish off some of the commands
             switch(currentCommand) {
             case SEARCH:
+                currentPage = 1;
+                hasLoaded100 = false;
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 searchDialog.dismiss();
                 onRequestComplete(true);
                 scrollToTop();
                 break;
+            case NEXTPAGE:
             case VIEW100:
+                hasLoaded100 = true;
                 onRequestComplete(true);
                 break;
             }
+            getSupportActionBar().setSubtitle(getList().size() + "/" + numJobs + " Jobs");
 
             // Parse the results
             switch(result) {
@@ -732,18 +793,18 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     showAlert(getString(R.string.job_search_type_unauth));
                 }
                 break;
+            case UNKNOWN_COMMAND:
             case PARSING_ERROR:
                 goToHomeActivity(getString(R.string.search_parsing_error_message));
                 break;
-            case UNKNOWN_COMMAND:
-                toast("Not possible to come here");
-                break;
             case LOST_STATE_RESULT:
                 toast("Went to lost state and failed");
+                getListView().setOnScrollListener(null);
                 break;
             case LOGOUT_RESULT:
                 // Go back to home screen? and show a fail?
                 toast("Went to logout and failed");
+                getListView().setOnScrollListener(null);
                 break;
             }
 
