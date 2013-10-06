@@ -359,6 +359,7 @@ public final class JbmnplsHttpClient {
                         in = response.getEntity().getContent();
                         reader = new BufferedReader(new InputStreamReader(in,
                                 DEFAULT_HTML_ENCODER), BUFFER_READER_SIZE);
+                        reader.mark(1);
 
                         // Validates the html to make sure we logged in
                         // If failed to login, try it again 2 more times
@@ -383,6 +384,7 @@ public final class JbmnplsHttpClient {
                 // Successfully logged in
                 StringBuilder str = new StringBuilder();
                 String line = null;
+                reader.reset();
                 while ((line = reader.readLine()) != null) {
                     str.append(line);
                 }
