@@ -38,7 +38,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //====================
     public abstract HEADER[] getTableHeaders();
 
-    public abstract JbmnplsAdapterBase getAdapter();
+    public abstract JbmnplsAdapterBase getNewAdapter();
 
     //====================
     //  Override Methods
@@ -55,7 +55,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         list.setOnItemClickListener(this);
 
         // Set up the adapter
-        adapter = getAdapter();
+        adapter = getNewAdapter();
         list.setAdapter(adapter);
     }
 
@@ -161,6 +161,10 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 
     protected ListView getListView() {
         return list;
+    }
+
+    protected JbmnplsAdapterBase getAdapter() {
+        return adapter;
     }
 
     protected void scrollToTop() {

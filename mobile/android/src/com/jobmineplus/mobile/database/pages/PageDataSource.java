@@ -37,7 +37,9 @@ public final class PageDataSource extends DataSourceBase{
             // Make list of jobs as string, remove last comma
             StringBuilder sb = new StringBuilder();
             for (Job job : jobs) {
-                sb.append(job.getId()).append(',');
+                if (job != null) {
+                    sb.append(job.getId()).append(',');
+                }
             }
             if (sb.charAt(sb.length() - 1) == ',') {
                 sb.deleteCharAt(sb.length() - 1);
@@ -55,7 +57,9 @@ public final class PageDataSource extends DataSourceBase{
             ArrayList<Job> jobs = jobMap.get(key);
             sb.append(key).append(':');
             for (Job job : jobs) {
-                sb.append(job.getId()).append(',');
+                if (job != null) {
+                    sb.append(job.getId()).append(',');
+                }
             }
             if (sb.charAt(sb.length() - 1) == ',') {
                 sb.deleteCharAt(sb.length() - 1);

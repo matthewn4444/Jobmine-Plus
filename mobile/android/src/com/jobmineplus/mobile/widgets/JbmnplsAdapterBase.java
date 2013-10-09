@@ -30,7 +30,7 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
         super(a, widgetResourceLayout, viewResourceIdListInWidget, list);
     }
 
-    protected abstract HIGHLIGHTING setJobWidgetValues(Job item, View[] elements, View layout);
+    protected abstract HIGHLIGHTING setJobWidgetValues(int position, Job item, View[] elements, View layout);
 
     /*
      * Helper functions to set the widget text
@@ -170,11 +170,12 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
     }
 
     @Override
-    protected void setWidgetValues(Job item, View[] elements, View layout) {
+    protected void setWidgetValues(int position, Job item, View[] elements, View layout) {
+        currentLayout = layout;
+        currentElements = elements;
+
         if (item != null) {
-            currentLayout = layout;
-            currentElements = elements;
-            HIGHLIGHTING highlight = setJobWidgetValues(item, currentElements, layout);
+            HIGHLIGHTING highlight = setJobWidgetValues(position, item, currentElements, layout);
             switch(highlight) {
             case GREAT:
                 setBackgroundFromResource(R.color.highlight_green);

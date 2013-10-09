@@ -32,6 +32,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsLostStateException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
+import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.JobSearchDialog;
 import com.jobmineplus.mobile.widgets.JobSearchProperties;
@@ -139,12 +140,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     @Override
-    protected void defineUI(Bundle savedInstanceState) {
-        super.defineUI(savedInstanceState);
-    }
-
-    @Override
-    public JbmnplsAdapterBase getAdapter() {
+    public JbmnplsAdapterBase getNewAdapter() {
         return new JobSearchAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList());
     }
 
@@ -407,28 +403,37 @@ public class JobSearch extends JbmnplsListActivityBase implements
         alert.show();
     }
 
+    private boolean finishedLoading() {
+        return numJobs > getList().size()       // Anymore to load
+                && currentPage < totalPages;    // No more pages to load?
+    }
+
     protected void fetchMoreIfNeeded() {
         int currentlyLoaded = getList().size();
         if (currentlyLoaded - currentListPosition < FETCH_MORE_REACH_BOTTOM_COUNT   // If near the bottom of the list
                 && hasLoaded100                                                     // Has loaded 100 items
-                && numJobs > currentlyLoaded                                        // Anymore to load
-                && currentPage < totalPages                                         // No more pages to load?
-        && !jobSearchPageTask.isRunning()) {                                        // Not running any task currently
+                && finishedLoading()
+                && !jobSearchPageTask.isRunning()) {                                // Not running any task currently
             addTask(SearchRequestTask.NEXTPAGE);
         }
+    }
+
+    protected void doneLoadingAllJobs() {
+        ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
+        getListView().setOnScrollListener(null);
     }
 
     //=================
     //  List Adapter
     //=================
-    private class JobSearchAdapter extends JbmnplsAdapterBase {
+    private class JobSearchAdapter extends JbmnplsLoadingAdapterBase {
         public JobSearchAdapter(Activity a, int listViewResourceId, int[] viewResourceIdListInWidget,
                 ArrayList<Job> list) {
             super(a, listViewResourceId, viewResourceIdListInWidget, list);
         }
 
         @Override
-        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
 //            APPLY_STATUS status = job.getApplicationStatus();
 //            String statusStr = status == APPLY_STATUS.CANNOT_APPLY ? "Cannot Apply" : status.toString();
 //
@@ -655,9 +660,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     int result = getNextPage(postData);
 
                     // If finished loading all the pages, then remove the scroll event
-                    if (currentPage == totalPages) {
-                        getListView().setOnScrollListener(null);
-                    } else {
+                    if (currentPage != totalPages) {
                         fetchMoreIfNeeded();
                     }
                     return result;
@@ -772,16 +775,19 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 hasLoaded100 = false;
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 searchDialog.dismiss();
+                ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
                 onRequestComplete(true);
                 scrollToTop();
                 break;
             case NEXTPAGE:
             case VIEW100:
                 hasLoaded100 = true;
+                if (currentPage == totalPages) {
+                    doneLoadingAllJobs();
+                }
                 onRequestComplete(true);
                 break;
             }
-            getSupportActionBar().setSubtitle(getList().size() + "/" + numJobs + " Jobs");
 
             // Parse the results
             switch(result) {
@@ -799,12 +805,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 break;
             case LOST_STATE_RESULT:
                 toast("Went to lost state and failed");
-                getListView().setOnScrollListener(null);
+                doneLoadingAllJobs();
                 break;
             case LOGOUT_RESULT:
                 // Go back to home screen? and show a fail?
                 toast("Went to logout and failed");
-                getListView().setOnScrollListener(null);
+                doneLoadingAllJobs();
                 break;
             }
 

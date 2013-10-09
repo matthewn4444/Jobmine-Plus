@@ -172,7 +172,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
         }
 
         @Override
-        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
             final Applications applications = (Applications) getActivity();
             String status = job.getDisplayStatus();
 

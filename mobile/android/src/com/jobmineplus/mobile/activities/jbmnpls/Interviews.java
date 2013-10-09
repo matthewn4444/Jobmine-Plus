@@ -266,7 +266,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         }
 
         @Override
-        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
             setText(0, job.getTitle());
             setText(1, job.getEmployer(), true);
             setText(2, job.getInterviewer(), "With <b>");

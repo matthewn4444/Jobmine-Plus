@@ -11,8 +11,8 @@ import android.widget.ArrayAdapter;
 
 
 public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
+    protected ArrayList<TItem> entries;
     private Activity activity;
-    private ArrayList<TItem> entries;
     private int widgetLayout;
     private int[] resources;
 
@@ -24,7 +24,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
         widgetLayout = widgetResourceLayout;
     }
 
-    protected abstract void setWidgetValues(TItem item, View[] elements, View layout);
+    protected abstract void setWidgetValues(int position, TItem item, View[] elements, View layout);
 
     protected Activity getActivity() {
         return activity;
@@ -32,6 +32,9 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
 
     public ArrayList<TItem> getList() {
         return entries;
+    }
+
+    protected void onCreateListItem(int position, View item, ViewGroup parent) {
     }
 
     @Override
@@ -47,6 +50,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
                 elements[i] = viewObj.findViewById(resources[i]);
             }
             viewObj.setTag(elements);
+            onCreateListItem(position, viewObj, parent);
         } else {
             elements = (View[]) viewObj.getTag();
         }
@@ -54,7 +58,7 @@ public abstract class ViewAdapterBase<TItem> extends ArrayAdapter<TItem>{
         for (View v: elements) {
             v.setVisibility(View.VISIBLE);
         }
-        setWidgetValues(item, elements, viewObj);
+        setWidgetValues(position, item, elements, viewObj);
         return viewObj;
     }
 }

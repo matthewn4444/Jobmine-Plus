@@ -62,7 +62,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     }
 
     @Override
-    public JbmnplsAdapterBase getAdapter() {
+    public JbmnplsAdapterBase getNewAdapter() {
         return new ShortlistAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList());
     }
 
@@ -107,7 +107,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
         }
 
         @Override
-        protected HIGHLIGHTING setJobWidgetValues(Job job, View[] elements, View layout) {
+        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
             APPLY_STATUS status = job.getApplicationStatus();
             String statusStr = status == APPLY_STATUS.CANNOT_APPLY ? "Cannot Apply" : status.toString();
 

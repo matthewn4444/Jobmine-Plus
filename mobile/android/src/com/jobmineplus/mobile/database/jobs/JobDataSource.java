@@ -76,7 +76,9 @@ public final class JobDataSource extends DataSourceBase {
                 database.setLockingEnabled(false);
                 database.beginTransaction();
                 for (Job job : jobs) {
-                    internalAddJob(job);
+                    if (job != null) {
+                        internalAddJob(job);
+                    }
                 }
                 database.setTransactionSuccessful();
             } catch(Exception e) {
