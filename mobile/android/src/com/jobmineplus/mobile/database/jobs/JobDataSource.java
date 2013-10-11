@@ -75,7 +75,7 @@ public final class JobDataSource extends DataSourceBase {
             try {
                 database.setLockingEnabled(false);
                 database.beginTransaction();
-                for (Job job : jobs) {
+                for (Job job : jobs) {          // TODO throwing ConcurrentModificationException
                     if (job != null) {
                         internalAddJob(job);
                     }
