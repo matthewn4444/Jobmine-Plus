@@ -1084,6 +1084,7 @@ public class Job {
             direction = sortDirection;
         }
 
+
         @Override
         public int compare(Job j1, Job j2) {
             int result = 0;
@@ -1118,6 +1119,9 @@ public class Job {
                     break;
                 case LENGTH:
                     result =  j1.getInterviewLengthInMinutes() - j2.getInterviewLengthInMinutes();
+                    break;
+                case OPENINGS:
+                    result =  j1.getNumberOfOpenings() - j2.getNumberOfOpenings();
                     break;
 
                 // Dates

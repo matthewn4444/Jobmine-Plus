@@ -149,6 +149,13 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         adapter.sort(sortComparer);
     }
 
+    protected void resetSortingMenu() {
+        if (sortSelected != null) {
+            sortSelected.setTitle(" " + ((String)sortSelected.getTitle()).substring(1));
+        }
+        sortedAscending = false;
+    }
+
     //=================================
     //  Class Public/Protected Methods
     //=================================
