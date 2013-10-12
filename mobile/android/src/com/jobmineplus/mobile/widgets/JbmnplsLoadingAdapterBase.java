@@ -1,6 +1,8 @@
 package com.jobmineplus.mobile.widgets;
 
 import java.util.ArrayList;
+import com.jobmineplus.mobile.R;
+
 import android.app.Activity;
 import android.view.Gravity;
 import android.view.View;
@@ -10,9 +12,9 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ProgressBar;
 
 public abstract class JbmnplsLoadingAdapterBase extends JbmnplsAdapterBase {
-
     private boolean showLoading = false;
     private final ArrayList<ViewGroup> listRowItems;
+    private final static int PROGRESS_TAG_KEY = R.id.PROGRESS_TAG_KEY;
 
     public JbmnplsLoadingAdapterBase(Activity a, int widgetResourceLayout,
             int[] viewResourceIdListInWidget, ArrayList<Job> list) {
@@ -39,7 +41,13 @@ public abstract class JbmnplsLoadingAdapterBase extends JbmnplsAdapterBase {
                     for (int j = 0; j < item.getChildCount() - 1; j++) {
                         item.getChildAt(j).setVisibility(View.VISIBLE);
                     }
-                    item.getChildAt(item.getChildCount() - 1).setVisibility(View.GONE);
+                    LinearLayout layout = (LinearLayout) item.getTag(PROGRESS_TAG_KEY);
+                    item.setTag(PROGRESS_TAG_KEY, null);
+                    item.removeView(layout);
+                }
+            } else {
+                for (int i = 0; i < listRowItems.size(); i++) {
+                    addProgressView(listRowItems.get(i));
                 }
             }
             notifyDataSetChanged();
@@ -69,14 +77,8 @@ public abstract class JbmnplsLoadingAdapterBase extends JbmnplsAdapterBase {
         super.notifyDataSetChanged();
     }
 
- // Fails to show loading and hides some jobs when searching after coming in offline
-    @Override
-    protected void onCreateListItem(int position, View item, ViewGroup parent) {
-        super.onCreateListItem(position, item, parent);
-
-        if (canShowLoading()) {
-            ViewGroup group = (ViewGroup) item;
-
+    private void addProgressView(ViewGroup group) {
+        if (group.getTag(PROGRESS_TAG_KEY) == null) {
             // Layouts
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                     LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
@@ -95,8 +97,18 @@ public abstract class JbmnplsLoadingAdapterBase extends JbmnplsAdapterBase {
             layout.addView(bar);
             bar.setLayoutParams(progressParams);
             group.addView(layout);
+            group.setTag(PROGRESS_TAG_KEY, layout);
+        }
+    }
 
-            listRowItems.add(group);
+    @Override
+    protected void onCreateListItem(int position, View item, ViewGroup parent) {
+        super.onCreateListItem(position, item, parent);
+
+        ViewGroup group = (ViewGroup) item;
+        listRowItems.add(group);
+        if (canShowLoading()) {
+            addProgressView(group);
         }
     }
 
