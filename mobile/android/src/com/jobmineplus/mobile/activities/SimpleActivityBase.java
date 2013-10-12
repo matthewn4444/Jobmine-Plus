@@ -11,6 +11,11 @@ import com.google.ads.AdRequest;
 import com.google.ads.AdView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
+
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
@@ -29,6 +34,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     private static boolean isOnlineMode = true;
     protected static JbmnplsHttpClient client = new JbmnplsHttpClient();
     protected SharedPreferences preferences = null;
+    private final IntentFilter filter = new IntentFilter();
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -45,6 +51,9 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         super.onCreate(arg0);
     }
 
+    //===================
+    //  Online Modes
+    //===================
     public static boolean isJobmineOnline() {
         Date now = new Date();
         int hour = now.getHours();
@@ -65,6 +74,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         NetworkInfo activeNetworkInfo = connManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
+
 
     public boolean isDebug() {
         return (getApplicationInfo().flags & ApplicationInfo.FLAG_DEBUGGABLE) != 0;
@@ -103,6 +113,27 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
             button.setIcon(R.drawable.ic_offline);
         }
     }
+
+    //===================
+    //  Network Changed
+    //===================
+    protected void onNetworkStateChanged(boolean connected, Context context, Intent intent) {
+    }
+    protected void onNetworkConnectionChanged(boolean connected) {
+    }
+    private final BroadcastReceiver networkReceiver = new BroadcastReceiver() {
+        private boolean connected = false;
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            boolean newConnection = isNetworkConnected();
+            onNetworkStateChanged(newConnection, context, intent);
+            if (newConnection != connected) {
+                onNetworkConnectionChanged(newConnection);
+            }
+            connected = newConnection;
+        }
+    };
 
     /*
      * Options menu creation
@@ -156,6 +187,25 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
                 }
             }).start();
         }
+
+        // Register the network receiver
+        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(networkReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        // Try to unregister the network receiver
+        try {
+            unregisterReceiver(networkReceiver);
+        } catch (IllegalArgumentException e) {
+            if (e.getMessage().contains("Reciever not register")) {
+                Log.w("jbmnplsmbl", "Tried to unregister the receiver when not registered.");
+            } else {
+                throw e;
+            }
+        }
+        super.onPause();
     }
 
     protected void toast(String message) {
