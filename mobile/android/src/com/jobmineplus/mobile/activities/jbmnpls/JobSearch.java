@@ -333,20 +333,27 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void onlineModeChanged(boolean flag) {
         setSearchEnabled(flag);
 
-        if (flag) {
-            // Goes online and needs to continue to get more jobs
-            if (!allJobsLoaded) {
-                if (!hasLoaded100) {
-                    addTask(SearchRequestTask.VIEW100);
-                }
-                ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
-                getListView().setOnScrollListener(this);
+        // Coming in offline and going online, we need to get the new data
+        if (firstSearch && flag) {
+            if (isReallyOnline()) {
+                requestData();
             }
         } else {
-            // Go offline
-            cancelAllTasks();
-            ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
-            getListView().setOnScrollListener(null);
+            if (flag) {
+                // Goes online and needs to continue to get more jobs
+                if (!allJobsLoaded) {
+                    if (!hasLoaded100) {
+                        addTask(SearchRequestTask.VIEW100);
+                    }
+                    ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
+                    getListView().setOnScrollListener(this);
+                }
+            } else {
+                // Go offline
+                cancelAllTasks();
+                ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
+                getListView().setOnScrollListener(null);
+            }
         }
     }
 
