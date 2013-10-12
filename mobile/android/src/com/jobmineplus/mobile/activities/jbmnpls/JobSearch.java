@@ -25,6 +25,7 @@ import android.widget.Spinner;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.view.SubMenu;
 import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
@@ -162,6 +163,16 @@ public class JobSearch extends JbmnplsListActivityBase implements
         if (id == R.id.action_search && canSearch()) {
             showSearchDialog();
             return true;
+        } else if (id == R.id.action_sort) {
+            SubMenu sub = item.getSubMenu();
+            boolean isReallyOnline = isReallyOnline();
+            for (int i = 0; i < sub.size(); i++) {
+                sub.getItem(i).setVisible(isReallyOnline);
+            }
+            if (!isReallyOnline) {
+                showAlert(getString(R.string.search_sort_offline));
+            }
+            return true;
         } else {
             return super.onOptionsItemSelected(item);
         }
@@ -294,10 +305,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     @Override
     protected void onDestroy() {
-        if (jobSearchPageTask != null) {
-            taskQueue.clear();
-            jobSearchPageTask.cancel(true);
-        }
+        cancelAllTasks();
         super.onDestroy();
     }
 
@@ -324,6 +332,22 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onlineModeChanged(boolean flag) {
         setSearchEnabled(flag);
+
+        if (flag) {
+            // Goes online and needs to continue to get more jobs
+            if (!allJobsLoaded) {
+                if (!hasLoaded100) {
+                    addTask(SearchRequestTask.VIEW100);
+                }
+                ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
+                getListView().setOnScrollListener(this);
+            }
+        } else {
+            // Go offline
+            cancelAllTasks();
+            ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
+            getListView().setOnScrollListener(null);
+        }
     }
 
     @Override
@@ -338,9 +362,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     private void setSearchEnabled(boolean enable) {
-        synchronized (this) {
-            enableSearch = enable;
-            supportInvalidateOptionsMenu();
+        if (enableSearch != enable) {
+            synchronized (this) {
+                if (enableSearch != enable) {
+                    enableSearch = enable;
+                    supportInvalidateOptionsMenu();
+                }
+            }
         }
     }
 
@@ -386,7 +414,17 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public void onScroll(AbsListView view, int firstVisibleItem,
             int visibleItemCount, int totalItemCount) {
         currentListPosition = firstVisibleItem + visibleItemCount;
-        fetchMoreIfNeeded();
+
+        // See if we are offline
+        if (isReallyOnline()) {
+            fetchMoreIfNeeded();
+            setSearchEnabled(true);
+            ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
+        } else {
+            setSearchEnabled(false);
+            ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
+            cancelAllTasks();
+        }
     }
 
     @Override
@@ -492,6 +530,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
             Pair<Integer, String> taskInfo = taskQueue.poll();
             jobSearchPageTask = new SearchRequestTask(this, taskInfo.second);
             jobSearchPageTask.execute(taskInfo.first);
+        }
+    }
+
+    private void cancelAllTasks() {
+        if (jobSearchPageTask != null) {
+            taskQueue.clear();
+            jobSearchPageTask.cancel(true);
         }
     }
 
@@ -771,6 +816,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
         public void onCancel(DialogInterface dialog) {
             super.onCancel(dialog);
             client.abort();
+
+            switch(currentCommand) {
+            case SORT:
+                resetSortingMenu();
+                break;
+            }
         }
 
         private int view100(List<NameValuePair> data) throws JbmnplsLoggedOutException, IOException {

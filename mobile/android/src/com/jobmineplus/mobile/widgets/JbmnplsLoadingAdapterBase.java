@@ -21,24 +21,26 @@ public abstract class JbmnplsLoadingAdapterBase extends JbmnplsAdapterBase {
     }
 
     public void showLoadingAtEnd(boolean flag) {
-        showLoading = flag;
+        if (showLoading != flag) {
+            showLoading = flag;
 
-        if (!flag) {
-            // Do not show it anymore, get rid of the null value
-            for (int i = entries.size() - 1; i >= 0; i--) {
-                if (entries.get(i) == null) {
-                    entries.remove(i);
-                    break;
+            if (!flag) {
+                // Do not show it anymore, get rid of the null value
+                for (int i = entries.size() - 1; i >= 0; i--) {
+                    if (entries.get(i) == null) {
+                        entries.remove(i);
+                        break;
+                    }
                 }
-            }
 
-            // Make sure all the rows do not have any loading animation on them
-            for (int i = 0; i < listRowItems.size(); i++) {
-                ViewGroup item = listRowItems.get(i);
-                for (int j = 0; j < item.getChildCount() - 1; j++) {
-                    item.getChildAt(j).setVisibility(View.VISIBLE);
+                // Make sure all the rows do not have any loading animation on them
+                for (int i = 0; i < listRowItems.size(); i++) {
+                    ViewGroup item = listRowItems.get(i);
+                    for (int j = 0; j < item.getChildCount() - 1; j++) {
+                        item.getChildAt(j).setVisibility(View.VISIBLE);
+                    }
+                    item.getChildAt(item.getChildCount() - 1).setVisibility(View.GONE);
                 }
-                item.getChildAt(item.getChildCount() - 1).setVisibility(View.GONE);
             }
             notifyDataSetChanged();
         }
@@ -67,6 +69,7 @@ public abstract class JbmnplsLoadingAdapterBase extends JbmnplsAdapterBase {
         super.notifyDataSetChanged();
     }
 
+ // Fails to show loading and hides some jobs when searching after coming in offline
     @Override
     protected void onCreateListItem(int position, View item, ViewGroup parent) {
         super.onCreateListItem(position, item, parent);

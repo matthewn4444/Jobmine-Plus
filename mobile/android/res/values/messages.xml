@@ -21,6 +21,7 @@
         <string name="description_no_data">Please go online to view the description.</string>
         <string name="description_no_dates">No dates were provided</string>
         <string name="search_sort_getting_jobs">Getting all jobs&#8230;</string>
+        <string name="search_sort_offline">"You must be online or have loaded all the jobs to sort.</string>
 
         <string name="set_offline_mode_message">Viewing offline</string>
         <string name="set_online_mode_message">Viewing online</string>
