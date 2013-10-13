@@ -48,8 +48,6 @@ import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 public class JobSearch extends JbmnplsListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener {
-// TODO fix when offline and pulling data and going back
-
 
     //======================
     //  Declaration Objects
@@ -326,6 +324,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
         }
     }
 
+    @Override
+    protected void onNetworkConnectionChanged(boolean connected) {
+        super.onNetworkConnectionChanged(connected);
+
+        ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(connected);
+        setSearchEnabled(connected);
+        if (connected) {
+            getListView().setOnScrollListener(this);
+        } else {
+            cancelAllTasks();
+            getListView().setOnScrollListener(null);
+        }
+    }
+
     //=======================
     //  Handle Search Icon
     //=======================
@@ -369,14 +381,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     private void setSearchEnabled(boolean enable) {
-        if (enableSearch != enable) {
-            synchronized (this) {
-                if (enableSearch != enable) {
-                    enableSearch = enable;
-                    supportInvalidateOptionsMenu();
-                }
-            }
-        }
+        enableSearch = enable;
+        supportInvalidateOptionsMenu();
     }
 
     private void setSearchIcon(MenuItem button) {
@@ -400,8 +406,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     @Override
     public void onSearch(JobSearchProperties prop) {
-        firstSearch = false;        // No that you search, it is not the first time anymore
-        addTask(SearchRequestTask.SEARCH, "Searching...");
+        if (isReallyOnline()) {
+            firstSearch = false;        // No that you search, it is not the first time anymore
+            addTask(SearchRequestTask.SEARCH, "Searching...");
+        } else {
+            hideSearchDialog();
+            showAlert(getString(R.string.search_searching_offline));
+        }
     }
 
     @Override
@@ -421,17 +432,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public void onScroll(AbsListView view, int firstVisibleItem,
             int visibleItemCount, int totalItemCount) {
         currentListPosition = firstVisibleItem + visibleItemCount;
-
-        // See if we are offline
-        if (isReallyOnline()) {
-            fetchMoreIfNeeded();
-            setSearchEnabled(true);
-            ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
-        } else {
-            setSearchEnabled(false);
-            ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
-            cancelAllTasks();
-        }
+        fetchMoreIfNeeded();
     }
 
     @Override
@@ -454,6 +455,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 searchDialog.setProperties(properties);
             }
             searchDialog.show();
+        }
+    }
+
+    protected void hideSearchDialog() {
+        if (searchDialog != null) {
+            searchDialog.dismiss();
         }
     }
 
@@ -878,7 +885,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 resetSortingMenu();
 
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
-                searchDialog.dismiss();
+                hideSearchDialog();
                 ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
                 onRequestComplete(true);
                 scrollToTop();
