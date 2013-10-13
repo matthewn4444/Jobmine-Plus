@@ -604,82 +604,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 switch(currentCommand) {
                 case SEARCH:
                     postData.add(new BasicNameValuePair("ICAction", "UW_CO_JOBSRCHDW_UW_CO_DW_SRCHBTN"));
-
-                    // Location
-                    if (properties.location.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_LOCATION",
-                                properties.location.get()));
-                    }
-
-                    // Type
-                    if (properties.jobType.hasChanged()) {
-                        postData.add(new BasicNameValuePair("TYPE_COOP",
-                                properties.jobType.get().getIndex()+""));
-                    }
-
-                    // Disciplines
-                    if (properties.disciplines1.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_ADV_DISCP1",
-                                JobSearchDialog.getDisciplineCodeFromName(properties.disciplines1.get())));
-                    }
-                    if (properties.disciplines2.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_ADV_DISCP2",
-                                JobSearchDialog.getDisciplineCodeFromName(properties.disciplines2.get())));
-                    }
-                    if (properties.disciplines3.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_ADV_DISCP3",
-                                JobSearchDialog.getDisciplineCodeFromName(properties.disciplines3.get())));
-                    }
-
-                    // Search Filter
-                    if (properties.filter.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_JS_JOBSTATUS",
-                                properties.filter.get().getCode()));
-                    }
-
-                    // Term
-                    if (properties.term.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_WT_SESSION",
-                                properties.term.get()));
-                    }
-
-                    // Employer Text
-                    if (properties.employer.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_EMPLYR_NAME",
-                                properties.employer.get()));
-                    }
-
-                    // Job Title Text
-                    if (properties.title.hasChanged()) {
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_JOB_TITLE",
-                                properties.title.get()));
-                    }
-
-                    // Checkboxes
-                    if (properties.levelJunior.hasChanged()) {
-                        String yes = properties.levelJunior.get() ? "Y" : "N";
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_COOP_JR$chk", yes));
-                    }
-                    if (properties.levelJunior.hasChanged()) {
-                        String yes = properties.levelIntermediate.get() ? "Y" : "N";
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_COOP_INT$chk", yes));
-                    }
-                    if (properties.levelJunior.hasChanged()) {
-                        String yes = properties.levelSenior.get() ? "Y" : "N";
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_COOP_SR$chk", yes));
-                    }
-                    if (properties.levelBachelors.hasChanged()) {
-                        String yes = properties.levelBachelors.get() ? "Y" : "N";
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_BACHELOR$chk", yes));
-                    }
-                    if (properties.levelMasters.hasChanged()) {
-                        String yes = properties.levelMasters.get() ? "Y" : "N";
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_MASTERS$chk", yes));
-                    }
-                    if (properties.levelPhD.hasChanged()) {
-                        String yes = properties.levelPhD.get() ? "Y" : "N";
-                        postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_PHD$chk", yes));
-                    }
+                    properties.addChangesToPostData(postData);
 
                     response = doPost(postData, getUrl());
                     if (response == null) {
@@ -718,6 +643,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     if (view100(postData) == CANCELLED) {
                         return CANCELLED;
                     }
+
                     // Load next page
                     fetchMoreIfNeeded();
                     break;

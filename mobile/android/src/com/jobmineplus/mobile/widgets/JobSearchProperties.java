@@ -1,5 +1,10 @@
 package com.jobmineplus.mobile.widgets;
 
+import java.util.List;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 
 public final class JobSearchProperties {
@@ -157,5 +162,83 @@ public final class JobSearchProperties {
         levelBachelors.acceptChange();
         levelMasters.acceptChange();
         levelPhD.acceptChange();
+    }
+
+    public void addChangesToPostData(List<NameValuePair> postData) {
+        // Location
+        if (location.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_LOCATION",
+                    location.get()));
+        }
+
+        // Type
+        if (jobType.hasChanged()) {
+            postData.add(new BasicNameValuePair("TYPE_COOP",
+                    jobType.get().getIndex()+""));
+        }
+
+        // Disciplines
+        if (disciplines1.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_ADV_DISCP1",
+                    JobSearchDialog.getDisciplineCodeFromName(disciplines1.get())));
+        }
+        if (disciplines2.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_ADV_DISCP2",
+                    JobSearchDialog.getDisciplineCodeFromName(disciplines2.get())));
+        }
+        if (disciplines3.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_ADV_DISCP3",
+                    JobSearchDialog.getDisciplineCodeFromName(disciplines3.get())));
+        }
+
+        // Search Filter
+        if (filter.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_JS_JOBSTATUS",
+                    filter.get().getCode()));
+        }
+
+        // Term
+        if (term.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_WT_SESSION",
+                    term.get()));
+        }
+
+        // Employer Text
+        if (employer.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_EMPLYR_NAME",
+                    employer.get()));
+        }
+
+        // Job Title Text
+        if (title.hasChanged()) {
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_JOB_TITLE",
+                    title.get()));
+        }
+
+        // Checkboxes
+        if (levelJunior.hasChanged()) {
+            String yes = levelJunior.get() ? "Y" : "N";
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_COOP_JR$chk", yes));
+        }
+        if (levelJunior.hasChanged()) {
+            String yes = levelIntermediate.get() ? "Y" : "N";
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_COOP_INT$chk", yes));
+        }
+        if (levelJunior.hasChanged()) {
+            String yes = levelSenior.get() ? "Y" : "N";
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_COOP_SR$chk", yes));
+        }
+        if (levelBachelors.hasChanged()) {
+            String yes = levelBachelors.get() ? "Y" : "N";
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_BACHELOR$chk", yes));
+        }
+        if (levelMasters.hasChanged()) {
+            String yes = levelMasters.get() ? "Y" : "N";
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_MASTERS$chk", yes));
+        }
+        if (levelPhD.hasChanged()) {
+            String yes = levelPhD.get() ? "Y" : "N";
+            postData.add(new BasicNameValuePair("UW_CO_JOBSRCH_UW_CO_PHD$chk", yes));
+        }
     }
 }
