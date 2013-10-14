@@ -16,6 +16,8 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.pages.PageResult;
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
+import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.HeaderComparator;
@@ -38,7 +40,9 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //====================
     public abstract HEADER[] getTableHeaders();
 
-    public abstract JbmnplsAdapterBase getNewAdapter();
+    public abstract int[] getJobListItemResources();
+
+    protected abstract HIGHLIGHTING formatJobListItem(int position, Job job, View[] elements, View layout);
 
     //====================
     //  Override Methods
@@ -55,7 +59,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
         list.setOnItemClickListener(this);
 
         // Set up the adapter
-        adapter = getNewAdapter();
+        adapter = new JbmnplsListAdapter(this);
         list.setAdapter(adapter);
     }
 
@@ -167,6 +171,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
 
     protected ListView getListView() {
+        log("dsds");
         return list;
     }
 
@@ -184,5 +189,23 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 
     protected void clearList() {
         allJobs.clear();
+    }
+
+    //========================
+    //  Generic List Adapter
+    //========================
+    protected int getJobListItemLayout() {
+        return R.layout.job_widget;
+    }
+
+    private class JbmnplsListAdapter extends JbmnplsLoadingAdapterBase {
+        public JbmnplsListAdapter(JbmnplsListActivityBase a) {
+            super(a, getJobListItemLayout(), getJobListItemResources(), a.getList());
+        }
+
+        @Override
+        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
+            return formatJobListItem(position, job, elements, layout);
+        }
     }
 }

@@ -10,7 +10,6 @@ import java.util.Queue;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -22,6 +21,7 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -31,7 +31,8 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLostStateException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
@@ -146,8 +147,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     @Override
-    public JbmnplsAdapterBase getNewAdapter() {
-        return new JobSearchAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList());
+    public int[] getJobListItemResources() {
+        return WIDGET_RESOURCE_LIST;
     }
 
     @Override
@@ -328,7 +329,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void onNetworkConnectionChanged(boolean connected) {
         super.onNetworkConnectionChanged(connected);
 
-        ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(connected);
+        ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(connected);
         setSearchEnabled(connected);
         if (connected) {
             getListView().setOnScrollListener(this);
@@ -336,6 +337,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
             cancelAllTasks();
             getListView().setOnScrollListener(null);
         }
+    }
+
+    //=================
+    //  List Adapter
+    //=================
+    @Override
+    protected HIGHLIGHTING formatJobListItem(int position, Job job,
+            View[] elements, View layout) {
+        Formatter.setText((TextView)elements[0], job.getTitle());
+        Formatter.setText((TextView)elements[1], job.getEmployer(), true);
+        Formatter.setText((TextView)elements[2], job.getLocation());
+
+        Formatter.hide(elements[5]);
+        return HIGHLIGHTING.NORMAL;
     }
 
     //=======================
@@ -357,13 +372,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     if (!hasLoaded100) {
                         addTask(SearchRequestTask.VIEW100);
                     }
-                    ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
+                    ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(true);
                     getListView().setOnScrollListener(this);
                 }
             } else {
                 // Go offline
                 cancelAllTasks();
-                ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
+                ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(false);
                 getListView().setOnScrollListener(null);
             }
         }
@@ -485,46 +500,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     protected void doneLoadingAllJobs() {
         allJobsLoaded = true;
-        ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(false);
+        ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(false);
         getListView().setOnScrollListener(null);
-    }
-
-    //=================
-    //  List Adapter
-    //=================
-    private class JobSearchAdapter extends JbmnplsLoadingAdapterBase {
-        public JobSearchAdapter(Activity a, int listViewResourceId, int[] viewResourceIdListInWidget,
-                ArrayList<Job> list) {
-            super(a, listViewResourceId, viewResourceIdListInWidget, list);
-        }
-
-        @Override
-        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
-//            APPLY_STATUS status = job.getApplicationStatus();
-//            String statusStr = status == APPLY_STATUS.CANNOT_APPLY ? "Cannot Apply" : status.toString();
-//
-            setText(0, job.getTitle());
-            setText(1, job.getEmployer(), true);
-            setText(2, job.getLocation());
-//            setText(3, 4, statusStr, true);
-//
-//            // Show the closing date if hasnt passed yet
-//            Date closingDate = job.getLastDateToApply();
-//            if (closingDate.after(new Date())) {
-//                setDate(5, job.getLastDateToApply(), "Apply by");
-//            } else {
-//                hide(5);
-//            }
-            hide(5);
-
-//
-//            if (status == APPLY_STATUS.ALREADY_APPLIED) {
-//                return HIGHLIGHTING.GREAT;
-//            } else if (status == APPLY_STATUS.CANNOT_APPLY || status == APPLY_STATUS.NOT_POSTED) {
-//                return HIGHLIGHTING.BAD;
-//            }
-            return HIGHLIGHTING.NORMAL;
-        }
     }
 
     //===================
@@ -643,7 +620,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     if (view100(postData) == CANCELLED) {
                         return CANCELLED;
                     }
-
                     // Load next page
                     fetchMoreIfNeeded();
                     break;
@@ -812,7 +788,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 hideSearchDialog();
-                ((JobSearchAdapter)getAdapter()).showLoadingAtEnd(true);
+                ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(true);
                 onRequestComplete(true);
                 scrollToTop();
                 break;

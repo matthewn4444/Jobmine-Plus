@@ -1,17 +1,18 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
-import java.util.ArrayList;
 import java.util.Date;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.TextView;
+
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.TutorialHelper;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -62,11 +63,6 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     }
 
     @Override
-    public JbmnplsAdapterBase getNewAdapter() {
-        return new ShortlistAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, getList());
-    }
-
-    @Override
     protected String setUp(Bundle savedInstanceState) {
         pageName = Shortlist.class.getName();
         return JbmnplsHttpClient.GET_LINKS.SHORTLIST;
@@ -92,6 +88,11 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     }
 
     @Override
+    public int[] getJobListItemResources() {
+        return WIDGET_RESOURCE_LIST;
+    }
+
+    @Override
     protected void parseWebpage(String html) {
         clearList();
         parser.execute(SHORTLIST_OUTLINE, html);
@@ -100,36 +101,30 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //=================
     //  List Adapter
     //=================
-    private class ShortlistAdapter extends JbmnplsAdapterBase {
-        public ShortlistAdapter(Activity a, int listViewResourceId, int[] viewResourceIdListInWidget,
-                ArrayList<Job> list) {
-            super(a, listViewResourceId, viewResourceIdListInWidget, list);
+    @Override
+    protected HIGHLIGHTING formatJobListItem(int position, Job job,
+            View[] elements, View layout) {
+        APPLY_STATUS status = job.getApplicationStatus();
+        String statusStr = status == APPLY_STATUS.CANNOT_APPLY ? "Cannot Apply" : status.toString();
+
+        Formatter.setText((TextView)elements[0], job.getTitle());
+        Formatter.setText((TextView)elements[1], job.getEmployer(), true);
+        Formatter.setText((TextView)elements[2], job.getLocation());
+        Formatter.setText((TextView)elements[3], (TextView)elements[4], statusStr, true);
+
+        // Show the closing date if hasnt passed yet
+        Date closingDate = job.getLastDateToApply();
+        if (closingDate.after(new Date())) {
+            Formatter.setDate((TextView)elements[5], job.getLastDateToApply(), "Apply by");
+        } else {
+            Formatter.hide(elements[5]);
         }
 
-        @Override
-        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
-            APPLY_STATUS status = job.getApplicationStatus();
-            String statusStr = status == APPLY_STATUS.CANNOT_APPLY ? "Cannot Apply" : status.toString();
-
-            setText(0, job.getTitle());
-            setText(1, job.getEmployer(), true);
-            setText(2, job.getLocation());
-            setText(3, 4, statusStr, true);
-
-            // Show the closing date if hasnt passed yet
-            Date closingDate = job.getLastDateToApply();
-            if (closingDate.after(new Date())) {
-                setDate(5, job.getLastDateToApply(), "Apply by");
-            } else {
-                hide(5);
-            }
-
-            if (status == APPLY_STATUS.ALREADY_APPLIED) {
-                return HIGHLIGHTING.GREAT;
-            } else if (status == APPLY_STATUS.CANNOT_APPLY || status == APPLY_STATUS.NOT_POSTED) {
-                return HIGHLIGHTING.BAD;
-            }
-            return HIGHLIGHTING.NORMAL;
+        if (status == APPLY_STATUS.ALREADY_APPLIED) {
+            return HIGHLIGHTING.GREAT;
+        } else if (status == APPLY_STATUS.CANNOT_APPLY || status == APPLY_STATUS.NOT_POSTED) {
+            return HIGHLIGHTING.BAD;
         }
+        return HIGHLIGHTING.NORMAL;
     }
 }

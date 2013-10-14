@@ -155,7 +155,7 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
         }
     }
 
-    private void setBackgroundFromResource(int resourceId) {
+    private void setBackgroundColorFromResource(int resourceId) {
         int color = getActivity().getResources().getColor(resourceId);
         currentLayout.setBackgroundColor(color);
     }
@@ -178,17 +178,116 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
             HIGHLIGHTING highlight = setJobWidgetValues(position, item, currentElements, layout);
             switch(highlight) {
             case GREAT:
-                setBackgroundFromResource(R.color.highlight_green);
+                setBackgroundColorFromResource(R.color.highlight_green);
                 break;
             case BAD:
-                setBackgroundFromResource(R.color.highlight_red);
+                setBackgroundColorFromResource(R.color.highlight_red);
                 break;
             case WORSE:
-                setBackgroundFromResource(R.color.highlight_grey);
+                setBackgroundColorFromResource(R.color.highlight_grey);
                 break;
             default:
-                setBackgroundFromResource(android.R.color.transparent);
+                setBackgroundColorFromResource(android.R.color.transparent);
                 break;
+            }
+        }
+    }
+
+    //============================
+    //  Resource Formatting class
+    //============================
+    public static class Formatter {
+        private Formatter() {
+        }
+
+        public static void hide(View view) {
+            view.setVisibility(View.GONE);
+        }
+        public static void setText(TextView view, String text) {
+            setText(view, text, false);
+        }
+        public static void setText(TextView view, String text, boolean doUppercase) {
+            if (text != null && !TextUtils.isEmpty(text)) {
+                text = Html.fromHtml(text).toString();
+                if (doUppercase) {
+                    text = text.toUpperCase(Locale.getDefault());
+                }
+                view.setText(text);
+            } else {
+                hide(view);
+            }
+        }
+        public static void setText(TextView view1, TextView view2, String text) {
+            setText(view1, view2, text, false);
+        }
+        public static void setText(TextView view1, TextView view2, String text, boolean doUppercase) {
+            if (TextUtils.isEmpty(text)) {
+                hide(view1);
+                hide(view2);
+            } else {
+                text = Html.fromHtml(text).toString();
+                if (doUppercase) {
+                    text = text.toUpperCase(Locale.getDefault());
+                }
+                String[] split = text.split(" ");
+                view1.setText(split[0]);
+                // If there is more text, then add it to the next field, if not hide it
+                if (split.length > 1) {
+                    view2.setText(split[1]);
+                } else {
+                    hide(view2);
+                }
+            }
+        }
+        public static void setDate(TextView view, Date date) {
+            setDate(view, date, (String)null, (SimpleDateFormat)null);
+        }
+        public static void setDate(TextView view, Date date, SimpleDateFormat format) {
+            setDate(view, date, (String)null, format);
+        }
+        public static void setDate(TextView view, Date date, String prefix) {
+            setDate(view, date, prefix, null);
+        }
+        public static void setDate(TextView view, Date date, String prefix, SimpleDateFormat format) {
+            String text = null;
+            if (date != null) {
+                if (format == null) {
+                    format = DATE_FORMAT;
+                }
+                if (prefix != null && !TextUtils.isEmpty(prefix)) {
+                    text = prefix.trim() + " " + format.format(date);
+                } else {
+                    text = format.format(date);
+                }
+                setText(view, text, false);
+            } else {
+                hide(view);
+            }
+        }
+        public static void setDate(TextView view, Date from, Date to) {
+            setDate(view, from, to, null, null);
+        }
+        public static void setDate(TextView view, Date from, Date to, SimpleDateFormat format) {
+            setDate(view, from, to, null, format);
+        }
+        public static void setDate(TextView view, Date from, Date to, String prefix) {
+            setDate(view, from, to, prefix, null);
+        }
+        public static void setDate(TextView view, Date from, Date to, String prefix, SimpleDateFormat format) {
+            String text = null;
+            if (from != null && to != null) {
+                if (format == null) {
+                    format = DATE_FORMAT;
+                }
+                String dateStr = format.format(from) + " - " + format.format(to);
+                if (prefix != null && !TextUtils.isEmpty(prefix)) {
+                    text = prefix.trim() + " " + dateStr;
+                } else {
+                    text = dateStr;
+                }
+                setText(view, text, false);
+            } else {
+                hide(view);
             }
         }
     }
