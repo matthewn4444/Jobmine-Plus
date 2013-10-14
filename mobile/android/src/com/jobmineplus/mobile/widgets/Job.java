@@ -913,7 +913,8 @@ public class Job {
             return false;
         }
         Calendar now = Calendar.getInstance();
-        Date endTime = interviewEndTime != null ? interviewEndTime : interviewStartTime;
+        Calendar endTime = Calendar.getInstance();
+        endTime.setTime(interviewEndTime != null ? interviewEndTime : interviewStartTime);
         return now.after(endTime);
     }
 
