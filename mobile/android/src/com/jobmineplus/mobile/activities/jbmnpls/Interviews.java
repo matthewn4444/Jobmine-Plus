@@ -2,27 +2,26 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Interviews extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener {
@@ -200,8 +199,13 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     }
 
     @Override
-    protected ArrayAdapter<Job> makeAdapterFromList(ArrayList<Job> list) {
-        return new InterviewsAdapter(this, R.layout.interview_widget, WIDGET_RESOURCE_LIST, list);
+    public int[] getJobListItemResources() {
+        return WIDGET_RESOURCE_LIST;
+    }
+
+    @Override
+    protected int getJobListItemLayout() {
+        return  R.layout.interview_widget;
     }
 
     public void onRowParse(TableParserOutline outline, Object... jobData) {
@@ -259,27 +263,22 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     //=================
     //  List Adapter
     //=================
-    private class InterviewsAdapter extends JbmnplsAdapterBase {
-        public InterviewsAdapter(Activity a, int widgetResourceLayout,
-                int[] viewResourceIdListInWidget, ArrayList<Job> list) {
-            super(a, widgetResourceLayout, viewResourceIdListInWidget, list);
+    @Override
+    protected HIGHLIGHTING formatJobListItem(int position, Job job,
+            View[] elements, View layout) {
+        Formatter.setText((TextView)elements[0], job.getTitle());
+        Formatter.setText((TextView)elements[1], job.getEmployer(), true);
+        Formatter.setText((TextView)elements[2], "With <b>" + job.getInterviewer());
+        Formatter.setDate((TextView)elements[3], job.getInterviewStartTime(), "On <b>");
+        Formatter.setDate((TextView)elements[4], job.getInterviewStartTime(),
+                job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
+        Formatter.setText((TextView)elements[5], "At <b>" + job.getRoomInfo());
+        if (job.getInterviewType() != null) {
+            Formatter.setText((TextView)elements[6], job.getInterviewType().toString(), true);
+        } else {
+            Formatter.hide(elements[6]);
         }
-
-        @Override
-        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
-            setText(0, job.getTitle());
-            setText(1, job.getEmployer(), true);
-            setText(2, job.getInterviewer(), "With <b>");
-            setDate(3, job.getInterviewStartTime(), "On <b>");
-            setDate(4, job.getInterviewStartTime(), job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
-            setText(5, job.getRoomInfo(), "At <b>");
-            if (job.getInterviewType() != null) {
-                setText(6, job.getInterviewType().toString(), true);
-            } else {
-                hide(6);
-            }
-            setText(7, job.getInstructions());
-            return HIGHLIGHTING.NORMAL;
-        }
+        Formatter.setText((TextView)elements[7], job.getInstructions());
+        return HIGHLIGHTING.NORMAL;
     }
 }

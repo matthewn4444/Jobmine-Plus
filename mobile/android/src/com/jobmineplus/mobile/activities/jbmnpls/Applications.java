@@ -1,14 +1,14 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
-import java.util.ArrayList;
 import java.util.Date;
-import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.TextView;
+
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.STATUS;
@@ -157,52 +157,42 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     }
 
     @Override
-    protected ArrayAdapter<Job> makeAdapterFromList(ArrayList<Job> list) {
-        return new ApplicationsAdapter(this, R.layout.job_widget, WIDGET_RESOURCE_LIST, list);
+    public int[] getJobListItemResources() {
+        return WIDGET_RESOURCE_LIST;
     }
 
     //=================
     //  List Adapter
     //=================
-    private class ApplicationsAdapter extends JbmnplsAdapterBase {
-        public ApplicationsAdapter(Activity a, int widgetResourceLayout,
-                int[] viewResourceIdListInWidget, ArrayList<Job> list) {
-            super(a, widgetResourceLayout, viewResourceIdListInWidget,
-                    list);
+    @Override
+    protected HIGHLIGHTING formatJobListItem(int position, Job job,
+            View[] elements, View layout) {
+        String status = job.getDisplayStatus();
+
+        // Set the text fields
+        Formatter.setText((TextView)elements[0], job.getTitle());
+        Formatter.setText((TextView)elements[1], job.getEmployer(), true);
+        Formatter.hide(elements[2]);
+        Formatter.setText((TextView)elements[3], (TextView)elements[4], status, true);
+
+        // Show the closing date if hasnt passed yet
+        Date closingDate = job.getLastDateToApply();
+        if (closingDate.after(new Date())) {
+            Formatter.setDate((TextView)elements[5], job.getLastDateToApply(), "Closes by");
+        } else {
+            Formatter.hide(elements[5]);
         }
 
-        @Override
-        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
-            final Applications applications = (Applications) getActivity();
-            String status = job.getDisplayStatus();
-
-            // Set the text fields
-            setText(0, job.getTitle());
-            setText(1, job.getEmployer(), true);
-            hide(2);
-            setText(3, 4, status, true);
-
-            // Show the closing date if hasnt passed yet
-            Date closingDate = job.getLastDateToApply();
-            if (closingDate.after(new Date())) {
-                setDate(5, job.getLastDateToApply(), "Closes by");
-            } else {
-                hide(5);
-            }
-
-            /*
-             *  Do the highlighting
-             */
-            if (isOneOf(status, "Selected", "Scheduled", "Employed") || status == "Ranking Completed"
-                    && applications.listContainsId(LISTS.ACTIVE_JOBS, job.getId())) {
-                return HIGHLIGHTING.GREAT;
-            } else if (isOneOf(status, "Unfilled", "Ranking Completed", "Not Ranked", "Sign Off")) {
-                return HIGHLIGHTING.BAD;
-            } else if (isOneOf(status, "Not Selected", "Cancelled")) {
-                return HIGHLIGHTING.WORSE;
-            } else {
-                return HIGHLIGHTING.NORMAL;
-            }
+        // Do the highlighting
+        if (isOneOf(status, "Selected", "Scheduled", "Employed") || status == "Ranking Completed"
+                && listContainsId(LISTS.ACTIVE_JOBS, job.getId())) {
+            return HIGHLIGHTING.GREAT;
+        } else if (isOneOf(status, "Unfilled", "Ranking Completed", "Not Ranked", "Sign Off")) {
+            return HIGHLIGHTING.BAD;
+        } else if (isOneOf(status, "Not Selected", "Cancelled")) {
+            return HIGHLIGHTING.WORSE;
+        } else {
+            return HIGHLIGHTING.NORMAL;
         }
     }
 }

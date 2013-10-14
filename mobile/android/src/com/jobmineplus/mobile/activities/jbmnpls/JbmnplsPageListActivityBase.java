@@ -8,16 +8,18 @@ import junit.framework.Assert;
 
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
-
 import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.SubMenu;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.pages.PageMapResult;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.HeaderComparator.DIRECTION;
 
@@ -33,15 +35,11 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     //====================
     //  Abstract Methods
     //====================
-    /**
-     * You will return an ArrayAdapter of integers so that when updating lists
-     * it will update use the correct adapter for each tabs
-     * @param list: given the list to put into the new ArrayAdapter class
-     * @return: the array adapter that is suppose to be made for the current tab
-     */
-    protected abstract ArrayAdapter<Job> makeAdapterFromList (ArrayList<Job> list);
-
     public abstract HEADER[] getTableHeaders();
+
+    public abstract int[] getJobListItemResources();
+
+    protected abstract HIGHLIGHTING formatJobListItem(int position, Job job, View[] elements, View layout);
 
     //====================
     //  Override Methods
@@ -148,7 +146,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         }
     }
 
-
     //====================
     //  List Alters
     //====================
@@ -163,9 +160,11 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         Bundle b = new Bundle();
         b.putString(DISPLAYNAME, displayName);
         frag.setArguments(b);
+
+        // Set thew new adapter
         ArrayList<Job> list = new ArrayList<Job>();
-        ArrayAdapter<Job> adapter = makeAdapterFromList(list);
-        frag.setListAdapter(adapter);
+        JbmnplsAdapterBase adapter = new JbmnplsPageListAdapter(this, list);
+        frag.setPageListAdapter(adapter);
         super.createTab(displayName, frag);
         lists.put(displayName, list);
     }
@@ -174,8 +173,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         for (String tag : lists.keySet()) {
             PageListFragment frag = (PageListFragment) getFragment(tag);
             frag.showEmptyText();
-            ArrayAdapter<Job> adapter = makeAdapterFromList(lists.get(tag));
-            frag.setArrayAdapter(adapter);
+            frag.notifyListDataSetChanged();
         }
     }
 
@@ -192,8 +190,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         comparer.setHeader(header);
         comparer.setDirection(ascend ? DIRECTION.ASCEND : DIRECTION.DESCEND);
         for (String tag : lists.keySet()) {
-            ArrayAdapter<Job> adapter = ((PageListFragment) getFragment(tag)).getArrayAdapter();
-            adapter.sort(comparer);
+            ((PageListFragment) getFragment(tag)).getPageListAdapter().sort(comparer);
         }
     }
 
@@ -225,13 +222,35 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         return false;
     }
 
+    public JbmnplsAdapterBase getAdapterByTab(String displayName) {
+        return ((PageListFragment)getFragment(displayName)).getPageListAdapter();
+    }
+
+    //========================
+    //  Generic List Adapter
+    //========================
+    protected int getJobListItemLayout() {
+        return R.layout.job_widget;
+    }
+
+    private class JbmnplsPageListAdapter extends JbmnplsLoadingAdapterBase {
+        public JbmnplsPageListAdapter(JbmnplsPageListActivityBase a, ArrayList<Job> list) {
+            super(a, getJobListItemLayout(), getJobListItemResources(), list);
+        }
+
+        @Override
+        protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
+            return formatJobListItem(position, job, elements, layout);
+        }
+    }
+
     //============================
     //  Custom ListFragment Class
     //============================
     public final static class PageListFragment extends ListFragment {
         private boolean showEmptyText = false;
         public String displayName;
-        private ArrayAdapter<Job> arrayAdapter;
+        private JbmnplsAdapterBase listAdapter;
 
         public final static PageListFragment newInstance() {
             return new PageListFragment();
@@ -245,13 +264,17 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             }
         }
 
-        public void setArrayAdapter(ArrayAdapter<Job> adapter) {
-            arrayAdapter = adapter;
+        public void notifyListDataSetChanged() {
+            listAdapter.notifyDataSetChanged();
+        }
+
+        public void setPageListAdapter(JbmnplsAdapterBase adapter) {
+            listAdapter = adapter;
             super.setListAdapter(adapter);
         }
 
-        public ArrayAdapter<Job> getArrayAdapter() {
-            return arrayAdapter;
+        public JbmnplsAdapterBase getPageListAdapter() {
+            return listAdapter;
         }
 
         @Override
@@ -263,12 +286,11 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             JbmnplsPageListActivityBase a = (JbmnplsPageListActivityBase)getActivity();
             a.createTab(displayName, this);
             getListView().setOnItemClickListener(a);
+            getListView().setAdapter(listAdapter);
             if (showEmptyText) {
                 setEmptyText(getString(R.string.empty_job_list));
             }
             super.onActivityCreated(savedInstanceState);
         }
     }
-
-
 }

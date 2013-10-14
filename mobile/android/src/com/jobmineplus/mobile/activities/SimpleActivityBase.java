@@ -208,6 +208,15 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         super.onPause();
     }
 
+    protected <T> boolean isOneOf(T value, T... list) {
+        for (T item: list) {
+            if (value.equals(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     protected void toast(String message) {
         if (isDebug()) {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
