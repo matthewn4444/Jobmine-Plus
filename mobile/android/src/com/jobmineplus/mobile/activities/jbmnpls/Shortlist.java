@@ -23,6 +23,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //======================
     //  Declaration Objects
     //======================
+    public final static String PAGE_NAME = Shortlist.class.getName();
     protected final static String DATE_FORMAT = "d MMM yyyy";
     private final TableParser parser = new TableParser();
 
@@ -64,7 +65,7 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
 
     @Override
     protected String setUp(Bundle savedInstanceState) {
-        pageName = Shortlist.class.getName();
+        pageName = PAGE_NAME;
         return JbmnplsHttpClient.GET_LINKS.SHORTLIST;
     }
 
