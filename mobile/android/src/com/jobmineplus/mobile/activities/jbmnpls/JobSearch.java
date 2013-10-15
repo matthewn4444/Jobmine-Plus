@@ -131,7 +131,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        int jobId = getList().get(position).getId();
+        Job job = getList().get(position);
+        int jobId = job.getId();
+        if (!job.hasDescriptionData()) {
+            addTask(SearchRequestTask.DESCRIPTION);
+        }
         goToDescription(jobId);
     }
 
@@ -552,6 +556,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         public static final int SHORTLIST = 7;
         public static final int JOBTYPE = 8;
         public static final int SORT = 9;
+        public static final int DESCRIPTION = 10;
 
         // Task Response states
         public static final int NO_PROBLEM = 0;
@@ -672,6 +677,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
                         if (result == CANCELLED) {
                             return CANCELLED;
                         }
+                    }
+                    break;
+                case DESCRIPTION:
+                    postData.add(new BasicNameValuePair("ICAction", "UW_CO_JOBTITLE_HL$0"));
+                    response = doPost(postData, getUrl());
+                    if (response == null) {
+                        return CANCELLED;
                     }
                     break;
                 default:
