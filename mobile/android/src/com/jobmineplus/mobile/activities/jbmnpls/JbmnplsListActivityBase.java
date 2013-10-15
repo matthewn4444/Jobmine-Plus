@@ -171,7 +171,6 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     }
 
     protected ListView getListView() {
-        log("dsds");
         return list;
     }
 
