@@ -1,6 +1,7 @@
 package com.jobmineplus.mobile.database.pages;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import android.content.ContentValues;
@@ -30,6 +31,33 @@ public final class PageDataSource extends DataSourceBase{
         dbHelper.close();
     }
 
+    public void addPageIds(String username, String pagename, ArrayList<Integer> jobIds) {
+        Date now = new Date();
+        addPageIds(username, pagename, jobIds, now.getTime());
+    }
+
+    public synchronized void addPageIds(String username, String pagename, ArrayList<Integer> jobIds,
+            long timestamp) {
+        String joblist = "";
+        if (!jobIds.isEmpty()) {
+            // Make list of jobs as string, remove last comma
+            StringBuilder sb = new StringBuilder();
+            for (int id : jobIds) {
+                sb.append(id).append(',');
+            }
+            if (sb.charAt(sb.length() - 1) == ',') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            joblist = sb.toString();
+        }
+        internalAddPage(username, pagename, joblist, timestamp);
+    }
+
+    public void addPage(String username, String pagename, ArrayList<Job> jobs) {
+        Date now = new Date();
+        addPage(username, pagename, jobs, now.getTime());
+    }
+
     public synchronized void addPage(String username, String pagename, ArrayList<Job> jobs,
             long timestamp) {
         String joblist = "";
@@ -47,6 +75,35 @@ public final class PageDataSource extends DataSourceBase{
             joblist = sb.toString();
         }
         internalAddPage(username, pagename, joblist, timestamp);
+    }
+
+    public void addPageIds(String username, String pagename, HashMap<String, ArrayList<Integer>> jobMapIds) {
+        Date now = new Date();
+        addPageIds(username, pagename, jobMapIds, now.getTime());
+    }
+
+    public synchronized void addPageIds(String username, String pagename, HashMap<String, ArrayList<Integer>> jobMapIds,
+            long timestamp) {
+        // Build the string
+        StringBuilder sb = new StringBuilder();
+        for (String key : jobMapIds.keySet()) {
+            ArrayList<Integer> ids = jobMapIds.get(key);
+            sb.append(key).append(':');
+            for (int id : ids) {
+                sb.append(id).append(',');
+            }
+            if (sb.charAt(sb.length() - 1) == ',') {
+                sb.deleteCharAt(sb.length() - 1);
+            }
+            sb.append('|');
+        }
+        sb.deleteCharAt(sb.length() - 1);
+        internalAddPage(username, pagename, sb.toString(), timestamp);
+    }
+
+    public void addPage(String username, String pagename, HashMap<String, ArrayList<Job>> jobMap) {
+        Date now = new Date();
+        addPage(username, pagename, jobMap, now.getTime());
     }
 
     public synchronized void addPage(String username, String pagename, HashMap<String, ArrayList<Job>> jobMap,
