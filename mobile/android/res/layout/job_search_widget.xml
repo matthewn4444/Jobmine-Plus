@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:baselineAligned="false"
+    android:weightSum="1"
+    android:descendantFocusability="blocksDescendants"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+	    android:paddingLeft="15dp"
+	    android:layout_weight="0.85"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content">
+	    <TextView
+	        android:id="@+id/job_title"
+	        android:textSize="14sp"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:ellipsize="end"
+	        android:singleLine="true"
+	        android:textStyle="bold" />
+	
+	    <TextView
+	        android:id="@+id/job_employer"
+	        android:ellipsize="end"
+	        android:singleLine="true"
+	        android:layout_marginTop="-5dp"
+	        android:textSize="20sp"
+	        android:textColor="@color/job_widget_employer_text"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" />
+	
+	    <TextView
+	        android:id="@+id/location"
+	        android:textSize="12sp"
+	        android:layout_marginTop="-6dp"
+	        android:textColor="@color/job_widget_detail_text"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content" />
+	
+	    <TextView
+	        android:id="@+id/job_last_day"
+	        android:textSize="12sp"
+	        android:layout_marginTop="-6dp"
+	        android:textColor="@color/job_widget_detail_text"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content" />
+    </LinearLayout>
+    <RelativeLayout
+	    android:paddingTop="3dp"
+	    android:paddingBottom="3dp"
+	    android:paddingRight="15dp"
+	    android:layout_weight="0.15"
+        android:layout_height="fill_parent"
+        android:layout_width="0dp">
+         <CheckBox
+	         android:id="@+id/star"
+	         android:layout_height="wrap_content"
+	         android:layout_width="wrap_content"
+	         android:layout_alignParentRight="true"
+	         android:layout_centerVertical="true"
+             style="?android:attr/starStyle" />
+         <ProgressBar
+             android:id="@+id/loading"
+             android:visibility="gone"
+             android:layout_alignParentRight="true"
+             android:layout_centerVertical="true"
+             android:gravity="center_vertical|right"
+             android:layout_height="31dp"
+             android:layout_width="31dp"
+             style="@android:attr/progressBarStyle" 
+             />
+    </RelativeLayout>
+   
+</LinearLayout>

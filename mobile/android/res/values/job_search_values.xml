@@ -272,5 +272,6 @@
     </string-array>
     
     <item type="id" name="PROGRESS_TAG_KEY"></item>
+    <item type="id" name="CHECKBOX_JOB_TAG_KEY"></item>
     
 </resources>

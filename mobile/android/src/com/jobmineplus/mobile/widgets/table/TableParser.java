@@ -195,6 +195,7 @@ public class TableParser {
                     case LOCATION:
                     case START_TIME:        // Handled by interviews
                     case END_TIME:          // Handled by interviews
+                    case SHORTLIST:
                         value = text;
                         break;
 
@@ -260,7 +261,6 @@ public class TableParser {
                     case VIEW_DETAILS:
                     case VIEW_PACKAGE:
                     case SELECT_TIME:
-                    case SHORTLIST:
                     case BLANK:
                         break;
 

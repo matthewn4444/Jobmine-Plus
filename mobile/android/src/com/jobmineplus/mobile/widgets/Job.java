@@ -86,12 +86,13 @@ public class Job {
      * @param jNumApps
      */
     public Job(int jId, String jTitle, String jEmployer, String jLocation,
-            int jOpenings, Date jLastDate, int jNumApps) {
+            int jOpenings, APPLY_STATUS status, Date jLastDate, int jNumApps) {
         setId(jId);
         title = jTitle;
         employer = jEmployer;
         location = jLocation;
         openings = jOpenings;
+        app_status = status;
         lastToApply = jLastDate;
         numApps = jNumApps;
     }
