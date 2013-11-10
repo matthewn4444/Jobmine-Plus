@@ -492,7 +492,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     public void onSearch(JobSearchProperties prop) {
         if (isReallyOnline()) {
-            firstSearch = false;        // No that you search, it is not the first time anymore
             addTask(SearchRequestTask.SEARCH, getString(R.string.search_searching_dialog));
         } else {
             hideSearchDialog();
@@ -966,6 +965,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 getListView().setOnScrollListener(activity);
                 allJobsLoaded = false;
                 hasLoaded100 = false;
+                firstSearch = false;        // No that you search, it is not the first time anymore
                 resetSortingMenu();
 
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
