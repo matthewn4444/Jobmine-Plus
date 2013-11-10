@@ -2,16 +2,6 @@ package com.jobmineplus.mobile.activities;
 
 import java.util.Date;
 
-import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuInflater;
-import com.actionbarsherlock.view.MenuItem;
-import com.bugsense.trace.BugSenseHandler;
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
-import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
-
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +15,16 @@ import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.actionbarsherlock.view.MenuItem;
+import com.bugsense.trace.BugSenseHandler;
+import com.google.ads.AdRequest;
+import com.google.ads.AdView;
+import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     final static public int JBMN_OFFLINE_TIME = 24;     //24 hour clock
@@ -181,6 +181,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         final AdView adview = ((AdView)findViewById(R.id.adView));
         if (adview != null) {
             (new Thread() {
+                @Override
                 public void run() {
                     Looper.prepare();
                     adview.loadAd(new AdRequest());

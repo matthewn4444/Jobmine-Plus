@@ -1,12 +1,12 @@
 package com.jobmineplus.mobile.widgets;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-import java.text.ParseException;
 
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -31,7 +31,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 public class JobSearchDialog extends Builder implements
                     android.content.DialogInterface.OnClickListener, OnItemSelectedListener, OnShowListener {
 
-    private AlertDialog dialog;
+    private final AlertDialog dialog;
 
     // =======================
     //  Variable Declaration
@@ -117,6 +117,10 @@ public class JobSearchDialog extends Builder implements
     public static String getDisciplineCodeFromName(String name) {
         int index = DISCIPLINES.indexOf(name);
         return DISCIPLINES_CODES.get(index);
+    }
+
+    public boolean isShowing() {
+        return dialog.isShowing();
     }
 
     @Override

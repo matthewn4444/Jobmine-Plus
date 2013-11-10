@@ -1,13 +1,14 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -42,12 +43,12 @@ import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.JobSearchDialog;
+import com.jobmineplus.mobile.widgets.JobSearchDialog.OnJobSearchListener;
 import com.jobmineplus.mobile.widgets.JobSearchProperties;
 import com.jobmineplus.mobile.widgets.JobminePlusMobileLog;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
-import com.jobmineplus.mobile.widgets.Job.HEADER;
-import com.jobmineplus.mobile.widgets.JobSearchDialog.OnJobSearchListener;
 import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -57,7 +58,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
                             OnScrollListener, OnClickListener {
 
     // Few TODO notes
-    //      3. When going offline does not disable all jobs
     //      1. concurrentmodificationexception happens sometimes (Arraylist or the jobSourceDatabase
     //      6. When shortlisting to another page and then click the search icon, it will not work (continuously loads)
 
@@ -68,6 +68,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public final static int INITIAL_RESULT_COUNT = 25;
     public final static int RESULT_COUNT_100 = 100;
     public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 40;
+
+    private final static int INACTIVE_20_MINUTES = 20 * 1000 * 60;
 
     // Task list
     private final Queue<Pair<Integer, String>> taskQueue = new LinkedList<Pair<Integer,String>>();
@@ -82,6 +84,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private boolean firstSearch;
     private boolean allJobsLoaded;
     private boolean hasLoaded100;
+    private long lastPost;
 
     private JobSearchDialog searchDialog;
 
@@ -142,6 +145,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         firstSearch = true;
         currentPage = 0;
         currentListPosition = 0;
+        lastPost = System.currentTimeMillis();
         allJobsLoaded = false;
         enableShortlisting = true;
     }
@@ -318,6 +322,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void clearList() {
         super.clearList();
         jobPageArray.clear();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // When 20 min has past when nothing has posted
+        if (!searchDialog.isShowing() && System.currentTimeMillis() - lastPost > INACTIVE_20_MINUTES) {
+            // Reset to first time search and show the dialog again
+            firstSearch = true;
+            clearList();
+            showSearchDialog();
+            showAlert(getString(R.string.search_inactivity));
+        }
     }
 
     @Override
@@ -842,6 +860,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         protected String doPost(List<NameValuePair> data, String url)
                 throws JbmnplsLoggedOutException, IOException {
+            lastPost = System.currentTimeMillis();
             data.add(new BasicNameValuePair("ICElementNum", "0"));
             data.add(new BasicNameValuePair("ICAJAX", "1"));
             data.add(new BasicNameValuePair("ICStateNum", stateNum));

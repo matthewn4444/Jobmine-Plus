@@ -23,7 +23,8 @@
         <string name="search_sort_getting_jobs">Getting all jobs&#8230;</string>
         <string name="search_searching_offline">You cannot search since you are offline.</string>
         <string name="search_searching_dialog">Searching&#8230;</string>
-
+        <string name="search_inactivity">You have been inactive for over 20 min, you must search again.</string>
+        
         <string name="set_offline_mode_message">Viewing offline</string>
         <string name="set_online_mode_message">Viewing online</string>
     </resources>
