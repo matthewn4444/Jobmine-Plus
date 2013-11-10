@@ -59,7 +59,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     // Few TODO notes
     //      1. concurrentmodificationexception happens sometimes (Arraylist or the jobSourceDatabase
-    //      6. When shortlisting to another page and then click the search icon, it will not work (continuously loads)
 
     //======================
     //  Declaration Objects
@@ -504,7 +503,10 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     public void onCancel() {
         if (jobSearchPageTask != null) {
-            jobSearchPageTask.cancel(true);
+            // Cancel only if job type changes when pressing cancel on the search dialog
+            if (jobSearchPageTask.currentCommand == SearchRequestTask.JOBTYPE) {
+                jobSearchPageTask.cancel(true);
+            }
         }
         if (firstSearch && getList().isEmpty()) {
             finish();
