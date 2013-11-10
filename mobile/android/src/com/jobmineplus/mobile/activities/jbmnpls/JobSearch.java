@@ -326,15 +326,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onResume() {
         super.onResume();
-
-        // When 20 min has past when nothing has posted
-        if (!searchDialog.isShowing() && System.currentTimeMillis() - lastPost > INACTIVE_20_MINUTES) {
-            // Reset to first time search and show the dialog again
-            firstSearch = true;
-            clearList();
-            showSearchDialog();
-            showAlert(getString(R.string.search_inactivity));
-        }
+        checkIfSearchExpired();
     }
 
     @Override
@@ -549,6 +541,20 @@ public class JobSearch extends JbmnplsListActivityBase implements
     //==================
     //  Miscellaneous
     //==================
+    private boolean checkIfSearchExpired() {
+        // When 20 min has past when nothing has posted
+        boolean flag = !searchDialog.isShowing() && System.currentTimeMillis() - lastPost > INACTIVE_20_MINUTES;
+
+        if (flag) {
+            // Reset to first time search and show the dialog again
+            firstSearch = true;
+            clearList();
+            showSearchDialog();
+            showAlert(getString(R.string.search_inactivity));
+        }
+        return flag;
+    }
+
     private void showSearchDialog() {
         // Need to get search values, so we will get them
         if (properties == null) {
@@ -719,6 +725,10 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         @Override
         protected Integer doInBackground(Integer... params) {
+            if (checkIfSearchExpired()) {
+                return NO_PROBLEM;
+            }
+
             currentCommand = params[0];
             List<NameValuePair> postData = new ArrayList<NameValuePair>();
             SimpleHtmlParser parser = null;
