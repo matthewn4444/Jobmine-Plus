@@ -74,7 +74,8 @@ public final class JbmnplsHttpClient {
     //=====================
     //  Private Variables
     //=====================
-    private Object lock = new Object();
+    private final Object requestLock = new Object();
+    private final Object timeStampLock = new Object();
     HttpClient client = new DefaultHttpClient();
     private long loginTimeStamp = 0;
     private String username = "";
@@ -100,14 +101,16 @@ public final class JbmnplsHttpClient {
     //  Login Data
     //==============
     public void setLoginCredentials(String user, String pass) {
-        synchronized(lock) {
-            username = user;
-            password = pass;
+        synchronized(username) {
+            synchronized (password) {
+                username = user;
+                password = pass;
+            }
         }
     }
 
     public String getUsername() {
-        synchronized(lock) {
+        synchronized(username) {
             if (username == "") {
                 return null;
             }
@@ -116,7 +119,7 @@ public final class JbmnplsHttpClient {
     }
 
     public String getPassword() {
-        synchronized(lock) {
+        synchronized(password) {
             if (password == "") {
                 return null;
             }
@@ -125,7 +128,7 @@ public final class JbmnplsHttpClient {
     }
 
     public boolean isLoggedIn() {
-        synchronized(lock) {
+        synchronized(timeStampLock) {
             long timeNow = System.currentTimeMillis();
             return loginTimeStamp != 0 && (timeNow - loginTimeStamp) < AUTO_LOGOUT_TIME;
         }
@@ -150,64 +153,62 @@ public final class JbmnplsHttpClient {
         return true;
     }
 
-    public LOGGED login(String username, String password) {
-        synchronized(lock) {
-            reset();
-            if (username.length() == 0 || password.length() == 0) {
-                Log.i("jbmnplsmbl", "Logged out no pass and user");
+    public LOGGED login(String user, String pass) {
+        reset();
+        if (user.length() == 0 || pass.length() == 0) {
+            Log.i("jbmnplsmbl", "Logged out no pass and user");
+            return LOGGED.OUT;
+        }
+
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+        nameValuePairs.add(new BasicNameValuePair("httpPort", ""));
+        nameValuePairs.add(new BasicNameValuePair("submit", "Submit"));
+        nameValuePairs.add(new BasicNameValuePair("timezoneOffset", "480"));
+        nameValuePairs.add(new BasicNameValuePair("pwd", pass));
+        nameValuePairs.add(new BasicNameValuePair("userid", user));
+
+        BufferedReader reader = null;
+        try {
+            StopWatch s = new StopWatch(true);
+            HttpResponse response = internalPost(nameValuePairs, JbmnplsHttpClient.POST_LINKS.LOGIN);
+            s.printElapsed("%s ms login post");
+            if (response == null || response.getStatusLine().getStatusCode() != 200) {
                 return LOGGED.OUT;
             }
 
-            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-            nameValuePairs.add(new BasicNameValuePair("httpPort", ""));
-            nameValuePairs.add(new BasicNameValuePair("submit", "Submit"));
-            nameValuePairs.add(new BasicNameValuePair("timezoneOffset", "480"));
-            nameValuePairs.add(new BasicNameValuePair("pwd", password));
-            nameValuePairs.add(new BasicNameValuePair("userid", username));
+            reader = getReaderFromResponse(response);
+            LOGGED result = validateLoginJobmine(reader);
+            if (result != LOGGED.IN) {
+                return result;
+            }
 
-            BufferedReader reader = null;
+            // Successful login
+            setLoginCredentials(user, pass);
+            updateTimestamp();
+            return LOGGED.IN;
+        } catch (IOException e) {
+            BugSenseHandler.sendException(e);
+            e.printStackTrace();
+            return LOGGED.OFFLINE;
+        } finally {
             try {
-                StopWatch s = new StopWatch(true);
-                HttpResponse response = internalPost(nameValuePairs, JbmnplsHttpClient.POST_LINKS.LOGIN);
-                s.printElapsed("%s ms login post");
-                if (response == null || response.getStatusLine().getStatusCode() != 200) {
-                    return LOGGED.OUT;
+                if (reader != null) {
+                    reader.close();
                 }
-
-                reader = getReaderFromResponse(response);
-                LOGGED result = validateLoginJobmine(reader);
-                if (result != LOGGED.IN) {
-                    return result;
-                }
-
-                // Successful login
-                setLoginCredentials(username, password);
-                updateTimestamp();
-                return LOGGED.IN;
-            } catch (IOException e) {
-                BugSenseHandler.sendException(e);
+            } catch(IOException e) {
                 e.printStackTrace();
-                return LOGGED.OFFLINE;
+                return LOGGED.OUT;
             } finally {
-                try {
-                    if (reader != null) {
-                        reader.close();
-                    }
-                } catch(IOException e) {
-                    e.printStackTrace();
-                    return LOGGED.OUT;
-                } finally {
-                    if (canAbort && pendingAbort) {
-                        pendingAbort = false;
-                    }
+                if (canAbort && pendingAbort) {
+                    pendingAbort = false;
                 }
             }
         }
     }
 
     public void logout() {
-        synchronized (lock) {
-            client = new DefaultHttpClient();
+        client = new DefaultHttpClient();
+        synchronized (timeStampLock) {
             loginTimeStamp = 0;
         }
     }
@@ -224,30 +225,24 @@ public final class JbmnplsHttpClient {
     }
 
     private HttpResponse internalGet(String url) {
-        if (pendingAbort && canAbort) {
-            return null;
-        }
-        synchronized(lock) {
-            HttpResponse response = null;
-            try {
-                if (pendingAbort && canAbort) {
-                    return null;
-                }
-                currentRequest = new HttpGet(url);
-                StopWatch s = new StopWatch(true);
-                response = client.execute(currentRequest);
-                s.printElapsed("%s ms to get");
-                currentRequest = null;
-            } catch (Exception e) {
-                e.printStackTrace();
+        HttpResponse response = null;
+        try {
+            if (pendingAbort && canAbort) {
                 return null;
             }
-            return response;
+            HttpGet request = new HttpGet(url);
+            StopWatch s = new StopWatch(true);
+            response = client.execute(request);
+            s.printElapsed("%s ms to get");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
+        return response;
     }
 
     public String getJobmineHtml (String url) throws JbmnplsLoggedOutException, IOException{
-        synchronized(lock) {
+        synchronized (requestLock) {
             InputStream in = null;
             BufferedReader reader = null;
             try {
@@ -258,7 +253,6 @@ public final class JbmnplsHttpClient {
                         in.close();
                         in = null;
                     }
-
                     HttpResponse response = internalGet(url);
                     if (response != null) {
                         in = response.getEntity().getContent();
@@ -284,7 +278,6 @@ public final class JbmnplsHttpClient {
                 if (!loggedIn) {
                     throw new JbmnplsLoggedOutException();
                 }
-
                 // Successfully logged in
                 StringBuilder str = new StringBuilder();
                 String line = null;
@@ -312,37 +305,34 @@ public final class JbmnplsHttpClient {
     //  POST HTTP Requests
     //======================
     public HttpResponse post(List<NameValuePair> postData, String url) {
-        HttpResponse result = internalPost(postData, url);
-        if (canAbort && pendingAbort) {
-            pendingAbort = false;
+        synchronized (requestLock) {
+            HttpResponse result = internalPost(postData, url);
+            if (canAbort && pendingAbort) {
+                pendingAbort = false;
+            }
+            return result;
         }
-        return result;
     }
 
     public HttpResponse internalPost(List<NameValuePair> postData, String url) {
         if (canAbort && pendingAbort) {
             return null;
         }
-        synchronized(lock) {
-            if (canAbort && pendingAbort) {
-                return null;
-            }
-            HttpResponse response = null;
-            try {
-                currentRequest = new HttpPost(url);
-                ((HttpPost)currentRequest).setEntity(new UrlEncodedFormEntity(postData));
-                response = client.execute(currentRequest);
-                currentRequest = null;
-                return response;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+        HttpResponse response = null;
+        try {
+            currentRequest = new HttpPost(url);
+            ((HttpPost)currentRequest).setEntity(new UrlEncodedFormEntity(postData));
+            response = client.execute(currentRequest);
+            currentRequest = null;
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
     public String postJobmineHtml (List<NameValuePair> postData, String url) throws JbmnplsLoggedOutException, IOException {
-        synchronized(lock) {
+        synchronized (requestLock) {
             InputStream in = null;
             BufferedReader reader = null;
             try {
@@ -380,7 +370,6 @@ public final class JbmnplsHttpClient {
                 if (!loggedIn) {
                     throw new JbmnplsLoggedOutException();
                 }
-
                 // Successfully logged in
                 StringBuilder str = new StringBuilder();
                 String line = null;
@@ -427,12 +416,11 @@ public final class JbmnplsHttpClient {
     //===================
     //  Private Methods
     //===================
-    private void reset() {
+    private synchronized void reset() {
         HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0");
         client = new DefaultHttpClient(params);
-        loginTimeStamp = 0;
     }
 
     private LOGGED validateLoginJobmine(BufferedReader reader) throws IOException {
@@ -453,7 +441,9 @@ public final class JbmnplsHttpClient {
             return LOGGED.OUT;
 
         } else if (text.contains(FAILED_URL)) {
-            loginTimeStamp = 0;
+            synchronized (timeStampLock) {
+                loginTimeStamp = 0;
+            }
             return LOGGED.OUT;
         }
         return LOGGED.IN;
@@ -469,7 +459,7 @@ public final class JbmnplsHttpClient {
     }
 
     private void updateTimestamp() {
-        synchronized(lock) {
+        synchronized(timeStampLock) {
             loginTimeStamp = System.currentTimeMillis();
         }
     }
