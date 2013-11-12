@@ -68,8 +68,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public final static int RESULT_COUNT_100 = 100;
     public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 40;
 
-    private final static int INACTIVE_20_MINUTES = 20 * 1000 * 60;
-
     // Task list
     private final Queue<Pair<Integer, String>> taskQueue = new LinkedList<Pair<Integer,String>>();
     private final SparseIntArray jobPageArray = new SparseIntArray(200);
@@ -83,7 +81,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private boolean firstSearch;
     private boolean allJobsLoaded;
     private boolean hasLoaded100;
-    private long lastPost;
 
     private JobSearchDialog searchDialog;
 
@@ -100,6 +97,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private int currentPage;
     private int totalPages;
     private int currentListPosition;
+    private boolean wasInactive = false;
 
     // Shortlisting
     private int idShortlisting = 0;
@@ -144,7 +142,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
         firstSearch = true;
         currentPage = 0;
         currentListPosition = 0;
-        lastPost = System.currentTimeMillis();
         allJobsLoaded = false;
         enableShortlisting = true;
     }
@@ -299,6 +296,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
         // Coming from HomeActivity
         if (firstSearch && pullData) {
             showSearchDialog();
+
+            // If timed out, then show the message
+            if (wasInactive) {
+                showAlert(getString(R.string.search_inactivity));
+                wasInactive = false;
+            }
         } else {
             super.onRequestComplete(pullData);
         }
@@ -543,14 +546,14 @@ public class JobSearch extends JbmnplsListActivityBase implements
     //==================
     private boolean checkIfSearchExpired() {
         // When 20 min has past when nothing has posted
-        boolean flag = !searchDialog.isShowing() && System.currentTimeMillis() - lastPost > INACTIVE_20_MINUTES;
+        boolean flag = !searchDialog.isShowing() && !client.isLoggedIn();
 
         if (flag) {
             // Reset to first time search and show the dialog again
+            wasInactive = true;
             firstSearch = true;
             clearList();
-            showSearchDialog();
-            showAlert(getString(R.string.search_inactivity));
+            requestData();
         }
         return flag;
     }
@@ -728,6 +731,9 @@ public class JobSearch extends JbmnplsListActivityBase implements
             if (checkIfSearchExpired()) {
                 return NO_PROBLEM;
             }
+            if (!verifyLogin()) {
+                return LOGOUT_RESULT;
+            }
 
             currentCommand = params[0];
             List<NameValuePair> postData = new ArrayList<NameValuePair>();
@@ -871,7 +877,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         protected String doPost(List<NameValuePair> data, String url)
                 throws JbmnplsLoggedOutException, IOException {
-            lastPost = System.currentTimeMillis();
             data.add(new BasicNameValuePair("ICElementNum", "0"));
             data.add(new BasicNameValuePair("ICAJAX", "1"));
             data.add(new BasicNameValuePair("ICStateNum", stateNum));
