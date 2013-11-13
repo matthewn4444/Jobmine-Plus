@@ -97,7 +97,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
     private int currentPage;
     private int totalPages;
     private int currentListPosition;
-    private boolean wasInactive = false;
+
+    // Errors
+    private static enum Error {
+        INACTIVE, LOST_STATE, LOGGED_OUT, NONE
+    };
+    private Error stateError;
 
     // Shortlisting
     private int idShortlisting = 0;
@@ -144,6 +149,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         currentListPosition = 0;
         allJobsLoaded = false;
         enableShortlisting = true;
+        stateError = Error.NONE;
     }
 
     @Override
@@ -175,6 +181,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected int getActionBarId() {
         return R.menu.actionbar_job_search;
+    }
+
+    @Override
+    protected void requestData() throws RuntimeException {
+        super.requestData();
+        firstSearch = true;
+        clearList();
     }
 
     @Override
@@ -297,11 +310,21 @@ public class JobSearch extends JbmnplsListActivityBase implements
         if (firstSearch && pullData) {
             showSearchDialog();
 
-            // If timed out, then show the message
-            if (wasInactive) {
+            // If there was an error we will show an error
+            switch (stateError) {
+            case INACTIVE:
                 showAlert(getString(R.string.search_inactivity));
-                wasInactive = false;
+                break;
+            case LOGGED_OUT:
+                showAlert(getString(R.string.search_logged_out));
+                break;
+            case LOST_STATE:
+                showAlert(getString(R.string.search_lost_state));
+                break;
+            default:
+                break;
             }
+            stateError = Error.NONE;
         } else {
             super.onRequestComplete(pullData);
         }
@@ -550,9 +573,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         if (flag) {
             // Reset to first time search and show the dialog again
-            wasInactive = true;
-            firstSearch = true;
-            clearList();
+            stateError = Error.INACTIVE;
             requestData();
         }
         return flag;
@@ -1024,13 +1045,15 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 doneLoadingAllJobs();
                 return;
             case LOST_STATE_RESULT:
-                toast("Went to lost state and failed");
                 doneLoadingAllJobs();
+                stateError = Error.LOST_STATE;
+                requestData();
                 break;
             case LOGOUT_RESULT:
                 // Go back to home screen? and show a fail?
-                toast("Went to logout and failed");
                 doneLoadingAllJobs();
+                stateError = Error.LOGGED_OUT;
+                requestData();
                 break;
             }
 
