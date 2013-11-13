@@ -156,7 +156,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Job job = getList().get(position);
         int jobId = job.getId();
-        if (!job.hasDescriptionData()) {
+        if (!job.hasDescriptionData() && isReallyOnline()) {
             addTask(SearchRequestTask.DESCRIPTION);
         }
         goToDescription(jobId);
@@ -381,7 +381,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onNetworkConnectionChanged(boolean connected) {
         super.onNetworkConnectionChanged(connected);
-        enableShortlisting(connected);
+        enableShortlisting(isReallyOnline());
 
         ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(connected && isOnline() && !allJobsLoaded);
         setSearchEnabled(connected);
@@ -446,7 +446,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onlineModeChanged(boolean flag) {
         setSearchEnabled(flag);
-        enableShortlisting(flag);
+        enableShortlisting(isReallyOnline());
 
         // Coming in offline and going online, we need to get the new data
         if (firstSearch && flag) {
