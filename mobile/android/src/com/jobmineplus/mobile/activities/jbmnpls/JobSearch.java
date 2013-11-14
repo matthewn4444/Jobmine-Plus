@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 
 import org.apache.http.NameValuePair;
@@ -15,7 +13,6 @@ import org.apache.http.message.BasicNameValuePair;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.os.Bundle;
-import android.util.Pair;
 import android.util.SparseIntArray;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -30,10 +27,9 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
-import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.activities.SimpleActivityBase;
 import com.jobmineplus.mobile.database.pages.PageResult;
-import com.jobmineplus.mobile.exceptions.JbmnplsCancelledException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLostStateException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -41,14 +37,13 @@ import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsRequestQueue;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.JobSearchDialog;
 import com.jobmineplus.mobile.widgets.JobSearchDialog.OnJobSearchListener;
 import com.jobmineplus.mobile.widgets.JobSearchProperties;
-import com.jobmineplus.mobile.widgets.JobminePlusMobileLog;
-import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
@@ -59,44 +54,40 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     // Few TODO notes
     //      1. concurrentmodificationexception happens sometimes (Arraylist or the jobSourceDatabase
+    //      2. Going offline coming in, then search, then try to shortlist will fail.
+    //      3. When doing view100 and shortlist, it wont work, queuing jobs to not work
 
     //======================
     //  Declaration Objects
     //======================
     public final static String PAGE_NAME = JobSearch.class.getName();
-    public final static int INITIAL_RESULT_COUNT = 25;
-    public final static int RESULT_COUNT_100 = 100;
     public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 40;
 
-    // Task list
-    private final Queue<Pair<Integer, String>> taskQueue = new LinkedList<Pair<Integer,String>>();
+    // Task Queue
+    private SearchRequestQueue taskQueue;
+
+    // Shortlist data structures
     private final SparseIntArray jobPageArray = new SparseIntArray(200);
-    private String lastSearchedHtml = null;
     private Set<Integer> shortlistSet;
 
+    // Search dialog and its properties
     private JobSearchProperties properties;
-    private SearchRequestTask jobSearchPageTask;
+    private JobSearchDialog searchDialog;
 
+    // Job Search states
     private boolean enableSearch = true;
     private boolean firstSearch;
     private boolean allJobsLoaded;
-    private boolean hasLoaded100;
 
-    private JobSearchDialog searchDialog;
+    // Current list position
+    private int currentListPosition;
 
+    // Alert dialog
     private AlertDialog.Builder alert;
 
     // Sorting variables
     private HEADER choseSortHeader;
     private boolean choseSortAscend;
-
-    // Job search post properties
-    private String icsID;
-    private String stateNum;
-    private int numJobs;
-    private int currentPage;
-    private int totalPages;
-    private int currentListPosition;
 
     // Errors
     private static enum Error {
@@ -144,8 +135,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
         alert = new Builder(this);
         alert.setNegativeButton(android.R.string.ok, null);
         alert.create();
+        taskQueue = new SearchRequestQueue(this, null, null);       // Initially, it will actually get set in parseWebpage()
         firstSearch = true;
-        currentPage = 0;
         currentListPosition = 0;
         allJobsLoaded = false;
         enableShortlisting = true;
@@ -157,7 +148,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         Job job = getList().get(position);
         int jobId = job.getId();
         if (!job.hasDescriptionData() && isReallyOnline()) {
-            addTask(SearchRequestTask.DESCRIPTION);
+            taskQueue.addTask(SearchRequestQueue.DESCRIPTION);
         }
         goToDescription(jobId);
     }
@@ -212,11 +203,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         // State Number
         parser.skipText("id='ICStateNum'");
-        stateNum = parser.getAttributeInCurrentElement("value");
+        String stateNum = parser.getAttributeInCurrentElement("value");
 
         // ICSID
         parser.skipText("id='ICSID'");
-        icsID = parser.getAttributeInCurrentElement("value");
+        String icsID = parser.getAttributeInCurrentElement("value");
 
         // Term
         parser.skipText("win0divUW_CO_JOBSRCH_UW_CO_WT_SESSION", "input");
@@ -285,6 +276,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
         parser.skipText("win0divUW_CO_JOBSRCH_UW_CO_JOB_TYPE", "checked=", "label");
         properties.jobType.set(JobSearchProperties.JOBTYPE.fromString(parser.getTextInCurrentElement()));
 
+        taskQueue = new SearchRequestQueue(this, stateNum, icsID);
+
         properties.acceptChanges();
     }
 
@@ -338,7 +331,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void addJob(Job job) {
         // If it does not exist in the map, then include it
         if (!jobExists(job)) {
-            jobPageArray.append(job.getId(), currentPage);
+            jobPageArray.append(job.getId(), taskQueue.getCurrentPageNumber());
             super.addJob(job);
         }
     }
@@ -357,7 +350,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     @Override
     protected void onDestroy() {
-        cancelAllTasks();
+        taskQueue.cancelAllTasks();
         super.onDestroy();
     }
 
@@ -372,7 +365,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         if (!allJobsLoaded && isReallyOnline()) {
             choseSortHeader = header;
             choseSortAscend = ascend;
-            addTask(SearchRequestTask.SORT, getString(R.string.search_sort_getting_jobs));
+            taskQueue.addTask(SearchRequestQueue.SORT, getString(R.string.search_sort_getting_jobs));
         } else {
             super.sort(header, ascend);
         }
@@ -388,7 +381,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
         if (connected) {
             getListView().setOnScrollListener(this);
         } else {
-            cancelAllTasks();
+            taskQueue.cancelAllTasks();
             getListView().setOnScrollListener(null);
         }
     }
@@ -457,15 +450,15 @@ public class JobSearch extends JbmnplsListActivityBase implements
             if (flag) {
                 // Goes online and needs to continue to get more jobs
                 if (!allJobsLoaded) {
-                    if (!hasLoaded100) {
-                        addTask(SearchRequestTask.VIEW100);
+                    if (!taskQueue.hasLoaded100Jobs()) {
+                        taskQueue.addTask(SearchRequestQueue.VIEW100);
                     }
                     ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(true);
                     getListView().setOnScrollListener(this);
                 }
             } else {
                 // Go offline
-                cancelAllTasks();
+                taskQueue.cancelAllTasks();
                 ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(false);
                 getListView().setOnScrollListener(null);
             }
@@ -504,13 +497,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     public void onJobTypeChange(Spinner spinner, JobSearchProperties.JOBTYPE type) {
         properties.jobType.set(type);
-        addTask(SearchRequestTask.JOBTYPE);
+        taskQueue.addTask(SearchRequestQueue.JOBTYPE);
     }
 
     @Override
     public void onSearch(JobSearchProperties prop) {
         if (isReallyOnline()) {
-            addTask(SearchRequestTask.SEARCH, getString(R.string.search_searching_dialog));
+            taskQueue.addTask(SearchRequestQueue.SEARCH, getString(R.string.search_searching_dialog));
         } else {
             hideSearchDialog();
             showAlert(getString(R.string.search_searching_offline));
@@ -519,10 +512,10 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     @Override
     public void onCancel() {
-        if (jobSearchPageTask != null) {
+        if (taskQueue.isRunning()) {
             // Cancel only if job type changes when pressing cancel on the search dialog
-            if (jobSearchPageTask.currentCommand == SearchRequestTask.JOBTYPE) {
-                jobSearchPageTask.cancel(true);
+            if (taskQueue.getCurrentCommand() == SearchRequestQueue.JOBTYPE) {
+                taskQueue.cancelCurrent(true);
             }
         }
         if (firstSearch && getList().isEmpty()) {
@@ -539,7 +532,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
             CheckBox box = (CheckBox)v;
             Job job = (Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY);
             idShortlisting = job.getId();
-            addTask(SearchRequestTask.SHORTLIST);
+            taskQueue.addTask(SearchRequestQueue.SHORTLIST);
             enableShortlisting(false);
 
             // Show loading symbol
@@ -613,10 +606,10 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void fetchMoreIfNeeded() {
         int currentlyLoaded = getList().size();
         if (currentlyLoaded - currentListPosition < FETCH_MORE_REACH_BOTTOM_COUNT   // If near the bottom of the list
-                && hasLoaded100                                                     // Has loaded 100 items
+                && taskQueue.hasLoaded100Jobs()                             // Has loaded 100 items
                 && !allJobsLoaded
-                && !jobSearchPageTask.isRunning()) {                                // Not running any task currently
-            addTask(SearchRequestTask.NEXTPAGE);
+                && !taskQueue.isRunning()) {                                // Not running any task currently
+            taskQueue.addTask(SearchRequestQueue.NEXTPAGE);
         }
     }
 
@@ -656,72 +649,167 @@ public class JobSearch extends JbmnplsListActivityBase implements
         }
     }
 
-    //===================
-    //  Handling Tasks
-    //===================
-    private void addTask(int jobCode) {
-        addTask(jobCode, null);
-    }
-
-    private void addTask(int jobCode, String message) {
-        taskQueue.add(new Pair<Integer, String>(jobCode, message));
-        runTask();
-    }
-
-    private void runTask() {
-        if (!taskQueue.isEmpty() && (jobSearchPageTask == null || !jobSearchPageTask.isRunning())) {
-            Pair<Integer, String> taskInfo = taskQueue.poll();
-            jobSearchPageTask = new SearchRequestTask(this, taskInfo.second);
-            jobSearchPageTask.execute(taskInfo.first);
-        }
-    }
-
-    private void cancelAllTasks() {
-        if (jobSearchPageTask != null) {
-            jobSearchPageTask.cancel(true);
-        }
-    }
-
     //===========================
     //  All Purpose Task Runner
     //===========================
-    private final class SearchRequestTask extends ProgressDialogAsyncTaskBase<Integer, Void, Integer> {
-
-        private final TableParser tableParser = new TableParser();
-        private final JobSearch activity;
-        private int currentCommand;
-        private String response = null;
+    private final class SearchRequestQueue extends JbmnplsRequestQueue<Void> {
+        public final static int INITIAL_RESULT_COUNT = 25;
+        public final static int RESULT_COUNT_100 = 100;
 
         // Task States
         public static final int SEARCH = 0;
         public static final int VIEW100 = 1;
-//        public static final int VIEW25 = 2;
-        public static final int NEXTPAGE = 3;
-//        public static final int PREVPAGE = 4;
-//        public static final int LASTPAGE = 5;
-//        public static final int FIRSTPAGE = 6;
-        public static final int SHORTLIST = 7;
-        public static final int JOBTYPE = 8;
-        public static final int SORT = 9;
-        public static final int DESCRIPTION = 10;
+        public static final int NEXTPAGE = 2;
+        public static final int SHORTLIST = 3;
+        public static final int JOBTYPE = 4;
+        public static final int SORT = 5;
+        public static final int DESCRIPTION = 6;
 
         // Task Response states
-        public static final int NO_PROBLEM = 0;
-        public static final int UNKNOWN_COMMAND = 1;
-        public static final int JOBTYPE_UNAUTH = 2;
-        public static final int LOGOUT_RESULT = 3;
-        public static final int LOST_STATE_RESULT = 4;
-        public static final int CANCELLED = 5;
-        public static final int PARSING_ERROR = 6;
+        protected static final int JOBTYPE_UNAUTH = 7;
 
-        public static final String LOST_STATE_STRING = "return to your most recent active page";
-        public static final String EXCEPTION_STRING = "uw_exception.html";
+        // Shortlist check string matches
         public static final String SHORTLIST_SUCCESS_STRING = "The job has been added successfully";
 
-        public SearchRequestTask(JobSearch a, String message) {
-            super(a, message, message != null);
+        // Request States
+        private String lastSearchedHtml = null;
+        private int currentPage;
+        private int numJobs;
+        private int totalPages;
+        private boolean hasLoaded100;
+
+        private final JobSearch activity;
+        TableParser tableParser;
+
+        public SearchRequestQueue(JobSearch a, String stateNumber, String id) {
+            super(a, SimpleActivityBase.client, getUrl(), stateNumber, id);
             activity = a;
-            tableParser.setOnTableRowParse(a);
+            currentPage = 0;
+        }
+
+        public int getCurrentPageNumber() {
+            return currentPage;
+        }
+
+        public boolean hasLoaded100Jobs() {
+            return hasLoaded100;
+        }
+
+        @Override
+        protected Integer doInBackground(Integer... params) throws IOException {
+            tableParser = new TableParser();
+            tableParser.setOnTableRowParse(activity);
+            ArrayList<Integer> shortlistIds = null;
+            SimpleHtmlParser parser = null;
+            String response = null;
+
+            switch(getCurrentCommand()) {
+            case SEARCH:
+                List<NameValuePair> data = new ArrayList<NameValuePair>();
+                properties.addChangesToPostData(data);
+                lastSearchedHtml = doPost("UW_CO_JOBSRCHDW_UW_CO_DW_SRCHBTN", data);
+
+                // Get the shortlist ids from the databsae
+                PageResult r = pageDataSource.getPageData(client.getUsername(), Shortlist.PAGE_NAME);
+                if (r != null && r.ids != null) {
+                    shortlistSet = new HashSet<Integer>(r.ids);
+                } else {
+                    shortlistSet = new HashSet<Integer>();
+                }
+
+                currentPage = 1;
+
+                // Parse the jobs out
+                clearList();
+                tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
+                properties.acceptChanges();
+
+                updatePageJobInfo();
+
+                // Write the shortlisted ids to the database
+                shortlistIds = new ArrayList<Integer>(shortlistSet);
+                pageDataSource.addPageIds(client.getUsername(), Shortlist.PAGE_NAME, shortlistIds);
+
+                // Make a new task to view 100 jobs if there are more than 25 jobs
+                if (numJobs > INITIAL_RESULT_COUNT) {
+                    addTask(VIEW100);
+                }
+                break;
+            case VIEW100:
+                view100();
+                fetchMoreIfNeeded();
+                break;
+            case NEXTPAGE:
+                getNextPage();
+                tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
+
+                // If finished loading all the pages, then remove the scroll event
+                if (currentPage != totalPages) {
+                    fetchMoreIfNeeded();
+                }
+                break;
+            case SHORTLIST:
+                int goToPage = jobPageArray.get(idShortlisting);
+                String name = null;
+
+                if (currentPage != goToPage) {
+                    // Go to the page
+                    while(currentPage != goToPage) {
+                        if (currentPage > goToPage) {
+                            getPrevPage();
+                        } else if (currentPage < goToPage) {
+                            getNextPage();
+                        }
+                    }
+                }
+
+                // Get the shortlist job index from html
+                parser = new SimpleHtmlParser(lastSearchedHtml);
+                parser.skipText(idShortlisting + "", "id='UW_CO_SLIST_HL$");
+                name = parser.getAttributeInCurrentElement("id");
+
+                response = doPost(name);
+
+                if (!response.contains(SHORTLIST_SUCCESS_STRING)) {
+                    throw new JbmnplsLostStateException("Was not able to shortlist");
+                }
+
+                // Write the shortlisted ids to the database
+                shortlistSet.add(idShortlisting);
+                shortlistIds = new ArrayList<Integer>(shortlistSet);
+                pageDataSource.addPageIds(client.getUsername(), Shortlist.PAGE_NAME, shortlistIds);
+                break;
+            case JOBTYPE:
+                response = doPost("TYPE_COOP", new BasicNameValuePair("TYPE_COOP",
+                        properties.jobType.get().getIndex() + ""));
+
+                if (response.contains(getString(R.string.job_search_type_unauth))) {
+                    properties.jobType.rejectChange();
+                    return JOBTYPE_UNAUTH;
+                } else {
+                    properties.jobType.updateChange();
+                }
+                break;
+            case SORT:
+                if (!hasLoaded100) {
+                    view100();
+                }
+                while (currentPage < totalPages) {
+                    getNextPage();
+                }
+                break;
+            case DESCRIPTION:
+                doPost("UW_CO_JOBTITLE_HL$0");
+                break;
+            default:
+                return UNKNOWN_COMMAND;
+            }
+            return NO_PROBLEM;
+        }
+
+        @Override
+        protected boolean checkForInActivity() {
+            return checkIfSearchExpired();
         }
 
         private void updatePageJobInfo() {
@@ -747,189 +835,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
             }
         }
 
-        @Override
-        protected Integer doInBackground(Integer... params) {
-            if (checkIfSearchExpired()) {
-                return NO_PROBLEM;
-            }
-            if (!verifyLogin()) {
-                return LOGOUT_RESULT;
-            }
-
-            currentCommand = params[0];
-            List<NameValuePair> postData = new ArrayList<NameValuePair>();
-            SimpleHtmlParser parser = null;
-            ArrayList<Integer> shortlistIds = null;
-            int result = NO_PROBLEM;
-            try {
-                switch(currentCommand) {
-                case SEARCH:
-                    postData.add(new BasicNameValuePair("ICAction", "UW_CO_JOBSRCHDW_UW_CO_DW_SRCHBTN"));
-                    properties.addChangesToPostData(postData);
-
-                    doPost(postData, getUrl());
-                    lastSearchedHtml = response;
-
-                    // Get the shortlist ids from the databsae
-                    PageResult r = pageDataSource.getPageData(client.getUsername(), Shortlist.PAGE_NAME);
-                    if (r != null && r.ids != null) {
-                        shortlistSet = new HashSet<Integer>(r.ids);
-                    } else {
-                        shortlistSet = new HashSet<Integer>();
-                    }
-
-                    currentPage = 1;
-
-                    // Parse the jobs out
-                    clearList();
-                    tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
-                    properties.acceptChanges();
-
-                    updatePageJobInfo();
-
-                    // Write the shortlisted ids to the database
-                    shortlistIds = new ArrayList<Integer>(shortlistSet);
-                    pageDataSource.addPageIds(client.getUsername(), Shortlist.PAGE_NAME, shortlistIds);
-
-                    // Make a new task to view 100 jobs if there are more than 25 jobs
-                    if (numJobs > INITIAL_RESULT_COUNT) {
-                        addTask(VIEW100);
-                    }
-                    break;
-                case VIEW100:
-                    view100(postData);
-                    fetchMoreIfNeeded();
-                    break;
-                case NEXTPAGE:
-                    getNextPage(postData);
-                    tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
-
-                    // If finished loading all the pages, then remove the scroll event
-                    if (currentPage != totalPages) {
-                        fetchMoreIfNeeded();
-                    }
-                    return result;
-                case SHORTLIST:
-                    int goToPage = jobPageArray.get(idShortlisting);
-                    String name = null;
-
-                    if (currentPage != goToPage) {
-                        // Go to the page
-                        while(currentPage != goToPage) {
-                            if (currentPage > goToPage) {
-                                getPrevPage(postData);
-                            } else if (currentPage < goToPage) {
-                                getNextPage(postData);
-                            }
-                            postData.clear();
-                        }
-                    }
-
-                    // Get the shortlist job index from html
-                    parser = new SimpleHtmlParser(lastSearchedHtml);
-                    parser.skipText(idShortlisting + "", "id='UW_CO_SLIST_HL$");
-                    name = parser.getAttributeInCurrentElement("id");
-
-                    postData.add(new BasicNameValuePair("ICAction", name));
-                    doPost(postData, getUrl());
-
-                    if (!response.contains(SHORTLIST_SUCCESS_STRING)) {
-                        throw new JbmnplsLostStateException("Was not able to shortlist");
-                    }
-
-                    // Write the shortlisted ids to the database
-                    shortlistSet.add(idShortlisting);
-                    shortlistIds = new ArrayList<Integer>(shortlistSet);
-                    pageDataSource.addPageIds(client.getUsername(), Shortlist.PAGE_NAME, shortlistIds);
-                    break;
-                case JOBTYPE:
-                    postData.add(new BasicNameValuePair("ICAction", "TYPE_COOP"));
-                    postData.add(new BasicNameValuePair("TYPE_COOP",
-                            properties.jobType.get().getIndex() + ""));
-
-                    doPost(postData, getUrl());
-                    if (response.contains(getString(R.string.job_search_type_unauth))) {
-                        properties.jobType.rejectChange();
-                        return JOBTYPE_UNAUTH;
-                    } else {
-                        properties.jobType.updateChange();
-                    }
-                    break;
-                case SORT:
-                    if (!hasLoaded100) {
-                        view100(postData);
-                    }
-                    while (currentPage < totalPages) {
-                        getNextPage(postData);
-                    }
-                    break;
-                case DESCRIPTION:
-                    postData.add(new BasicNameValuePair("ICAction", "UW_CO_JOBTITLE_HL$0"));
-                    doPost(postData, getUrl());
-                    break;
-                default:
-                    return UNKNOWN_COMMAND;
-                }
-            } catch (JbmnplsCancelledException e) {
-                return CANCELLED;
-            } catch (JbmnplsLoggedOutException e) {
-                e.printStackTrace();
-                BugSenseHandler.sendException(e);
-                JobminePlusMobileLog.sendException(activity, response, e);
-                return LOGOUT_RESULT;
-            } catch (JbmnplsLostStateException e) {
-                e.printStackTrace();
-                BugSenseHandler.sendException(e);
-                JobminePlusMobileLog.sendException(activity, response, e);
-                return LOST_STATE_RESULT;
-            } catch (JbmnplsParsingException e) {
-                e.printStackTrace();
-                BugSenseHandler.sendException(e);
-                JobminePlusMobileLog.sendException(activity, response, e);
-                return PARSING_ERROR;
-            } catch (IOException e) {
-                e.printStackTrace();
-                BugSenseHandler.sendException(e);
-                JobminePlusMobileLog.sendException(activity, response, e);
-                return PARSING_ERROR;
-            }
-            return NO_PROBLEM;
-        }
-
-        protected String doPost(List<NameValuePair> data, String url)
-                throws JbmnplsLoggedOutException, IOException {
-            data.add(new BasicNameValuePair("ICElementNum", "0"));
-            data.add(new BasicNameValuePair("ICAJAX", "1"));
-            data.add(new BasicNameValuePair("ICStateNum", stateNum));
-            data.add(new BasicNameValuePair("ICSID", icsID));
-            response = client.postJobmineHtml(data, url);
-
-            // Check response for authorization
-            if (response == null) {
-                throw new JbmnplsCancelledException();
-            } else if (response.contains(EXCEPTION_STRING)) {
-                throw new JbmnplsParsingException("Jobmine threw an exception.");
-            } else if (response.contains(LOST_STATE_STRING)) {
-                throw new JbmnplsLostStateException();
-            }
-
-            // Find the new state number
-            SimpleHtmlParser parser = new SimpleHtmlParser(response);
-            int startIndex = parser.skipText("ICStateNum", "=");
-            int endIndex = response.indexOf(";", startIndex);
-            if (endIndex == -1) {
-                throw new JbmnplsParsingException("Cannot find state number");
-            }
-            stateNum = response.substring(startIndex, endIndex);
-            return response;
-        }
-
-        private int view100(List<NameValuePair> data) throws JbmnplsLoggedOutException, IOException {
-            data.clear();
-            data.add(new BasicNameValuePair("ICAction", "UW_CO_JOBRES_VW$hviewall$0"));
-            doPost(data, getUrl());
-            lastSearchedHtml = response;
-
+        private int view100() throws JbmnplsLoggedOutException, IOException {
+            lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hviewall$0");
             tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
 
             // Update the page total
@@ -938,32 +845,26 @@ public class JobSearch extends JbmnplsListActivityBase implements
             return NO_PROBLEM;
         }
 
-        private int getNextPage(List<NameValuePair> data) throws JbmnplsLoggedOutException, IOException {
+        private int getNextPage() throws JbmnplsLoggedOutException, IOException {
             if (currentPage == totalPages) {
                 throw new JbmnplsLostStateException("Cannot go to next page because there is no more pages.");
             }
-            data.clear();
-            data.add(new BasicNameValuePair("ICAction", "UW_CO_JOBRES_VW$hdown$0"));
-            doPost(data, getUrl());
-            lastSearchedHtml = response;
+            lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hdown$0");
             updatePageJobInfo();
             return NO_PROBLEM;
         }
 
-        private int getPrevPage(List<NameValuePair> data) throws JbmnplsLoggedOutException, IOException {
+        private int getPrevPage() throws JbmnplsLoggedOutException, IOException {
             if (currentPage == 0) {
                 throw new JbmnplsLostStateException("Cannot go to previous page because current page is at 0.");
             }
-            data.clear();
-            data.add(new BasicNameValuePair("ICAction", "UW_CO_JOBRES_VW$hup$0"));
-            doPost(data, getUrl());
-            lastSearchedHtml = response;
+            lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hup$0");
             updatePageJobInfo();
             return NO_PROBLEM;
         }
 
         private void cancelled() {
-            switch(currentCommand) {
+            switch(getCurrentCommand()) {
             case SORT:
                 resetSortingMenu();
                 break;
@@ -995,7 +896,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 return;
             }
             // Finish off some of the commands
-            switch(currentCommand) {
+            switch(getCurrentCommand()) {
             case SEARCH:
                 // Just finished search, reset all flags
                 getListView().setOnScrollListener(activity);
@@ -1056,9 +957,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 requestData();
                 break;
             }
-
-            // Execute next task in the list
-            runTask();
         }
+
     }
+
 }
