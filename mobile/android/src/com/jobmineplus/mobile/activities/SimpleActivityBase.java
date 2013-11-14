@@ -35,6 +35,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
     protected static JbmnplsHttpClient client = new JbmnplsHttpClient();
     protected SharedPreferences preferences = null;
     private final IntentFilter filter = new IntentFilter();
+    private boolean hasRegisteredNetworkReceiver = false;
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -190,23 +191,47 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         }
 
         // Register the network receiver
-        filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
-        registerReceiver(networkReceiver, filter);
+        if (!hasRegisteredNetworkReceiver) {
+            filter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+            registerReceiver(networkReceiver, filter);
+            hasRegisteredNetworkReceiver = true;
+        }
     }
 
     @Override
     protected void onPause() {
         // Try to unregister the network receiver
-        try {
-            unregisterReceiver(networkReceiver);
-        } catch (IllegalArgumentException e) {
-            if (e.getMessage().contains("Reciever not register")) {
-                Log.w("jbmnplsmbl", "Tried to unregister the receiver when not registered.");
-            } else {
-                throw e;
+        if (hasRegisteredNetworkReceiver) {
+            try {
+                unregisterReceiver(networkReceiver);
+                hasRegisteredNetworkReceiver = false;
+            } catch (IllegalArgumentException e) {
+                if (e.getMessage().contains("Reciever not register")) {
+                    Log.w("jbmnplsmbl", "Tried to unregister the receiver when not registered.");
+                } else {
+                    throw e;
+                }
             }
         }
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Try to unregister the network receiver
+        if (hasRegisteredNetworkReceiver) {
+            try {
+                unregisterReceiver(networkReceiver);
+                hasRegisteredNetworkReceiver = false;
+            } catch (IllegalArgumentException e) {
+                if (e.getMessage().contains("Reciever not register")) {
+                    Log.w("jbmnplsmbl", "Tried to unregister the receiver when not registered.");
+                } else {
+                    throw e;
+                }
+            }
+        }
+        super.onDestroy();
     }
 
     protected <T> boolean isOneOf(T value, T... list) {
