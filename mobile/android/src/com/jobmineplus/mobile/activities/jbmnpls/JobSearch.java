@@ -569,7 +569,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     //==================
     private boolean checkIfSearchExpired() {
         // When 20 min has past when nothing has posted
-        boolean flag = !searchDialog.isShowing() && !client.isLoggedIn();
+        boolean flag = searchDialog != null && !searchDialog.isShowing() && !client.isLoggedIn();
 
         if (flag) {
             // Reset to first time search and show the dialog again
