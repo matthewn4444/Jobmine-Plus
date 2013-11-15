@@ -8,6 +8,7 @@ import java.util.Locale;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
+
 import android.app.Activity;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
@@ -29,10 +30,10 @@ import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
 import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
+import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.JobminePlusMobileLog;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
-import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
 import com.jobmineplus.mobile.widgets.StopWatch;
 
 public abstract class JbmnplsActivityBase extends LoggedInActivityBase implements IDatabaseTask<Long>, DialogInterface.OnClickListener {
@@ -156,6 +157,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // ========================
     // Confirm dialogue click
     // ========================
+    @Override
     public void onClick(DialogInterface dialog, int which) {
         switch (which){
         case DialogInterface.BUTTON_POSITIVE:
@@ -246,16 +248,21 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // ======================
     // Database Task Members
     // ======================
+    @Override
     public Long doPutTask() {
         backBtnDisabled = true;
-        jobDataSource.addJobs(allJobs);
+
+        // Shallow copy of all jobs so that it avoids concurrency issues
+        ArrayList<Job> copyAllJobs = new ArrayList<Job>(allJobs);
+        jobDataSource.addJobs(copyAllJobs);
         if (pageName != null) {
-            pageDataSource.addPage(client.getUsername(), pageName, allJobs, timestamp);
+            pageDataSource.addPage(client.getUsername(), pageName, copyAllJobs, timestamp);
         }
         backBtnDisabled = false;
         return null;
     }
 
+    @Override
     public Long doGetTask() {
         // Handle the moments when username is null, eg. coming back from clearing ram
         if (getLastUser() == null) {
@@ -264,6 +271,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         return doOffine();
     }
 
+    @Override
     public void finishedTask(Long result, DatabaseTask.Action action) {
         if (action == Action.GET) {
             if (result > 0) {
@@ -437,6 +445,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
             }
         }
 
+        @Override
         public void onCancel(DialogInterface dialog) {
             super.onCancel(dialog);
             client.abort();
