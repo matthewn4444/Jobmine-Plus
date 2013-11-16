@@ -501,6 +501,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     public void onSearch(JobSearchProperties prop) {
         if (isReallyOnline()) {
+            taskQueue.cancelAllTasks();
             taskQueue.addTask(SearchRequestQueue.SEARCH, getString(R.string.search_searching_dialog));
         } else {
             hideSearchDialog();
