@@ -53,9 +53,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                             OnScrollListener, OnClickListener {
 
     // Few TODO notes
-    //      1. concurrentmodificationexception happens sometimes (Arraylist or the jobSourceDatabase
-    //      2. Going offline coming in, then search, then try to shortlist will fail.
-    //      3. When doing view100 and shortlist, it wont work, queuing jobs to not work
+    //      4. Shortlist then go offline, please cancel and remove the loading symbol
 
     //======================
     //  Declaration Objects
@@ -629,11 +627,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
             for (int i = 0; i < list.getChildCount(); i++) {
                 View view = list.getChildAt(i);
                 CheckBox box = (CheckBox)view.findViewById(R.id.star);
-                if (!box.isChecked()) {
-                    box.setEnabled(flag);
-                } else if (isShortlisted((Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY))) {
-                    // After shortlisting, we should disable the checkbox
+
+                // If the row is shortlisted, then check it and enable it
+                if (isShortlisted((Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY))) {
                     box.setEnabled(false);
+                    box.setChecked(true);
+                } else {
+                    box.setEnabled(flag);
                 }
             }
             enableShortlisting = flag;
