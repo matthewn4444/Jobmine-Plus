@@ -342,6 +342,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     @Override
     protected void onResume() {
         super.onResume();
+        enableShortlisting(isReallyOnline());
         checkIfSearchExpired();
     }
 
