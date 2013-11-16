@@ -634,7 +634,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 CheckBox box = (CheckBox)view.findViewById(R.id.star);
 
                 // If the row is shortlisted, then check it and enable it
-                if (isShortlisted((Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY))) {
+                if (isShortlisted((Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY)) || box.isChecked()) {
                     box.setEnabled(false);
                     box.setChecked(true);
                 } else {
