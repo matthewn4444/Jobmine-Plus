@@ -53,7 +53,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
                             OnScrollListener, OnClickListener {
 
     // Few TODO notes
-    //      4. Shortlist then go offline, please cancel and remove the loading symbol
 
     //======================
     //  Declaration Objects
@@ -618,7 +617,11 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     protected boolean isShortlisted(Job job) {
-        return shortlistSet.contains(job.getId());
+        return isShortlisted(job.getId());
+    }
+
+    protected boolean isShortlisted(int id) {
+        return shortlistSet.contains(id);
     }
 
     protected void enableShortlisting(boolean flag) {
@@ -861,6 +864,16 @@ public class JobSearch extends JbmnplsListActivityBase implements
             lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hup$0");
             updatePageJobInfo();
             return NO_PROBLEM;
+        }
+
+        @Override
+        protected void onCancelled() {
+            // Reset shortlist state when cancelled
+            enableShortlisting(true);
+            idShortlisting = 0;
+            removeAllItemLoadingImage();
+            cancelAllTasks();
+            super.onCancelled();
         }
 
         private void cancelled() {
