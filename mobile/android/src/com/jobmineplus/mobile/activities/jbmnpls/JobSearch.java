@@ -52,8 +52,6 @@ public class JobSearch extends JbmnplsListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener, OnClickListener {
 
-    // Few TODO notes
-
     //======================
     //  Declaration Objects
     //======================
