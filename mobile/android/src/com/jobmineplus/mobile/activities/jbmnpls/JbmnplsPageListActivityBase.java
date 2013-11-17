@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -23,15 +24,18 @@ import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.HeaderComparator.DIRECTION;
+import com.jobmineplus.mobile.widgets.ViewReduceHeightAnimation;
 
 public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
 
     private HashMap<String, ArrayList<Job>> lists;
+    private static final int VIEW_ITEM_POSITION_KEY = R.id.VIEW_ITEM_POSITION_KEY;
 
     private static final String DISPLAYNAME = "displayname";
     private final Job.HeaderComparator comparer = new Job.HeaderComparator();
     private MenuItem sortSelected;
     private boolean sortedAscending = false;
+    private RemoveRowAnimation removeAnimation;
 
     //====================
     //  Abstract Methods
@@ -48,6 +52,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         lists = new HashMap<String, ArrayList<Job>>();
+        removeAnimation = new RemoveRowAnimation();
         super.defineUI(savedInstanceState);
     }
 
@@ -209,6 +214,12 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         sortedAscending = false;
     }
 
+    protected void removeRow(final View row) {
+        if (!removeAnimation.isRunning()) {
+            removeAnimation.start(row);
+        }
+    }
+
     //====================
     //  Accessors
     //====================
@@ -273,7 +284,23 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
 
         @Override
         protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
+            layout.setTag(VIEW_ITEM_POSITION_KEY, position);
             return formatJobListItem(position, job, elements, layout);
+        }
+    }
+
+    //==================================
+    //  Remove ListView item Animation
+    //==================================
+    class RemoveRowAnimation extends ViewReduceHeightAnimation {
+        @Override
+        public void onAnimationEnd(Animator animator) {
+            final int position = (Integer)getView().getTag(VIEW_ITEM_POSITION_KEY);
+            JbmnplsAdapterBase adapter = getAdapterByIndex(getCurrentIndex());
+            adapter.getList().remove(position);
+            adapter.notifyDataSetChanged();
+
+            super.onAnimationEnd(animator);
         }
     }
 
