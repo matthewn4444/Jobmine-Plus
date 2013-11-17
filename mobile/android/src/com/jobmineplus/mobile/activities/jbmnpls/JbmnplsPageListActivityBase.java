@@ -5,11 +5,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import junit.framework.Assert;
-
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListView;
+
 import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -17,9 +18,9 @@ import com.actionbarsherlock.view.SubMenu;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.pages.PageMapResult;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.HeaderComparator.DIRECTION;
 
@@ -28,7 +29,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     private HashMap<String, ArrayList<Job>> lists;
 
     private static final String DISPLAYNAME = "displayname";
-    private Job.HeaderComparator comparer = new Job.HeaderComparator();
+    private final Job.HeaderComparator comparer = new Job.HeaderComparator();
     private MenuItem sortSelected;
     private boolean sortedAscending = false;
 
@@ -153,6 +154,13 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         for (String tag : lists.keySet()) {
             lists.get(tag).clear();
         }
+        allJobs.clear();
+    }
+
+    protected void scrollToTop() {
+        for (String tag : lists.keySet()) {
+            ((PageListFragment)getFragment(tag)).scrollToTop();
+        }
     }
 
     protected void createTab(String displayName) {
@@ -194,15 +202,36 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         }
     }
 
+    protected void resetSortingMenu() {
+        if (sortSelected != null) {
+            sortSelected.setTitle(" " + ((String)sortSelected.getTitle()).substring(1));
+        }
+        sortedAscending = false;
+    }
+
     //====================
     //  Accessors
     //====================
+    @Override
     public ListFragment getCurrentFragment() {
         return (ListFragment) super.getCurrentFragment();
     }
 
+    @Override
     public ListFragment getFragment(int index) {
         return (ListFragment) super.getFragment(index);
+    }
+
+    public ListView getListViewByTab(String displayName) {
+        return ((PageListFragment)getFragment(displayName)).getListView();
+    }
+
+    public ListView getListViewByIndex(int index) {
+        return ((PageListFragment)getFragment(index)).getListView();
+    }
+
+    public ListView getCurrentListView() {
+        return getListViewByIndex(getCurrentIndex());
     }
 
     public ArrayList<Job> getListByTab(String displayName) {
@@ -224,6 +253,10 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
 
     public JbmnplsAdapterBase getAdapterByTab(String displayName) {
         return ((PageListFragment)getFragment(displayName)).getPageListAdapter();
+    }
+
+    public JbmnplsAdapterBase getAdapterByIndex(int index) {
+        return ((PageListFragment)getFragment(index)).getPageListAdapter();
     }
 
     //========================
@@ -249,6 +282,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     //============================
     public final static class PageListFragment extends ListFragment {
         private boolean showEmptyText = false;
+        private boolean listIsAvailable = false;
         public String displayName;
         private JbmnplsAdapterBase listAdapter;
 
@@ -277,16 +311,39 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             return listAdapter;
         }
 
+        public void scrollToTop() {
+            ListView view = getListView();
+            if (view != null) {
+                view.setSelectionAfterHeaderView();
+            }
+        }
+
+        @Override
+        public ListView getListView() {
+            if (listIsAvailable) {
+                return super.getListView();
+            } else {
+                return null;
+            }
+        }
+
+        @Override
+        public void onDestroyView() {
+            super.onDestroyView();
+            listIsAvailable = false;
+        }
+
         @Override
         public void onActivityCreated(Bundle savedInstanceState) {
             Bundle b = getArguments();
             setListShown(true);
+            listIsAvailable = true;
             Assert.assertNotNull(b);
             displayName = b.getString(DISPLAYNAME);
             JbmnplsPageListActivityBase a = (JbmnplsPageListActivityBase)getActivity();
             a.createTab(displayName, this);
-            getListView().setOnItemClickListener(a);
-            getListView().setAdapter(listAdapter);
+            super.getListView().setOnItemClickListener(a);
+            super.getListView().setAdapter(listAdapter);
             if (showEmptyText) {
                 setEmptyText(getString(R.string.empty_job_list));
             }

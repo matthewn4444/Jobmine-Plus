@@ -48,9 +48,13 @@ import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
-public class JobSearch extends JbmnplsListActivityBase implements
+public class JobSearch extends JbmnplsPageListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener, OnClickListener {
+
+    // TODO do not show the loading symbol if the list is not full --> the fetchMoreIfNeeded function needs to be redone supporting the list it is currently on
+    // TODO animate shortlist to add job to shortlist list and same thing for the read status (after coming back)
+    // TODO never allow view100 boolean to reset since once view100 happens, then it is set until this page is "get" again
 
     //======================
     //  Declaration Objects
@@ -58,12 +62,22 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public final static String PAGE_NAME = JobSearch.class.getName();
     public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 40;
 
+    // Tab Names
+    public final static class PAGES {
+        final public static String NEW = "New";
+        final public static String READ = "Read";
+        final public static String SHORTLIST = "Shortlisted";
+        final public static String APPLIED = "Already Applied";
+        final public static String ALL = "All Jobs";
+    }
+
     // Task Queue
     private SearchRequestQueue taskQueue;
 
     // Shortlist data structures
     private final SparseIntArray jobPageArray = new SparseIntArray(200);
     private Set<Integer> shortlistSet;
+    private List<Integer> readOrNewList;
 
     // Search dialog and its properties
     private JobSearchProperties properties;
@@ -136,11 +150,18 @@ public class JobSearch extends JbmnplsListActivityBase implements
         allJobsLoaded = false;
         enableShortlisting = true;
         stateError = Error.NONE;
+
+        // Add the page tabs
+        createTab(PAGES.NEW);
+        createTab(PAGES.READ);
+        createTab(PAGES.APPLIED);
+        createTab(PAGES.SHORTLIST);
+        createTab(PAGES.ALL);
     }
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Job job = getList().get(position);
+        Job job = getCurrentList().get(position);
         int jobId = job.getId();
         if (!job.hasDescriptionData() && isReallyOnline()) {
             taskQueue.addTask(SearchRequestQueue.DESCRIPTION);
@@ -173,7 +194,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     protected void requestData() throws RuntimeException {
         super.requestData();
         firstSearch = true;
-        clearList();
+        clearAllLists();
     }
 
     @Override
@@ -280,16 +301,37 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         int id = (Integer)jobData[0];
 
-        // Maintain the shortlisted ids database
-        if (((String)jobData[7]).equals("On Short List")) {
-            shortlistSet.add(id);
-        } else {
-            shortlistSet.remove(id);
+        if (!jobExists(id)) {
+            APPLY_STATUS appStatus = (APPLY_STATUS)jobData[6];
+            boolean hasBeenPlaced = false;
+
+            Job job = new Job(          id, (String)    jobData[1], (String)jobData[2],
+                    (String)    jobData[4], (Integer)   jobData[5], appStatus,
+                    (Date)      jobData[9], (Integer)   jobData[8]);
+
+            if (appStatus == APPLY_STATUS.ALREADY_APPLIED) {
+                hasBeenPlaced = true;
+                addJobToListByTabId(PAGES.APPLIED, job);
+            }
+
+            // Maintain the shortlisted ids database
+            if (((String)jobData[7]).equals("On Short List")) {
+                shortlistSet.add(id);
+                hasBeenPlaced = true;
+                addJobToListByTabId(PAGES.SHORTLIST, job);
+            } else {
+                shortlistSet.remove(id);
+            }
+
+            // If it has not been placed in any tab, then it is new
+            if (!hasBeenPlaced) {
+                readOrNewList.add(id);
+            }
+
+            // Place the jobs in different tabs
+            addJobToListByTabId(PAGES.ALL, job);
+            addJob(job);
         }
-        Job job = new Job(          id, (String)    jobData[1], (String)jobData[2],
-                (String)    jobData[4], (Integer)   jobData[5], (APPLY_STATUS)jobData[6],
-                (Date)      jobData[9], (Integer)   jobData[8]);
-        addJob(job);
     }
 
     @Override
@@ -319,21 +361,22 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     protected boolean jobExists(Job job) {
-        return jobPageArray.indexOfKey(job.getId()) >= 0;
+        return jobExists(job.getId());
+    }
+
+    protected boolean jobExists(int id) {
+        return jobPageArray.indexOfKey(id) >= 0;
     }
 
     @Override
     protected void addJob(Job job) {
-        // If it does not exist in the map, then include it
-        if (!jobExists(job)) {
-            jobPageArray.append(job.getId(), taskQueue.getCurrentPageNumber());
-            super.addJob(job);
-        }
+        jobPageArray.append(job.getId(), taskQueue.getCurrentPageNumber());
+        super.addJob(job);
     }
 
     @Override
-    protected void clearList() {
-        super.clearList();
+    public void clearAllLists() {
+        super.clearAllLists();
         jobPageArray.clear();
     }
 
@@ -372,13 +415,13 @@ public class JobSearch extends JbmnplsListActivityBase implements
         super.onNetworkConnectionChanged(connected);
         enableShortlisting(isReallyOnline());
 
-        ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(connected && isOnline() && !allJobsLoaded);
+        showLoadingAtEnd(connected && isOnline() && !allJobsLoaded);
         setSearchEnabled(connected);
         if (connected) {
-            getListView().setOnScrollListener(this);
+            attachScrollListener(true);
         } else {
             taskQueue.cancelAllTasks();
-            getListView().setOnScrollListener(null);
+            attachScrollListener(false);
         }
     }
 
@@ -449,14 +492,14 @@ public class JobSearch extends JbmnplsListActivityBase implements
                     if (!taskQueue.hasLoaded100Jobs()) {
                         taskQueue.addTask(SearchRequestQueue.VIEW100);
                     }
-                    ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(true);
-                    getListView().setOnScrollListener(this);
+                    showLoadingAtEnd(true);
+                    attachScrollListener(true);
                 }
             } else {
                 // Go offline
                 taskQueue.cancelAllTasks();
-                ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(false);
-                getListView().setOnScrollListener(null);
+                showLoadingAtEnd(false);
+                attachScrollListener(false);
             }
         }
     }
@@ -515,7 +558,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 taskQueue.cancelCurrent(true);
             }
         }
-        if (firstSearch && getList().isEmpty()) {
+        if (firstSearch && getListByTab(PAGES.ALL).isEmpty()) {
             finish();
         }
     }
@@ -554,9 +597,29 @@ public class JobSearch extends JbmnplsListActivityBase implements
     public void onScrollStateChanged(AbsListView view, int scrollState) {
     }
 
+    //=======================
+    //  Methods for all Tabs
+    //=======================
+    protected void showLoadingAtEnd(boolean flag) {
+        for (int i = 0; i < numOfTabs(); i++) {
+            ((JbmnplsLoadingAdapterBase)getAdapterByIndex(i)).showLoadingAtEnd(flag);
+        }
+    }
+
+    protected void attachScrollListener(boolean flag) {
+        OnScrollListener listener = flag ? this : null;
+        for (int i = 0; i < numOfTabs(); i++) {
+            ListView list = getListViewByIndex(i);
+            if (list != null) {
+                list.setOnScrollListener(listener);
+            }
+        }
+    }
+
     //==================
     //  Miscellaneous
     //==================
+
     private boolean checkIfSearchExpired() {
         // When 20 min has past when nothing has posted
         boolean flag = searchDialog != null && !searchDialog.isShowing() && !client.isLoggedIn();
@@ -601,7 +664,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     protected void fetchMoreIfNeeded() {
-        int currentlyLoaded = getList().size();
+        int currentlyLoaded = getListByTab(PAGES.ALL).size();
         if (currentlyLoaded - currentListPosition < FETCH_MORE_REACH_BOTTOM_COUNT   // If near the bottom of the list
                 && taskQueue.hasLoaded100Jobs()                             // Has loaded 100 items
                 && !allJobsLoaded
@@ -612,8 +675,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     protected void doneLoadingAllJobs() {
         allJobsLoaded = true;
-        ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(false);
-        getListView().setOnScrollListener(null);
+        showLoadingAtEnd(false);
+        attachScrollListener(false);
     }
 
     protected boolean isShortlisted(Job job) {
@@ -626,17 +689,21 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
     protected void enableShortlisting(boolean flag) {
         if (enableShortlisting != flag) {
-            ListView list = getListView();
-            for (int i = 0; i < list.getChildCount(); i++) {
-                View view = list.getChildAt(i);
-                CheckBox box = (CheckBox)view.findViewById(R.id.star);
+            for (int l = 0; l < numOfTabs(); l++) {
+                ListView list = getListViewByIndex(l);
+                if (list != null) {
+                    for (int i = 0; i < list.getChildCount(); i++) {
+                        View view = list.getChildAt(i);
+                        CheckBox box = (CheckBox)view.findViewById(R.id.star);
 
-                // If the row is shortlisted, then check it and enable it
-                if (isShortlisted((Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY)) || box.isChecked()) {
-                    box.setEnabled(false);
-                    box.setChecked(true);
-                } else {
-                    box.setEnabled(flag);
+                        // If the row is shortlisted, then check it and enable it
+                        if (isShortlisted((Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY)) || box.isChecked()) {
+                            box.setEnabled(false);
+                            box.setChecked(true);
+                        } else {
+                            box.setEnabled(flag);
+                        }
+                    }
                 }
             }
             enableShortlisting = flag;
@@ -644,11 +711,15 @@ public class JobSearch extends JbmnplsListActivityBase implements
     }
 
     protected void removeAllItemLoadingImage() {
-        ListView list = getListView();
-        for (int i = 0; i < list.getChildCount(); i++) {
-            View view = list.getChildAt(i);
-            view.findViewById(R.id.star).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.loading).setVisibility(View.GONE);
+        for (int l = 0; l < numOfTabs(); l++) {
+            ListView list = getListViewByIndex(l);
+            if (list != null) {
+                for (int i = 0; i < list.getChildCount(); i++) {
+                    View view = list.getChildAt(i);
+                    view.findViewById(R.id.star).setVisibility(View.VISIBLE);
+                    view.findViewById(R.id.loading).setVisibility(View.GONE);
+                }
+            }
         }
     }
 
@@ -698,6 +769,28 @@ public class JobSearch extends JbmnplsListActivityBase implements
             return hasLoaded100;
         }
 
+        private void parseHtmlForJobs() {
+            readOrNewList = new ArrayList<Integer>();
+            tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
+
+            if (!readOrNewList.isEmpty()) {
+                // Now we can get the jobs from their ids from the database
+                ArrayList<Job> jobs = jobDataSource.getJobsByIdList(readOrNewList);
+                if (jobs != null) {
+                    for (int i = 0; i < jobs.size(); i++) {
+                        // Add the job to read if it has description data
+                        Job job = jobs.get(i);
+                        if (job.hasDescriptionData()) {
+                            addJobToListByTabId(PAGES.READ, job);
+                        } else {
+                            addJobToListByTabId(PAGES.NEW, job);
+                        }
+                    }
+                }
+            }
+            readOrNewList = null;
+        }
+
         @Override
         protected Integer doInBackground(Integer... params) throws IOException {
             tableParser = new TableParser();
@@ -723,8 +816,8 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 currentPage = 1;
 
                 // Parse the jobs out
-                clearList();
-                tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
+                clearAllLists();
+                parseHtmlForJobs();
                 properties.acceptChanges();
 
                 updatePageJobInfo();
@@ -744,7 +837,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 break;
             case NEXTPAGE:
                 getNextPage();
-                tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
+                parseHtmlForJobs();
 
                 // If finished loading all the pages, then remove the scroll event
                 if (currentPage != totalPages) {
@@ -822,7 +915,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
             String pageInfo = parser.getTextInCurrentElement();
             try {
                 int ofIndex = pageInfo.lastIndexOf("of");
-                if (getList().isEmpty()) {
+                if (getListByTab(PAGES.ALL).isEmpty()) {
                     numJobs = 0;
                     currentPage = 1;
                     totalPages = 1;
@@ -840,7 +933,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
         private int view100() throws JbmnplsLoggedOutException, IOException {
             lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hviewall$0");
-            tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
+            parseHtmlForJobs();
 
             // Update the page total
             hasLoaded100 = true;
@@ -882,14 +975,18 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 resetSortingMenu();
                 break;
             case SHORTLIST:
-                // Revert check of the last item checked
-                ListView list = getListView();
-                for (int i = 0; i < list.getChildCount(); i++) {
-                    CheckBox box = (CheckBox)list.getChildAt(i).findViewById(R.id.star);
-                    Job job = (Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY);
-                    if (idShortlisting == job.getId()) {
-                        box.setChecked(false);
-                        break;
+                // Revert check of the last item checked, check all pages for the shortlist id
+                for (int l = 0; l < numOfTabs(); l++) {
+                    ListView list = getListViewByIndex(l);
+                    if (list != null) {
+                        for (int i = 0; i < list.getChildCount(); i++) {
+                            CheckBox box = (CheckBox)list.getChildAt(i).findViewById(R.id.star);
+                            Job job = (Job)box.getTag(R.id.CHECKBOX_JOB_TAG_KEY);
+                            if (idShortlisting == job.getId()) {
+                                box.setChecked(false);
+                                break;
+                            }
+                        }
                     }
                 }
                 enableShortlisting(true);
@@ -908,11 +1005,12 @@ public class JobSearch extends JbmnplsListActivityBase implements
                 cancelled();
                 return;
             }
+
             // Finish off some of the commands
             switch(getCurrentCommand()) {
             case SEARCH:
                 // Just finished search, reset all flags
-                getListView().setOnScrollListener(activity);
+                attachScrollListener(true);
                 allJobsLoaded = false;
                 hasLoaded100 = false;
                 firstSearch = false;        // No that you search, it is not the first time anymore
@@ -920,7 +1018,7 @@ public class JobSearch extends JbmnplsListActivityBase implements
 
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 hideSearchDialog();
-                ((JbmnplsLoadingAdapterBase)getAdapter()).showLoadingAtEnd(true);
+                showLoadingAtEnd(true);
                 onRequestComplete(true);
                 scrollToTop();
                 break;
