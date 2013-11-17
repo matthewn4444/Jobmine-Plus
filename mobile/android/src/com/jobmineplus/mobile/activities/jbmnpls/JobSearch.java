@@ -54,7 +54,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
     // TODO do not show the loading symbol if the list is not full --> the fetchMoreIfNeeded function needs to be redone supporting the list it is currently on
     // TODO animate shortlist to add job to shortlist list and same thing for the read status (after coming back)
-    // TODO never allow view100 boolean to reset since once view100 happens, then it is set until this page is "get" again
 
     //======================
     //  Declaration Objects
@@ -759,6 +758,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             super(a, SimpleActivityBase.client, getUrl(), stateNumber, id);
             activity = a;
             currentPage = 0;
+            hasLoaded100 = false;
         }
 
         public int getCurrentPageNumber() {
@@ -827,7 +827,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                 pageDataSource.addPageIds(client.getUsername(), Shortlist.PAGE_NAME, shortlistIds);
 
                 // Make a new task to view 100 jobs if there are more than 25 jobs
-                if (numJobs > INITIAL_RESULT_COUNT) {
+                if (numJobs > INITIAL_RESULT_COUNT && !hasLoaded100) {
                     addTask(VIEW100);
                 }
                 break;
@@ -932,12 +932,14 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         }
 
         private int view100() throws JbmnplsLoggedOutException, IOException {
-            lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hviewall$0");
-            parseHtmlForJobs();
+            if (!hasLoaded100) {
+                lastSearchedHtml = doPost("UW_CO_JOBRES_VW$hviewall$0");
+                parseHtmlForJobs();
 
-            // Update the page total
-            hasLoaded100 = true;
-            updatePageJobInfo();
+                // Update the page total
+                hasLoaded100 = true;
+                updatePageJobInfo();
+            }
             return NO_PROBLEM;
         }
 
@@ -1012,13 +1014,16 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                 // Just finished search, reset all flags
                 attachScrollListener(true);
                 allJobsLoaded = false;
-                hasLoaded100 = false;
                 firstSearch = false;        // No that you search, it is not the first time anymore
                 resetSortingMenu();
+                showLoadingAtEnd(true);
+
+                if (currentPage == totalPages) {
+                    doneLoadingAllJobs();
+                }
 
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 hideSearchDialog();
-                showLoadingAtEnd(true);
                 onRequestComplete(true);
                 scrollToTop();
                 break;
