@@ -52,14 +52,13 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener, OnClickListener {
 
-    // TODO do not show the loading symbol if the list is not full --> the fetchMoreIfNeeded function needs to be redone supporting the list it is currently on
     // TODO animate shortlist to add job to shortlist list and same thing for the read status (after coming back)
 
     //======================
     //  Declaration Objects
     //======================
     public final static String PAGE_NAME = JobSearch.class.getName();
-    public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 40;
+    public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 30;
 
     // Tab Names
     public final static class PAGES {
@@ -107,6 +106,8 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     private int idShortlisting = 0;
     private boolean enableShortlisting;
 
+    private int numItemsFitInListView;
+
     public final static HEADER[] SORT_HEADERS = {
         HEADER.JOB_TITLE,
         HEADER.EMPLOYER_NAME,
@@ -148,13 +149,14 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         currentListPosition = 0;
         allJobsLoaded = false;
         enableShortlisting = true;
+        numItemsFitInListView = 1;
         stateError = Error.NONE;
 
         // Add the page tabs
         createTab(PAGES.NEW);
         createTab(PAGES.READ);
-        createTab(PAGES.APPLIED);
         createTab(PAGES.SHORTLIST);
+        createTab(PAGES.APPLIED);
         createTab(PAGES.ALL);
     }
 
@@ -529,6 +531,15 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         }
     }
 
+    @Override
+    public void onPageSelected(int index) {
+        super.onPageSelected(index);
+        if (!allJobsLoaded) {
+            showLoadingAtEnd(true);
+            attachScrollListener(true);
+        }
+    }
+
     //=======================
     //  OnJobSearchListener
     //=======================
@@ -588,8 +599,15 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem,
             int visibleItemCount, int totalItemCount) {
-        currentListPosition = firstVisibleItem + visibleItemCount;
-        fetchMoreIfNeeded();
+
+        numItemsFitInListView = Math.max(numItemsFitInListView, visibleItemCount);
+
+        // Have the scroll update only on new or all lists
+        String tab = getCurrentTabName();
+        if (tab == PAGES.ALL || tab == PAGES.NEW) {
+            currentListPosition = firstVisibleItem + visibleItemCount;
+            fetchMoreIfNeeded();
+        }
     }
 
     @Override
@@ -601,7 +619,16 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     //=======================
     protected void showLoadingAtEnd(boolean flag) {
         for (int i = 0; i < numOfTabs(); i++) {
-            ((JbmnplsLoadingAdapterBase)getAdapterByIndex(i)).showLoadingAtEnd(flag);
+            JbmnplsLoadingAdapterBase adapter = (JbmnplsLoadingAdapterBase)getAdapterByIndex(i);
+            if (flag) {
+                if (adapter.getCount() > numItemsFitInListView) {
+                    adapter.showLoadingAtEnd(true);
+                } else {
+                    adapter.showLoadingAtEnd(false);
+                }
+            } else {
+                adapter.showLoadingAtEnd(false);
+            }
         }
     }
 
@@ -662,13 +689,18 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         alert.show();
     }
 
+    // Only fetch more on all or new pages
     protected void fetchMoreIfNeeded() {
-        int currentlyLoaded = getListByTab(PAGES.ALL).size();
-        if (currentlyLoaded - currentListPosition < FETCH_MORE_REACH_BOTTOM_COUNT   // If near the bottom of the list
-                && taskQueue.hasLoaded100Jobs()                             // Has loaded 100 items
-                && !allJobsLoaded
-                && !taskQueue.isRunning()) {                                // Not running any task currently
-            taskQueue.addTask(SearchRequestQueue.NEXTPAGE);
+        String tab = getCurrentTabName();
+        if (tab == PAGES.ALL || tab == PAGES.NEW) {
+            int currentlyLoaded = Math.min(getListByTab(PAGES.ALL).size(), getListByTab(PAGES.NEW).size());
+            if (currentlyLoaded - currentListPosition < FETCH_MORE_REACH_BOTTOM_COUNT   // If near the bottom of the list
+                    && taskQueue.hasLoaded100Jobs()                             // Has loaded 100 items
+                    && !allJobsLoaded
+                    && !taskQueue.isRunning()) {                                // Not running any task currently
+                log("More");
+                taskQueue.addTask(SearchRequestQueue.NEXTPAGE);
+            }
         }
     }
 
