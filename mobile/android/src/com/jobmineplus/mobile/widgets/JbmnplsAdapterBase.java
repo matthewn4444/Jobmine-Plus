@@ -5,15 +5,14 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
-import com.jobmineplus.mobile.R;
-
 import junit.framework.Assert;
-
 import android.app.Activity;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+
+import com.jobmineplus.mobile.R;
 
 public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
     private View[] currentElements;
@@ -31,6 +30,36 @@ public abstract class JbmnplsAdapterBase extends ViewAdapterBase<Job> {
     }
 
     protected abstract HIGHLIGHTING setJobWidgetValues(int position, Job item, View[] elements, View layout);
+
+    public int getJobPosition(Job job) {
+        return getJobPosition(job.getId());
+    }
+
+    public int getJobPosition(int id) {
+        for (int i = 0; i < getCount(); i++) {
+            if (getItem(i).getId() == id) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean removeByJobId(int id) {
+        int i = getJobPosition(id);
+        if (i == -1) {
+            return false;
+        }
+        return remove(i);
+    }
+
+    public boolean remove(int i) {
+        if (i < getCount()) {
+            getList().remove(i);
+            notifyDataSetChanged();
+            return true;
+        }
+        return false;
+    }
 
     /*
      * Helper functions to set the widget text

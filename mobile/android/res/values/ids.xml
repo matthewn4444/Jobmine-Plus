@@ -2,7 +2,7 @@
 <resources>
     <!-- Job Search -->
     <item type="id" name="PROGRESS_TAG_KEY"></item>
-    <item type="id" name="CHECKBOX_JOB_TAG_KEY"></item>
+    <item type="id" name="VIEW_ITEM_JOB_KEY"></item>
     
     <item type="id" name="VIEW_ITEM_POSITION_KEY"/>
 </resources>

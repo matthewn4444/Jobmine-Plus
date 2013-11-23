@@ -7,11 +7,13 @@ import java.util.HashSet;
 import junit.framework.Assert;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
+import android.support.v4.app.ListFragmentLayout;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
-import com.actionbarsherlock.internal.nineoldandroids.animation.Animator;
 import com.actionbarsherlock.internal.view.menu.SubMenuBuilder;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -24,18 +26,18 @@ import com.jobmineplus.mobile.widgets.JbmnplsLoadingAdapterBase;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.HeaderComparator.DIRECTION;
-import com.jobmineplus.mobile.widgets.ViewReduceHeightAnimation;
+import com.jobmineplus.mobile.widgets.ListViewPlus;
+import com.jobmineplus.mobile.widgets.ListViewPlus.OnVisualRowChangeListener;
 
 public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBase implements OnItemClickListener {
 
     private HashMap<String, ArrayList<Job>> lists;
-    private static final int VIEW_ITEM_POSITION_KEY = R.id.VIEW_ITEM_POSITION_KEY;
 
     private static final String DISPLAYNAME = "displayname";
     private final Job.HeaderComparator comparer = new Job.HeaderComparator();
     private MenuItem sortSelected;
     private boolean sortedAscending = false;
-    private RemoveRowAnimation removeAnimation;
+    private OnVisualRowChangeListener listViewListener;
 
     //====================
     //  Abstract Methods
@@ -52,7 +54,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     @Override
     protected void defineUI(Bundle savedInstanceState) {
         lists = new HashMap<String, ArrayList<Job>>();
-        removeAnimation = new RemoveRowAnimation();
         super.defineUI(savedInstanceState);
     }
 
@@ -180,6 +181,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         frag.setPageListAdapter(adapter);
         super.createTab(displayName, frag);
         lists.put(displayName, list);
+
+        // Add the listView listener if it exists
+        frag.setOnRowChangeListener(listViewListener);
     }
 
     public void updateLists() {
@@ -214,10 +218,12 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         sortedAscending = false;
     }
 
-    protected void removeRow(final View row) {
-        if (!removeAnimation.isRunning()) {
-            removeAnimation.start(row);
+    public void setOnRowChangeListener(OnVisualRowChangeListener listener) {
+        for (String tag : lists.keySet()) {
+            PageListFragment frag = (PageListFragment) getFragment(tag);
+            frag.setOnRowChangeListener(listener);
         }
+        listViewListener = listener;
     }
 
     //====================
@@ -233,15 +239,15 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         return (ListFragment) super.getFragment(index);
     }
 
-    public ListView getListViewByTab(String displayName) {
+    public ListViewPlus getListViewByTab(String displayName) {
         return ((PageListFragment)getFragment(displayName)).getListView();
     }
 
-    public ListView getListViewByIndex(int index) {
+    public ListViewPlus getListViewByIndex(int index) {
         return ((PageListFragment)getFragment(index)).getListView();
     }
 
-    public ListView getCurrentListView() {
+    public ListViewPlus getCurrentListView() {
         return getListViewByIndex(getCurrentIndex());
     }
 
@@ -284,23 +290,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
 
         @Override
         protected HIGHLIGHTING setJobWidgetValues(int position, Job job, View[] elements, View layout) {
-            layout.setTag(VIEW_ITEM_POSITION_KEY, position);
             return formatJobListItem(position, job, elements, layout);
-        }
-    }
-
-    //==================================
-    //  Remove ListView item Animation
-    //==================================
-    class RemoveRowAnimation extends ViewReduceHeightAnimation {
-        @Override
-        public void onAnimationEnd(Animator animator) {
-            final int position = (Integer)getView().getTag(VIEW_ITEM_POSITION_KEY);
-            JbmnplsAdapterBase adapter = getAdapterByIndex(getCurrentIndex());
-            adapter.getList().remove(position);
-            adapter.notifyDataSetChanged();
-
-            super.onAnimationEnd(animator);
         }
     }
 
@@ -312,9 +302,26 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         private boolean listIsAvailable = false;
         public String displayName;
         private JbmnplsAdapterBase listAdapter;
+        private OnVisualRowChangeListener listViewListener;
 
         public final static PageListFragment newInstance() {
             return new PageListFragment();
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+        {
+            View view = inflater.inflate(R.layout.list_loader, container, false);
+            ListFragmentLayout.setupIds(view);
+            return view;
+        }
+
+        public void setOnRowChangeListener(OnVisualRowChangeListener listener) {
+            ListViewPlus view = getListView();
+            if (view != null) {
+                view.setOnRowChangeListener(listener);
+            }
+            listViewListener = listener;
         }
 
         // Hack that shows the text only when there is no content in the list
@@ -346,9 +353,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         }
 
         @Override
-        public ListView getListView() {
+        public ListViewPlus getListView() {
             if (listIsAvailable) {
-                return super.getListView();
+                return (ListViewPlus)super.getListView();
             } else {
                 return null;
             }
@@ -369,8 +376,10 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             displayName = b.getString(DISPLAYNAME);
             JbmnplsPageListActivityBase a = (JbmnplsPageListActivityBase)getActivity();
             a.createTab(displayName, this);
-            super.getListView().setOnItemClickListener(a);
-            super.getListView().setAdapter(listAdapter);
+            ListViewPlus list = (ListViewPlus)super.getListView();
+            list.setOnItemClickListener(a);
+            list.setAdapter(listAdapter);
+            list.setOnRowChangeListener(listViewListener);
             if (showEmptyText) {
                 setEmptyText(getString(R.string.empty_job_list));
             }

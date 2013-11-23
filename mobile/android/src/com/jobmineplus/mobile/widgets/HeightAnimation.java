@@ -7,7 +7,7 @@ import com.actionbarsherlock.internal.nineoldandroids.animation.Animator.Animato
 import com.actionbarsherlock.internal.nineoldandroids.animation.ValueAnimator;
 import com.actionbarsherlock.internal.nineoldandroids.animation.ValueAnimator.AnimatorUpdateListener;
 
-public class ViewReduceHeightAnimation implements AnimatorListener, AnimatorUpdateListener {
+public class HeightAnimation implements AnimatorListener, AnimatorUpdateListener {
 
     // This is the default animation duration
     public static final int DEFAULT_DURATION = 200;
@@ -19,22 +19,22 @@ public class ViewReduceHeightAnimation implements AnimatorListener, AnimatorUpda
     // Every start of the animation will reset this
     private ValueAnimator animator;
     private View row;
-    private int initialHeight;
+    private int totalHeight;
 
     // Additional event listeners
     private AnimatorListener listener;
 
-    public ViewReduceHeightAnimation() {
+    public HeightAnimation() {
         this(DEFAULT_DURATION);
     }
 
-    public ViewReduceHeightAnimation(long durationMilliseconds) {
+    public HeightAnimation(long durationMilliseconds) {
         setDuration(durationMilliseconds);
         duration = durationMilliseconds;
         isRunning = false;
     }
 
-    public void start(View v) {
+    public void start(View v, boolean grow) {
         // Cancel the currently playing animation to run the next one
         if (animator != null) {
             if (isRunning) {
@@ -45,14 +45,18 @@ public class ViewReduceHeightAnimation implements AnimatorListener, AnimatorUpda
         }
 
         row = v;
-        initialHeight = row.getHeight();
+        totalHeight = row.getHeight();
 
         // Init the new animator
-        animator = ValueAnimator.ofInt(initialHeight, 1);
+        animator = ValueAnimator.ofInt(1, row.getHeight());
         animator.setDuration(duration);
         animator.addUpdateListener(this);
         animator.addListener(this);
-        animator.start();
+        if (grow) {
+            animator.start();
+        } else {
+            animator.reverse();
+        }
         isRunning = true;
     }
 
@@ -85,6 +89,11 @@ public class ViewReduceHeightAnimation implements AnimatorListener, AnimatorUpda
         listener = l;
     }
 
+    private void setHeightOfView(int newHeight) {
+        row.getLayoutParams().height = newHeight;
+        row.requestLayout();
+    }
+
     @Override
     public void onAnimationStart(Animator animator) {
         if (listener != null) {
@@ -95,20 +104,19 @@ public class ViewReduceHeightAnimation implements AnimatorListener, AnimatorUpda
     @Override
     public void onAnimationUpdate(ValueAnimator animator) {
         int newHeight = (Integer)animator.getAnimatedValue();
-        if (newHeight > 0) {
-            row.getLayoutParams().height = newHeight;
-            row.requestLayout();
+        if (newHeight > 0 && newHeight <= totalHeight) {
+            setHeightOfView(newHeight);
         }
     }
 
     @Override
     public void onAnimationEnd(Animator animator) {
-        row.getLayoutParams().height = initialHeight;
-        row.requestLayout();
+        setHeightOfView(totalHeight);
         if (listener != null) {
             listener.onAnimationEnd(animator);
         }
         row = null;
+        totalHeight = 0;
         isRunning = false;
     }
 
@@ -117,6 +125,9 @@ public class ViewReduceHeightAnimation implements AnimatorListener, AnimatorUpda
         if (listener != null) {
             listener.onAnimationCancel(animator);
         }
+        row = null;
+        totalHeight = 0;
+        isRunning = false;
     }
 
     @Override
