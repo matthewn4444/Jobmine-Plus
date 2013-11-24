@@ -60,7 +60,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener, OnClickListener, OnVisualRowChangeListener {
 
-    // GLTICH when on clear data come back to search, new is empty!!!
     // TODO fix attempt to re-open an already-closed object, this happens when clicking a job while more are loading
 
     //======================
@@ -88,6 +87,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     private final SparseIntArray jobPageArray = new SparseIntArray(200);
     private Set<Integer> shortlistSet;
     private List<Integer> readOrNewList;
+    private List<Job> readOrNewJobList;
 
     // Search dialog and its properties
     private JobSearchProperties properties;
@@ -364,6 +364,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             // If it has not been placed in any tab, then it is new
             if (!hasBeenPlaced) {
                 readOrNewList.add(id);
+                readOrNewJobList.add(job);
             }
 
             // Place the jobs in different tabs
@@ -957,12 +958,13 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
         private void parseHtmlForJobs() {
             readOrNewList = new ArrayList<Integer>();
+            readOrNewJobList = new ArrayList<Job>();
             tableParser.execute(JOBSEARCH_OUTLINE, lastSearchedHtml);
 
             if (!readOrNewList.isEmpty()) {
                 // Now we can get the jobs from their ids from the database
                 ArrayList<Job> jobs = jobDataSource.getJobsByIdList(readOrNewList);
-                if (jobs != null) {
+                if (jobs != null && !jobs.isEmpty()) {
                     for (int i = 0; i < jobs.size(); i++) {
                         // Add the job to read if it has description data
                         Job job = jobs.get(i);
@@ -972,8 +974,12 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                             addJobToListByTabId(PAGES.NEW, job);
                         }
                     }
+                } else if (!readOrNewJobList.isEmpty()) {
+                    // Add all the jobs if this is the first time searching
+                    getListByTab(PAGES.NEW).addAll(readOrNewJobList);
                 }
             }
+            readOrNewJobList = null;
             readOrNewList = null;
         }
 
