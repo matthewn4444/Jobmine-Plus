@@ -182,6 +182,10 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        if (rowAnimation.isRunning()) {
+            return;
+        }
+
         Job job = getCurrentList().get(position);
         int jobId = job.getId();
         if (!job.hasDescriptionData() && isReallyOnline()) {
