@@ -10,8 +10,10 @@ import java.util.Set;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseIntArray;
 import android.view.View;
@@ -58,7 +60,8 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener, OnClickListener, OnVisualRowChangeListener {
 
-    // TODO animate shortlist to add job to shortlist list and same thing for the read status (after coming back)
+    // GLTICH when on clear data come back to search, new is empty!!!
+    // TODO fix attempt to re-open an already-closed object, this happens when clicking a job while more are loading
 
     //======================
     //  Declaration Objects
@@ -67,6 +70,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     public final static int FETCH_MORE_REACH_BOTTOM_COUNT = 30;
     private final static int VIEW_ITEM_POSITION_KEY = R.id.VIEW_ITEM_POSITION_KEY;
     private final static int VIEW_ITEM_JOB_KEY = R.id.VIEW_ITEM_JOB_KEY;
+    private final static int REQUEST_CODE_DESCRIPTION = 1;
 
     // Tab Names
     public final static class PAGES {
@@ -119,6 +123,8 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
     private int numItemsFitInListView;
     private boolean showGrowAnimation;
+
+    private View readView;
 
     public final static HEADER[] SORT_HEADERS = {
         HEADER.JOB_TITLE,
@@ -181,6 +187,23 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         if (!job.hasDescriptionData() && isReallyOnline()) {
             taskQueue.addTask(SearchRequestQueue.DESCRIPTION);
         }
+
+        // Deal with reading new jobs from new or all pages
+        String currentTab = getCurrentTabName();
+        if (currentTab == PAGES.NEW) {
+            readView = view;
+        } else if (currentTab == PAGES.ALL) {
+            // Search for the job in the new page, if exists, then transfer it from new to read
+            JbmnplsAdapterBase newAdapter = getAdapterByTab(PAGES.NEW);
+            int pos = newAdapter.getJobPosition(jobId);
+            if (pos != -1) {
+                log("transfered", job.getEmployer());
+                JbmnplsAdapterBase readAdapter = getAdapterByTab(PAGES.READ);
+                readAdapter.add(job);
+                newAdapter.remove(pos);
+            }
+        }
+
         goToDescription(jobId);
     }
 
@@ -553,6 +576,47 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             showLoadingAtEnd(true);
             attachScrollListener(true);
         }
+    }
+
+    //=======================
+    //  Activity for result
+    //=======================
+    @Override
+    protected void goToDescription(int jobId) {
+        Intent in = new Intent(this, Description.class);
+        in.putExtra(EXTRA_JOB_ID, Integer.toString(jobId));
+        startActivityForResult(in, REQUEST_CODE_DESCRIPTION);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CODE_DESCRIPTION) {
+            if (resultCode == Activity.RESULT_OK) {
+                // Successfully read the job description
+                String tab = getCurrentTabName();
+                if (readView != null && tab == PAGES.NEW) {
+                    Job job = (Job)readView.getTag(VIEW_ITEM_JOB_KEY);
+                    addJobToListByTabId(PAGES.READ, job);
+                    getAdapterByTab(PAGES.READ).notifyDataSetChanged();
+
+                    // Animate the row removal
+                    if (!rowAnimation.isRunning()) {
+                        rowAnimation.setDelay(400);     // Glitch where the animation wont animate unless it waits a little
+                        rowAnimation.startShink(readView);
+                        rowAnimation.setDelay(0);
+                    } else {
+                        // If somehow fails and not looking at new page, just remove it
+                        int pos = (Integer)readView.getTag(VIEW_ITEM_POSITION_KEY);
+                        JbmnplsAdapterBase adapter = getAdapterByTab(PAGES.NEW);
+                        adapter.remove(pos);
+                    }
+                }
+            } else {
+                // Cancelled reading the job description
+                readView = null;
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     //=======================

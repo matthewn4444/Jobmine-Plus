@@ -3,6 +3,7 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
 import android.text.TextUtils;
@@ -29,6 +30,8 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
         public static String DETAILS = "Details";
     }
 
+    private Intent in;
+
     protected Job job;
     protected AdView adview;
 
@@ -40,7 +43,8 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
     protected String setUp(Bundle savedInstanceState)
             throws JbmnplsParsingException {
         pageName = Description.class.getName();
-        int id = Integer.parseInt(getIntent().getStringExtra("jobId"));
+        in = getIntent();
+        int id = Integer.parseInt(in.getStringExtra("jobId"));
         if (id == 0) {
             throw new JbmnplsParsingException(
                     "Did not receive an id going here.");
@@ -50,7 +54,17 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
             throw new JbmnplsParsingException(
                     "This id does not have a job object");
         }
+        setActivityResult(job.hasDescriptionData());
         return null; // Null means no values
+    }
+
+    private void setActivityResult(boolean success) {
+        int result = success ? Activity.RESULT_OK : Activity.RESULT_CANCELED;
+        if (getParent() == null) {
+            setResult(result, in);
+        } else {
+            getParent().setResult(result, in);
+        }
     }
 
     @Override
@@ -81,6 +95,7 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
         if (descriptionData != null) {
             jobDataSource.addJob(job);      // updates with the description data
         }
+        setActivityResult(true);
         return descriptionData;
     }
 
@@ -201,6 +216,7 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
             return num < 10 && !text.contains(".") && !text.contains(":") && !text.contains(",");
         }
 
+        @Override
         public void setValues(View[] views) {
             layout = (LinearLayout)views[0];
             Job job = ((Description)getActivity()).job;
@@ -265,6 +281,7 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
             ((Description)getActivity()).createTab(TABS.DETAILS, this);
         }
 
+        @Override
         public void setValues(View[] views) {
             Job job = ((Description)getActivity()).job;
 

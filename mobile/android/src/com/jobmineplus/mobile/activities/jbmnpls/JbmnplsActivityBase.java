@@ -42,6 +42,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     // Declarations
     // =================
     protected static final SimpleDateFormat DISPLAY_DATE_FORMAT = new SimpleDateFormat("MMM d, yyyy", Locale.getDefault());
+    protected final static String EXTRA_JOB_ID = "jobId";
 
     private String dataUrl = null; // Use JbmnPlsHttpService.GET_LINKS.<url>
 
@@ -218,7 +219,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     }
 
     protected void goToDescription(int jobId) {
-        BasicNameValuePair pass = new BasicNameValuePair("jobId",
+        BasicNameValuePair pass = new BasicNameValuePair(EXTRA_JOB_ID,
                 Integer.toString(jobId));
         startActivity(Description.class, pass);
     }

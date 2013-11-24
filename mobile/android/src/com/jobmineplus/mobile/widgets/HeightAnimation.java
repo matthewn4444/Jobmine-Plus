@@ -11,10 +11,12 @@ public class HeightAnimation implements AnimatorListener, AnimatorUpdateListener
 
     // This is the default animation duration
     public static final int DEFAULT_DURATION = 200;
+    public static final int DEFAULT_DELAY = 0;
 
     // State variables
     private boolean isRunning;
     private long duration;
+    private long delay;
 
     // Every start of the animation will reset this
     private ValueAnimator animator;
@@ -25,12 +27,12 @@ public class HeightAnimation implements AnimatorListener, AnimatorUpdateListener
     private AnimatorListener listener;
 
     public HeightAnimation() {
-        this(DEFAULT_DURATION);
+        this(DEFAULT_DURATION, DEFAULT_DELAY);
     }
 
-    public HeightAnimation(long durationMilliseconds) {
+    public HeightAnimation(long durationMilliseconds, long delayMilliseconds) {
         setDuration(durationMilliseconds);
-        duration = durationMilliseconds;
+        setDelay(delayMilliseconds);
         isRunning = false;
     }
 
@@ -50,6 +52,7 @@ public class HeightAnimation implements AnimatorListener, AnimatorUpdateListener
         // Init the new animator
         animator = ValueAnimator.ofInt(1, row.getHeight());
         animator.setDuration(duration);
+        animator.setStartDelay(delay);
         animator.addUpdateListener(this);
         animator.addListener(this);
         if (grow) {
@@ -79,6 +82,14 @@ public class HeightAnimation implements AnimatorListener, AnimatorUpdateListener
 
     public long getDuration() {
         return duration;
+    }
+
+    public void setDelay(long delayMS) {
+        delay = delayMS;
+    }
+
+    public long getDelay() {
+        return delay;
     }
 
     protected View getView() {
