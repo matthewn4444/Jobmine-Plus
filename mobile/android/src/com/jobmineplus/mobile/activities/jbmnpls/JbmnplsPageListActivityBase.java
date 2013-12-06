@@ -78,19 +78,19 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
             if (idMap != null) {
                 HashMap<String, ArrayList<Job>> retList = jobDataSource.getJobsMap(idMap);
                 if (retList != null) {
-                    lists = retList;
 
                     // Make the job list
                     HashSet<Integer> ids = new HashSet<Integer>();
-                    if (ids != null) {
-                        for (String tag : lists.keySet()) {
-                            ArrayList<Job> jobs = lists.get(tag);
-                            if (!jobs.isEmpty()) {
-                                for (Job job : jobs) {
-                                    if (!ids.contains(job.getId())) {
-                                        ids.add(job.getId());
-                                        allJobs.add(job);
-                                    }
+                    for (String tag : lists.keySet()) {
+                        getListByTab(tag).addAll(retList.get(tag));
+
+                        ArrayList<Job> jobs = lists.get(tag);
+                        if (!jobs.isEmpty()) {
+                            for (Job job : jobs) {
+                                if (!ids.contains(job.getId())) {
+                                    ids.add(job.getId());
+                                    allJobs.add(job);
+                                    log(tag, job.getId(), job.getEmployer());
                                 }
                             }
                         }
