@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.net.ssl.SSLException;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
@@ -424,6 +426,9 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, html, e);
                 return FORCED_LOGGEDOUT;
+            } catch (SSLException e) {      // Ignore the SSL Error which comes from user losing network signal on get/post
+                e.printStackTrace();
+                return NETWORK_ERROR;
             } catch (IOException e) {
                 e.printStackTrace();
                 BugSenseHandler.sendException(e);
