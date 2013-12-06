@@ -16,13 +16,13 @@ import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
+import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
-import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
-import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Interviews extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener {
 
@@ -208,6 +208,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         return  R.layout.interview_widget;
     }
 
+    @Override
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = parseRowTableOutline(outline, jobData);
         if (job.pastNow()) {
@@ -218,6 +219,7 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         addJob(job);
     }
 
+    @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getCurrentList().get(arg2).getId();
         goToDescription(jobId);
@@ -270,8 +272,14 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         Formatter.setText((TextView)elements[1], job.getEmployer(), true);
         Formatter.setText((TextView)elements[2], "With <b>" + job.getInterviewer());
         Formatter.setDate((TextView)elements[3], job.getInterviewStartTime(), "On <b>");
-        Formatter.setDate((TextView)elements[4], job.getInterviewStartTime(),
-                job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
+
+        // If the job has same start and end time for an interview, this mean user has not yet chosen a time slot, hide this
+        if (job.getInterviewEndTime().getTime() == job.getInterviewStartTime().getTime()) {
+            Formatter.setDate((TextView)elements[4], job.getInterviewStartTime(),
+                    job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
+        } else {
+            Formatter.hide(elements[4]);
+        }
         Formatter.setText((TextView)elements[5], "At <b>" + job.getRoomInfo());
         if (job.getInterviewType() != null) {
             Formatter.setText((TextView)elements[6], job.getInterviewType().toString(), true);
