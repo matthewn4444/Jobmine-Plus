@@ -129,7 +129,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         HEADER.EMPLOYER_NAME,
         HEADER.LOCATION,
         HEADER.OPENINGS,
-        HEADER.APPLY,
         HEADER.LAST_DAY_TO_APPLY,
         HEADER.NUM_APPS
     };
