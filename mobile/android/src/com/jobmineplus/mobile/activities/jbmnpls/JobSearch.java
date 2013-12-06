@@ -149,7 +149,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
     protected final int[] WIDGET_RESOURCE_LIST = {
             R.id.job_title, R.id.job_employer, R.id.location,
-            R.id.job_last_day, R.id.star, R.id.loading };
+            R.id.job_last_day, R.id.job_num_app_openings, R.id.star, R.id.loading };
 
     //======================
     //  Overrided Methods
@@ -494,14 +494,16 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         Formatter.setText((TextView)elements[0], job.getTitle());
         Formatter.setText((TextView)elements[1], job.getEmployer(), true);
         Formatter.setText((TextView)elements[2], job.getLocation());
+        Formatter.setDate((TextView)elements[3], job.getLastDateToApply(), "Closes by");
+        Formatter.setText((TextView)elements[4], "Openings: " + job.getNumberOfOpenings() + " | Apps #: " + job.getNumberOfApplications());
 
         // Checkbox
-        CheckBox box = (CheckBox)elements[4];
+        CheckBox box = (CheckBox)elements[5];
         box.setOnClickListener(this);
         box.setChecked(isShortlisted(job));
         box.setEnabled(!box.isChecked() && enableShortlisting);
 
-        View progress = elements[5];
+        View progress = elements[6];
         if (currentShortlistedJob != null && job.getId() == currentShortlistedJob.getId()) {
             box.setVisibility(View.GONE);
             progress.setVisibility(View.VISIBLE);
@@ -510,7 +512,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             progress.setVisibility(View.GONE);
         }
 
-        Formatter.hide(elements[3]);
         return HIGHLIGHTING.NORMAL;
     }
 
