@@ -16,9 +16,20 @@
                     <ImageView
                         style="@style/category_button_image"
                         android:contentDescription="@string/empty"
-                        android:src="@drawable/home_applications_icon" />
+                        android:src="@drawable/home_search_icon" />
                     <com.jobmineplus.mobile.widgets.TextViewPlus
                         android:text="@+string/jobsearch_title"
+                        style="@style/category_button_text"/>
+                </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+                <com.jobmineplus.mobile.widgets.OpacityLinearLayout
+                    android:id="@+id/shortlist_button"
+                    style="@style/category_button">
+                    <ImageView
+                        style="@style/category_button_image"
+                        android:contentDescription="@string/empty"
+                        android:src="@drawable/home_shortlist_icon" />
+                    <com.jobmineplus.mobile.widgets.TextViewPlus
+                        android:text="@+string/shortlist_title"
                         style="@style/category_button_text"/>
                 </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
             </LinearLayout>
@@ -35,29 +46,18 @@
 	                    style="@style/category_button_text"/>
 	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
 	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
-	                android:id="@+id/shortlist_button"
-	                style="@style/category_button">
-	                <ImageView
-	                    style="@style/category_button_image"
-	                    android:contentDescription="@string/empty"
-	                    android:src="@drawable/home_shortlist_icon" />
-	                <com.jobmineplus.mobile.widgets.TextViewPlus
-	                    android:text="@+string/shortlist_title"
-	                    style="@style/category_button_text"/>
-	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
+                    android:id="@+id/interviews_button"
+                    style="@style/category_button">
+                    <ImageView
+                        style="@style/category_button_image"
+                        android:contentDescription="@string/empty"
+                        android:src="@drawable/home_interviews_icon" />
+                    <com.jobmineplus.mobile.widgets.TextViewPlus
+                        android:text="@+string/interviews_title"
+                        style="@style/category_button_text"/>
+                </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
 	        </LinearLayout>
 	        <LinearLayout style="@style/category_button_row">
-	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
-	                android:id="@+id/interviews_button"
-	                style="@style/category_button">
-	                <ImageView
-	                    style="@style/category_button_image"
-	                    android:contentDescription="@string/empty"
-	                    android:src="@drawable/home_interviews_icon" />
-	                <com.jobmineplus.mobile.widgets.TextViewPlus
-	                    android:text="@+string/interviews_title"
-	                    style="@style/category_button_text"/>
-	            </com.jobmineplus.mobile.widgets.OpacityLinearLayout>
 	            <com.jobmineplus.mobile.widgets.OpacityLinearLayout
 	                android:id="@+id/settings_button"
 	                style="@style/category_button">
