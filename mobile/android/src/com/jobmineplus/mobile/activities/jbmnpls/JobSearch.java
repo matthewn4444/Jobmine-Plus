@@ -60,8 +60,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                             OnJobSearchListener, TableParser.OnTableParseListener,
                             OnScrollListener, OnClickListener, OnVisualRowChangeListener {
 
-    // TODO fix attempt to re-open an already-closed object, this happens when clicking a job while more are loading
-
     //======================
     //  Declaration Objects
     //======================

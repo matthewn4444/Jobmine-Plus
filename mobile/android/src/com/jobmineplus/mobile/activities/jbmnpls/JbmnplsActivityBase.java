@@ -128,20 +128,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     }
 
     @Override
-    protected void onResume() {
-        jobDataSource.open();
-        pageDataSource.open();
-        super.onResume();
-    }
-
-    @Override
-    protected void onPause() {
-        jobDataSource.close();
-        pageDataSource.close();
-        super.onPause();
-    }
-
-    @Override
     protected void onDestroy() {
         jobDataSource.close();
         pageDataSource.close();
