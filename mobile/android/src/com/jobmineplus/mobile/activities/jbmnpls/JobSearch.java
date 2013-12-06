@@ -479,6 +479,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         } else {
             shortlistSet = new HashSet<Integer>();
         }
+        doneLoadingAllJobs();
         return super.doOffine();
     }
 
