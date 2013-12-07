@@ -308,13 +308,13 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
         // Disciplines
         parser.skipText("UW_CO_JOBSRCH_UW_CO_ADV_DISCP1", "selected=");
-        properties.disciplines1.set(parser.getTextInCurrentElement());
+        properties.disciplines1.set(parser.getTextInCurrentElement().replace("&amp;", "&"));
 
         parser.skipText("UW_CO_JOBSRCH_UW_CO_ADV_DISCP2", "selected=");
-        properties.disciplines2.set(parser.getTextInCurrentElement());
+        properties.disciplines2.set(parser.getTextInCurrentElement().replace("&amp;", "&"));
 
         parser.skipText("UW_CO_JOBSRCH_UW_CO_ADV_DISCP3", "selected=");
-        properties.disciplines3.set(parser.getTextInCurrentElement());
+        properties.disciplines3.set(parser.getTextInCurrentElement().replace("&amp;", "&"));
 
         // Location
         parser.skipText("win0divUW_CO_JOBSRCH_UW_CO_LOCATION", "input");
