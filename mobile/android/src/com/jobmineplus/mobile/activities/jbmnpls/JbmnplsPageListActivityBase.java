@@ -82,7 +82,10 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
                     // Make the job list
                     HashSet<Integer> ids = new HashSet<Integer>();
                     for (String tag : lists.keySet()) {
-                        getListByTab(tag).addAll(retList.get(tag));
+                        ArrayList<Job> joblist = retList.get(tag);
+                        if (joblist != null) {
+                            getListByTab(tag).addAll(joblist);
+                        }
 
                         ArrayList<Job> jobs = lists.get(tag);
                         if (!jobs.isEmpty()) {
@@ -90,7 +93,6 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
                                 if (!ids.contains(job.getId())) {
                                     ids.add(job.getId());
                                     allJobs.add(job);
-                                    log(tag, job.getId(), job.getEmployer());
                                 }
                             }
                         }
