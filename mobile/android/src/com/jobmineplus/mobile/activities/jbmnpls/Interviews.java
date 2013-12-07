@@ -274,7 +274,8 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
         Formatter.setDate((TextView)elements[3], job.getInterviewStartTime(), "On <b>");
 
         // If the job has same start and end time for an interview, this mean user has not yet chosen a time slot, hide this
-        if (job.getInterviewEndTime().getTime() == job.getInterviewStartTime().getTime()) {
+        if (job.getInterviewEndTime() != null && job.getInterviewStartTime() != null
+                && job.getInterviewEndTime().getTime() == job.getInterviewStartTime().getTime()) {
             Formatter.setDate((TextView)elements[4], job.getInterviewStartTime(),
                     job.getInterviewEndTime(), "At <b>", TIME_FORMAT);
         } else {
