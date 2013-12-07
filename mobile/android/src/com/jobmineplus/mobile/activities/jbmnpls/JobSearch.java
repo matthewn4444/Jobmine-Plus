@@ -474,7 +474,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     protected long doOffine() {
         // Get the shortlist ids from the databsae
         PageResult r = pageDataSource.getPageData(client.getUsername(), Shortlist.PAGE_NAME);
-        if (r != null) {
+        if (r != null && r.ids != null) {
             shortlistSet = new HashSet<Integer>(r.ids);
         } else {
             shortlistSet = new HashSet<Integer>();
