@@ -613,6 +613,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                         int pos = (Integer)readView.getTag(VIEW_ITEM_POSITION_KEY);
                         JbmnplsAdapterBase adapter = getAdapterByTab(PAGES.NEW);
                         adapter.remove(pos);
+                        jobsToDatabase();
                     }
                 }
             } else {
@@ -754,6 +755,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                 adapter.notifyDataSetChanged();
             }
             removalTab = null;
+            jobsToDatabase();
         }
 
         @Override
@@ -1274,6 +1276,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                                     shortlistedTab = currentTab;
                                 } else {
                                     listView.removeViewAt((Integer)v.getTag(VIEW_ITEM_POSITION_KEY));
+                                    jobsToDatabase();
                                 }
                                 break;
                             }
@@ -1300,6 +1303,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
                             throw new JbmnplsException("Cannot find shortlisted job in new or read when it was suppose to be here!");
                         }
                     }
+                    jobsToDatabase();
                 }
                 updateLists();
                 currentShortlistedJob = null;
