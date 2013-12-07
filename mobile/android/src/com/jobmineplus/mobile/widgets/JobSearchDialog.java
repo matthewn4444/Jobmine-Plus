@@ -115,7 +115,7 @@ public class JobSearchDialog extends Builder implements
     }
 
     public static String getDisciplineCodeFromName(String name) {
-        int index = DISCIPLINES.indexOf(name);
+        int index = name.equals("") ? 0 : DISCIPLINES.indexOf(name);
         return DISCIPLINES_CODES.get(index);
     }
 
