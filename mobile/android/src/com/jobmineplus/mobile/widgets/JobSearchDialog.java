@@ -167,8 +167,10 @@ public class JobSearchDialog extends Builder implements
     }
 
     private void setSpinnerSelectionByName(Spinner spinner, String name) {
+        String findName = name.replaceAll(" ", "");
         for (int i = 0; i < spinner.getCount(); i++) {
-            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(name)) {
+            String posName = spinner.getItemAtPosition(i).toString().replaceAll(" ", "");
+            if (posName.equalsIgnoreCase(findName)) {
                 spinner.setSelection(i);
                 return;
             }
