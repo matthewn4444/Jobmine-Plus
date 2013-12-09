@@ -1113,12 +1113,12 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             String pageInfo = parser.getTextInCurrentElement();
             try {
                 int ofIndex = pageInfo.lastIndexOf("of");
-                if (getListByTab(PAGES.ALL).isEmpty()) {
+                if (getListByTab(PAGES.ALL).size() <= 1) {
                     numJobs = 0;
                     currentPage = 1;
                     totalPages = 1;
                 } else {
-                    numJobs = Integer.parseInt(pageInfo.substring(ofIndex + 3));
+                    numJobs = Integer.parseInt(pageInfo.substring(ofIndex + 2).replaceAll(" ", ""));
                     int dashIndex = pageInfo.indexOf("-");
                     int jobsPerPage = hasLoaded100 ? RESULT_COUNT_100 : INITIAL_RESULT_COUNT;
                     currentPage = (int)Math.ceil(Integer.parseInt(pageInfo.substring(0, dashIndex)) * 1.0 / jobsPerPage);
