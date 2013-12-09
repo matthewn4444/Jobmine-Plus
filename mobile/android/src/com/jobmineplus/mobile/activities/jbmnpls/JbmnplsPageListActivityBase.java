@@ -335,7 +335,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         }
 
         public void notifyListDataSetChanged() {
-            listAdapter.notifyDataSetChanged();
+            if (listAdapter != null) {
+                listAdapter.notifyDataSetChanged();
+            }
         }
 
         public void setPageListAdapter(JbmnplsAdapterBase adapter) {
