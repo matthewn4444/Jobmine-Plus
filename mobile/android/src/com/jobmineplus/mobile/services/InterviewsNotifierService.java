@@ -5,21 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-import com.bugsense.trace.BugSenseHandler;
-import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.activities.SimpleActivityBase;
-import com.jobmineplus.mobile.activities.jbmnpls.Applications;
-import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
-import com.jobmineplus.mobile.database.jobs.JobDataSource;
-import com.jobmineplus.mobile.database.pages.PageDataSource;
-import com.jobmineplus.mobile.database.pages.PageMapResult;
-import com.jobmineplus.mobile.exceptions.JbmnplsException;
-import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
-import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
-import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.table.TableParser;
-import com.jobmineplus.mobile.widgets.table.TableParserOutline;
+import javax.net.ssl.SSLException;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -35,6 +21,22 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+
+import com.bugsense.trace.BugSenseHandler;
+import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.activities.SimpleActivityBase;
+import com.jobmineplus.mobile.activities.jbmnpls.Applications;
+import com.jobmineplus.mobile.activities.jbmnpls.Interviews;
+import com.jobmineplus.mobile.database.jobs.JobDataSource;
+import com.jobmineplus.mobile.database.pages.PageDataSource;
+import com.jobmineplus.mobile.database.pages.PageMapResult;
+import com.jobmineplus.mobile.exceptions.JbmnplsException;
+import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
+import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
+import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.table.TableParser;
+import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 
 public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
@@ -149,7 +151,7 @@ public class InterviewsNotifierService extends Service {
         private HashMap<String, ArrayList<Job>> pulledInterviewsJobs;
         private HashMap<String, ArrayList<Job>> pulledAppsJobs;
         private int nextTimeout = 0;
-        private Context ctx;
+        private final Context ctx;
 
         // Results from getting interviews
         private final int NO_SCHEDULE = 0;
@@ -187,6 +189,9 @@ public class InterviewsNotifierService extends Service {
                     result = checkApplications();
                 } catch (JbmnplsLoggedOutException e) {
                     BugSenseHandler.sendException(e);
+                    e.printStackTrace();
+                    return false;
+                } catch (SSLException e) {      // Ignore sending this exception, it is not an error
                     e.printStackTrace();
                     return false;
                 } catch (IOException e) {
@@ -294,6 +299,9 @@ public class InterviewsNotifierService extends Service {
                BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
+           } catch (SSLException e) {       // Ignore logging this, not an error
+               e.printStackTrace();
+               return false;
            } catch (IOException e) {
                BugSenseHandler.sendException(e);
                e.printStackTrace();
@@ -367,6 +375,7 @@ public class InterviewsNotifierService extends Service {
             super.onPostExecute(shouldScheduleAlarm);
         }
 
+        @Override
         public void onRowParse(TableParserOutline outline, Object... jobData) {
             Job job;
             if (outline == Applications.ALL_OUTLINE) {
