@@ -1213,16 +1213,16 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             switch(getCurrentCommand()) {
             case SEARCH:
                 // Just finished search, reset all flags
-                attachScrollListener(true);
-                allJobsLoaded = false;
                 firstSearch = false;        // No that you search, it is not the first time anymore
                 resetSortingMenu();
-                showLoadingAtEnd(true);
 
                 if (currentPage == totalPages) {
                     doneLoadingAllJobs();
+                } else {
+                    attachScrollListener(true);
+                    allJobsLoaded = false;
+                    showLoadingAtEnd(true);
                 }
-
                 getSupportActionBar().setSubtitle(null);        // Remove subtitle after coming from offline
                 hideSearchDialog();
                 onRequestComplete(true);
