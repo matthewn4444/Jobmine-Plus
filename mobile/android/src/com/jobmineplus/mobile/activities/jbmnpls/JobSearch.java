@@ -198,7 +198,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
             JbmnplsAdapterBase newAdapter = getAdapterByTab(PAGES.NEW);
             int pos = newAdapter.getJobPosition(jobId);
             if (pos != -1) {
-                log("transfered", job.getEmployer());
                 JbmnplsAdapterBase readAdapter = getAdapterByTab(PAGES.READ);
                 readAdapter.add(job);
                 newAdapter.remove(pos);
