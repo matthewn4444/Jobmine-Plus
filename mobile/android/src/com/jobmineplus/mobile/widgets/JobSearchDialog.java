@@ -339,7 +339,7 @@ public class JobSearchDialog extends Builder implements
 
     private void populateTermSpinner(String term) {
         Calendar then;
-        if (term == "") {
+        if (term.equals("")) {
             then = Calendar.getInstance();
             then.add(Calendar.MONTH, 4);
         } else {
