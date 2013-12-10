@@ -1,8 +1,11 @@
 package com.jobmineplus.mobile.activities;
 
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
@@ -10,12 +13,13 @@ import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.database.users.UserDataSource;
 import com.jobmineplus.mobile.services.InterviewsAlarm;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
-import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
 import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 public abstract class LoggedInActivityBase extends SimpleActivityBase {
     private static InterviewsAlarm interviewsAlarm = null;
+    private AlertDialog.Builder aboutDialog;
 
     @Override
     protected void onlineModeChanged(boolean isOnline){
@@ -30,6 +34,14 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
     @Override
     protected void onCreate(Bundle arg0) {
         super.onCreate(arg0);
+
+        // Setup about dialog
+        aboutDialog = new Builder(this);
+        aboutDialog.setNeutralButton(android.R.string.ok, null);
+        aboutDialog.setTitle(R.string.about_dialog_title);
+        aboutDialog.setMessage(R.string.about_dialog_message);
+
+        // Setup the interview notifier
         if (interviewsAlarm == null) {
             synchronized (this) {
                 if (interviewsAlarm == null) {
@@ -103,6 +115,9 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
         switch(item.getItemId()) {
             case R.id.menuitem_logout:
                 logout();
+                break;
+            case R.id.menuitem_about:
+                aboutDialog.show();
                 break;
         }
         return super.onOptionsItemSelected(item);

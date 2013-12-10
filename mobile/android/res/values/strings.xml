@@ -42,6 +42,7 @@
     <string name="menuitem_logout">Logout</string>
     <string name="menuitem_localhost">Use localhost</string>
     <string name="menuitem_online">Use Online</string>
+    <string name="menuitem_about">About</string>
 
     <string name="job_details_grades">Grades are required</string>
     <string name="job_details_loc_title">Location of Job</string>
@@ -80,4 +81,8 @@
     <!-- Preference Keys -->
     <string name="pref_seen_home_tutorial">settingsSeenTutorial</string>
     <string name="pref_seen_sorting_tutorial">settingsSeenSortingTutorial</string>
+    
+    <!-- About Dialog -->
+    <string name="about_dialog_title">About</string>
+    <string name="about_dialog_message">Jobmine Plus Mobile was created by Matthew Ng.\n\nJobMine rights are owned by the University of Waterloo and this application is not affiliated with them.</string>
 </resources>
