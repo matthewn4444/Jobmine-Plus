@@ -6,7 +6,7 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 
 public class SimpleHtmlParser {
     private int position;
-    private String html;
+    private final String html;
 
     public SimpleHtmlParser(String html) {
         this.position = 0;
@@ -133,7 +133,7 @@ public class SimpleHtmlParser {
         // Find either the end of the tag or the attribute
         Pair<Integer, String> result = indexOfFirstOccurance(html, position, attribute + "=", ">");
         if (result == null) {
-            throw new JbmnplsParsingException("Cannot find attribute in current element.");
+            return null;
         }
         if (result.second == ">") {
             return null;
