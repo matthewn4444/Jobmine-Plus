@@ -6,8 +6,17 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.jbmnpls.JobSearch;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 public class DebugJobSearch extends JobSearch {
+    @Override
+    protected String setUp(Bundle savedInstanceState) {
+        super.setUp(savedInstanceState);
+        return DebugHomeActivity.debugLocalhost ?
+                "http://10.0.2.2:1111/search/"
+                : JbmnplsHttpClient.GET_LINKS.SEARCH;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -22,6 +31,7 @@ public class DebugJobSearch extends JobSearch {
         return super.verifyLogin();
     }
 
+    @Override
     protected boolean isReallyOnline() {
         if (DebugHomeActivity.debugLocalhost) {
             return isOnline() && isNetworkConnected();
