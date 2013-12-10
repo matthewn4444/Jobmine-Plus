@@ -51,6 +51,7 @@ public final class JobSearchProperties {
             code = valueCode;
         }
 
+        @Override
         public String toString() {
             return text;
         }
@@ -92,8 +93,13 @@ public final class JobSearchProperties {
             index = i;
         }
 
+        @Override
         public String toString() {
             return text;
+        }
+
+        public static JOBTYPE getDefault() {
+            return COOP;
         }
 
         public int getIndex() {

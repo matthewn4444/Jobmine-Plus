@@ -50,6 +50,7 @@ import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.JobSearchDialog;
 import com.jobmineplus.mobile.widgets.JobSearchDialog.OnJobSearchListener;
 import com.jobmineplus.mobile.widgets.JobSearchProperties;
+import com.jobmineplus.mobile.widgets.JobSearchProperties.JOBTYPE;
 import com.jobmineplus.mobile.widgets.ListViewPlus;
 import com.jobmineplus.mobile.widgets.ListViewPlus.OnVisualRowChangeListener;
 import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
@@ -327,8 +328,13 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         properties.filter.set(JobSearchProperties.FILTER.fromString(parser.getTextInCurrentElement()));
 
         // Job Type
-        parser.skipText("win0divUW_CO_JOBSRCH_UW_CO_JOB_TYPE", "checked=", "label");
-        properties.jobType.set(JobSearchProperties.JOBTYPE.fromString(parser.getTextInCurrentElement()));
+        JOBTYPE jobType = JOBTYPE.getDefault();
+        try {   // This try catch fixes errors when the user has never chosen a coop type, this is weird
+            parser.skipText("win0divUW_CO_JOBSRCH_UW_CO_JOB_TYPE", "checked=", "label");
+            jobType = JobSearchProperties.JOBTYPE.fromString(parser.getTextInCurrentElement());
+        } catch (JbmnplsParsingException e) {
+        }
+        properties.jobType.set(jobType);
 
         taskQueue = new SearchRequestQueue(this, stateNum, icsID);
 
