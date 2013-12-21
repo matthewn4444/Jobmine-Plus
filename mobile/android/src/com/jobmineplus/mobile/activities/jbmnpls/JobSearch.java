@@ -786,14 +786,16 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     protected void showLoadingAtEnd(boolean flag) {
         for (int i = 0; i < numOfTabs(); i++) {
             JbmnplsLoadingAdapterBase adapter = (JbmnplsLoadingAdapterBase)getAdapterByIndex(i);
-            if (flag) {
-                if (adapter.getCount() > numItemsFitInListView) {
-                    adapter.showLoadingAtEnd(true);
+            if (adapter != null) {
+                if (flag) {
+                    if (adapter.getCount() > numItemsFitInListView) {
+                        adapter.showLoadingAtEnd(true);
+                    } else {
+                        adapter.showLoadingAtEnd(false);
+                    }
                 } else {
                     adapter.showLoadingAtEnd(false);
                 }
-            } else {
-                adapter.showLoadingAtEnd(false);
             }
         }
     }
