@@ -17,6 +17,7 @@ import android.content.DialogInterface.OnShowListener;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
@@ -74,6 +75,7 @@ public class JobSearchDialog extends Builder implements
         setNegativeButton(android.R.string.cancel, this);
 
         dialog = create();
+        dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
         dialog.setOnShowListener(this);
         LayoutInflater inflater = dialog.getLayoutInflater();
         View view = inflater.inflate(R.layout.job_search_dialog, null);
