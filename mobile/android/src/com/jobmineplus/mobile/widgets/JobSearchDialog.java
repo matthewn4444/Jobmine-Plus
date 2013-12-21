@@ -131,9 +131,9 @@ public class JobSearchDialog extends Builder implements
 
     public void setProperties(JobSearchProperties prop) {
         properties = prop;
-        setSpinnerDefaultIfEmptyOrName(disciplines1Spinner, prop.disciplines1.get());
-        setSpinnerDefaultIfEmptyOrName(disciplines2Spinner, prop.disciplines2.get());
-        setSpinnerDefaultIfEmptyOrName(disciplines3Spinner, prop.disciplines3.get());
+        setDisciplineSpinner(disciplines1Spinner, prop.disciplines1.get());
+        setDisciplineSpinner(disciplines2Spinner, prop.disciplines2.get());
+        setDisciplineSpinner(disciplines3Spinner, prop.disciplines3.get());
 
         setSpinnerDefaultIfEmptyOrName(locationSpinner, prop.location.get());
         setSpinnerSelectionByName(filterSpinner, prop.filter.get().toString());
@@ -156,6 +156,12 @@ public class JobSearchDialog extends Builder implements
 
     public void setOnJobSearchListener(OnJobSearchListener jobListener) {
         listener = jobListener;
+    }
+
+    private void setDisciplineSpinner(Spinner spinner, String name) {
+        // This fixes the disciplines when Waterloo cannot spell unspecified correctly
+        name = name.replaceAll("unspecfied", "unspecified");
+        setSpinnerDefaultIfEmptyOrName(spinner, name);
     }
 
     private void setSpinnerDefaultIfEmptyOrName(Spinner spinner, String name) {
