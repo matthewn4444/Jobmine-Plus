@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import android.text.TextUtils;
+
 import com.jobmineplus.mobile.exceptions.JbmnplsException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
@@ -1112,7 +1113,11 @@ public class Job {
                     result =  j1.getInterviewer().compareTo(j2.getInterviewer());
                     break;
                 case LOCATION:
-                    result =  j1.getLocation().compareToIgnoreCase(j2.getLocation());
+                    if (j1.getLocation() == null) {
+                        result = 1;
+                    } else {
+                        result =  j1.getLocation().compareToIgnoreCase(j2.getLocation());
+                    }
                     break;
 
                 // Integers
