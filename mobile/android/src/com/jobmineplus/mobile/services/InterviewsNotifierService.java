@@ -41,6 +41,7 @@ import com.jobmineplus.mobile.widgets.table.TableParserOutline;
 public class InterviewsNotifierService extends Service {
     private final PageDataSource pageSource = new PageDataSource(this);
     private final JobDataSource jobSource = new JobDataSource(this);
+    private static final int CHECK_APPS_MAX_COUNT = 10;
     private JbmnplsHttpClient client;
     NotificationManager mNotificationManager;
 
@@ -217,6 +218,15 @@ public class InterviewsNotifierService extends Service {
         }
 
         private int checkApplications() throws JbmnplsLoggedOutException, IOException {
+            return checkApplications(0);
+        }
+
+        private int checkApplications(int ranCount) throws JbmnplsLoggedOutException, IOException {
+            // Avoid stackoverflow because of time calculation errors
+            if (ranCount >= CHECK_APPS_MAX_COUNT) {
+                return NO_SCHEDULE;
+            }
+
             String username = client.getUsername();
             PageMapResult result = pageSource.getPageDataMap(username, Applications.PAGE_NAME);
 
@@ -238,7 +248,7 @@ public class InterviewsNotifierService extends Service {
 
             if (needToGetApps) {
                 crawlApplications();
-                return checkApplications();
+                return checkApplications(ranCount + 1);
             }
 
             // When active is empty, we do not need to get interviews
