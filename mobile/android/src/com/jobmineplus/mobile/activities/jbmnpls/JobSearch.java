@@ -878,7 +878,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     }
 
     protected boolean isShortlisted(Job job) {
-        return isShortlisted(job.getId());
+        return job != null && isShortlisted(job.getId());
     }
 
     protected boolean isShortlisted(int id) {
