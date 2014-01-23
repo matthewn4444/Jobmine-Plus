@@ -209,7 +209,13 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
         comparer.setHeader(header);
         comparer.setDirection(ascend ? DIRECTION.ASCEND : DIRECTION.DESCEND);
         for (String tag : lists.keySet()) {
-            ((PageListFragment) getFragment(tag)).getPageListAdapter().sort(comparer);
+            PageListFragment frag = (PageListFragment) getFragment(tag);
+            if (frag != null) {
+                JbmnplsAdapterBase adapter = frag.getPageListAdapter();
+                if (adapter != null) {
+                    adapter.sort(comparer);
+                }
+            }
         }
     }
 
