@@ -10,8 +10,7 @@ import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 public class DebugShortlist extends Shortlist {
     @Override
-    protected String setUp(Bundle savedInstanceState) {
-        super.setUp(savedInstanceState);
+    public String getUrl() {
         return DebugHomeActivity.debugLocalhost ?
                 "http://10.0.2.2:1111/shortlist/"
                 : JbmnplsHttpClient.GET_LINKS.SHORTLIST;
@@ -31,6 +30,7 @@ public class DebugShortlist extends Shortlist {
         return super.verifyLogin();
     }
 
+    @Override
     protected boolean isReallyOnline() {
         if (DebugHomeActivity.debugLocalhost) {
             return isOnline() && isNetworkConnected();

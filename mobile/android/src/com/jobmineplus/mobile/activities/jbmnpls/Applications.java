@@ -1,6 +1,7 @@
 package com.jobmineplus.mobile.activities.jbmnpls;
 
 import java.util.Date;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -11,11 +12,11 @@ import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 import com.jobmineplus.mobile.widgets.Job;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
 import com.jobmineplus.mobile.widgets.Job.STATUS;
 import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
-import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Applications extends JbmnplsPageListActivityBase implements TableParser.OnTableParseListener{
 
@@ -98,17 +99,12 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     //====================
 
     @Override
-    protected String setUp(Bundle savedInstanceState) {
-        pageName = Applications.class.getName();
-        return JbmnplsHttpClient.GET_LINKS.APPLICATIONS;
-    }
-    @Override
-    protected void defineUI(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         // Create the tutorial and set the content of this activity
         new TutorialHelper(this, R.layout.tabs,
                 R.layout.tutorial_sorting, R.string.pref_seen_sorting_tutorial);
 
-        super.defineUI(savedInstanceState);
+        super.onCreate(savedInstanceState);
         parser.setOnTableRowParse(this);
         createTab(LISTS.ACTIVE_JOBS);
         createTab(LISTS.REJECTED_JOBS);
@@ -116,10 +112,21 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
     }
 
     @Override
+    public String getPageName() {
+        return PAGE_NAME;
+    }
+
+    @Override
+    public String getUrl() {
+        return JbmnplsHttpClient.GET_LINKS.APPLICATIONS;
+    }
+
+    @Override
     public HEADER[] getTableHeaders() {
         return SORT_HEADERS;
     }
 
+    @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         if (arg2 < getCurrentList().size()) {
             int jobId = getCurrentList().get(arg2).getId();
@@ -134,6 +141,7 @@ public class Applications extends JbmnplsPageListActivityBase implements TablePa
         parser.execute(ALL_OUTLINE, html);
     }
 
+    @Override
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = parseRowTableOutline(outline, jobData);
         Job.STATUS status = job.getStatus();

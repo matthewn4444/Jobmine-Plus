@@ -8,15 +8,15 @@ import android.widget.AdapterView;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
-import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
-import com.jobmineplus.mobile.widgets.Job;
-import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.HIGHLIGHTING;
+import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
+import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.Job.APPLY_STATUS;
+import com.jobmineplus.mobile.widgets.Job.HEADER;
+import com.jobmineplus.mobile.widgets.TutorialHelper;
 import com.jobmineplus.mobile.widgets.table.TableParser;
 import com.jobmineplus.mobile.widgets.table.TableParserOutline;
-import com.jobmineplus.mobile.widgets.Job.HEADER;
 
 public class Shortlist extends JbmnplsListActivityBase implements TableParser.OnTableParseListener {
 
@@ -54,26 +54,31 @@ public class Shortlist extends JbmnplsListActivityBase implements TableParser.On
     //  Override Methods
     //====================
     @Override
-    protected void defineUI(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         // Create the tutorial and set the content of this activity
         new TutorialHelper(this, R.layout.joblist,
                 R.layout.tutorial_sorting, R.string.pref_seen_sorting_tutorial);
-
-        super.defineUI(savedInstanceState);
         parser.setOnTableRowParse(this);
+        super.onCreate(savedInstanceState);
     }
 
     @Override
-    protected String setUp(Bundle savedInstanceState) {
-        pageName = PAGE_NAME;
+    public String getPageName() {
+        return PAGE_NAME;
+    }
+
+    @Override
+    public String getUrl() {
         return JbmnplsHttpClient.GET_LINKS.SHORTLIST;
     }
 
+    @Override
     public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
         int jobId = getList().get(arg2).getId();
         goToDescription(jobId);
     }
 
+    @Override
     public void onRowParse(TableParserOutline outline, Object... jobData) {
         Job job = new Job(  // Shortlist constructor
                 (Integer)           jobData[0],     (String)jobData[1],

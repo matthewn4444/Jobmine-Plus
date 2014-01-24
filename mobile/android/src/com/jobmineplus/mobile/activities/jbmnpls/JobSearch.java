@@ -179,6 +179,16 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     }
 
     @Override
+    public String getPageName() {
+        return PAGE_NAME;
+    }
+
+    @Override
+    public String getUrl() {
+        return JbmnplsHttpClient.GET_LINKS.SEARCH;
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         if (rowAnimation.isRunning()) {
             return;
@@ -211,12 +221,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
     @Override
     public HEADER[] getTableHeaders() {
         return SORT_HEADERS;
-    }
-
-    @Override
-    protected String setUp(Bundle savedInstanceState) {
-        pageName = PAGE_NAME;
-        return getUrl();
     }
 
     @Override
@@ -846,10 +850,6 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
         if (searchDialog != null) {
             searchDialog.dismiss();
         }
-    }
-
-    protected String getUrl() {
-        return JbmnplsHttpClient.GET_LINKS.SEARCH;
     }
 
     protected void showAlert(String message) {

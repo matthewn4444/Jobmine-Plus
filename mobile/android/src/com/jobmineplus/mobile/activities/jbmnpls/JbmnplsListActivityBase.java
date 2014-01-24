@@ -33,7 +33,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     private JbmnplsAdapterBase adapter;
     private MenuItem sortSelected;
     private boolean sortedAscending = false;
-    private HeaderComparator sortComparer = new Job.HeaderComparator();
+    private final HeaderComparator sortComparer = new Job.HeaderComparator();
 
     //====================
     //  Abstract Methods
@@ -48,7 +48,8 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
     //  Override Methods
     //====================
     @Override
-    protected void defineUI(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         if (findViewById(android.R.id.empty) == null) {
             setContentView(R.layout.joblist);
         }
@@ -73,7 +74,7 @@ public abstract class JbmnplsListActivityBase extends JbmnplsActivityBase implem
 
     @Override
     protected long doOffine() {
-        PageResult result = pageDataSource.getPageData(client.getUsername(), pageName);
+        PageResult result = pageDataSource.getPageData(client.getUsername(), getPageName());
         if (result != null) {
             ArrayList<Integer> ids = result.ids;
             allJobs.clear();

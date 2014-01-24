@@ -181,21 +181,25 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
     }
 
     @Override
-    protected String setUp(Bundle savedInstanceState) {
-        pageName = PAGE_NAME;
-        return JbmnplsHttpClient.GET_LINKS.INTERVIEWS;
-    }
-
-    @Override
-    protected void defineUI(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         // Create the tutorial and set the content of this activity
         new TutorialHelper(this, R.layout.tabs,
                 R.layout.tutorial_sorting, R.string.pref_seen_sorting_tutorial);
 
-        super.defineUI(savedInstanceState);
+        super.onCreate(savedInstanceState);
         parser.setOnTableRowParse(this);
         createTab(TABS.COMING_UP);
         createTab(TABS.FINISHED);
+    }
+
+    @Override
+    public String getPageName() {
+        return PAGE_NAME;
+    }
+
+    @Override
+    public String getUrl() {
+        return JbmnplsHttpClient.GET_LINKS.INTERVIEWS;
     }
 
     @Override

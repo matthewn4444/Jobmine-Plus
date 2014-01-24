@@ -53,34 +53,19 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     protected JobDataSource jobDataSource;
     protected PageDataSource pageDataSource;
     protected long timestamp;
-    protected String pageName;
+    private String pageName;
     private Boolean backBtnDisabled = false;
     private DatabaseTask<Long> databaseTask;
     private Builder confirm;
+    private Bundle savedInstance;
 
     // ====================
     // Abstract Methods
     // ====================
 
-    /**
-     * Running setUp() you need to specify the "layout" and "dataUrl".
-     * For example:
-     *      protected void setUp() {
-     *          setContentView(layout);
-     *          String url = JbmnplsHttpService.GET_LINKS.APPLICATIONS;
-     *          return url;
-     *      }
-     *
-     * @param savedInstanceState
-     * @return dataUrl (String) that gets the data that will be parsed
-     */
-    protected abstract String setUp(Bundle savedInstanceState);
+    public abstract String getPageName();
 
-    /**
-     * This allows the user to define all their UI object variables here. is
-     * necessary but does not always need it. Please specify layout in setUp();
-     */
-    protected abstract void defineUI(Bundle savedInstanceState);
+    public abstract String getUrl();
 
     /**
      * Here you are given the document of the dataUrl page specified in setUp().
@@ -107,22 +92,27 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        savedInstance = savedInstanceState;
         allJobs = new ArrayList<Job>();
         jobDataSource = new JobDataSource(this);
         pageDataSource = new PageDataSource(this);
         jobDataSource.open();
         pageDataSource.open();
-        pageName = null;
         confirm = new Builder(this);
         confirm.setPositiveButton("Yes", this).setNegativeButton("No", this)
             .setMessage(getString(R.string.go_offline_message));
-        dataUrl = setUp(savedInstanceState);
+        dataUrl = getUrl();
+        pageName = getPageName();
 
         getSupportActionBar().setTitle(pageName.substring(pageName.lastIndexOf(".") + 1));
-        defineUI(savedInstanceState);
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
 
         // Coming from home we want to request data, returning after clearing ram, do offline
-        if (savedInstanceState == null) {
+        if (savedInstance == null) {
             requestData();
         } else {
             doExecuteGetTask();

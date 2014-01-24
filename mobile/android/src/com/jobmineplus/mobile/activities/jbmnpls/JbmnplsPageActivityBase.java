@@ -3,10 +3,6 @@ package com.jobmineplus.mobile.activities.jbmnpls;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.jobmineplus.mobile.R;
-import com.viewpagerindicator.PageIndicator;
-import com.viewpagerindicator.TitlePageIndicator;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -15,6 +11,10 @@ import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
 
+import com.jobmineplus.mobile.R;
+import com.viewpagerindicator.PageIndicator;
+import com.viewpagerindicator.TitlePageIndicator;
+
 public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implements ViewPager.OnPageChangeListener {
     private TabAdapter mAdapter;
     private ViewPager mPager;
@@ -22,7 +22,9 @@ public abstract class JbmnplsPageActivityBase extends JbmnplsActivityBase implem
     private int currentIndex = 0;
 
     @Override
-    protected void defineUI(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
         // Set the content view if not set yet
         if (findViewById(R.id.pager) == null) {
             setContentView(R.layout.tabs);

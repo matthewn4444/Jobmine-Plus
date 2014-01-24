@@ -52,9 +52,9 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     //  Override Methods
     //====================
     @Override
-    protected void defineUI(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         lists = new HashMap<String, ArrayList<Job>>();
-        super.defineUI(savedInstanceState);
+        super.onCreate(savedInstanceState);
     }
 
     @Override
@@ -72,7 +72,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     @Override
     protected long doOffine() {
         PageMapResult result =
-                pageDataSource.getPageDataMap(client.getUsername(), pageName);
+                pageDataSource.getPageDataMap(client.getUsername(), getPageName());
         if (result != null) {
             HashMap<String, ArrayList<Integer>> idMap = result.idMap;
             if (idMap != null) {
@@ -107,6 +107,7 @@ public abstract class JbmnplsPageListActivityBase extends JbmnplsPageActivityBas
     @Override
     public Long doPutTask() {
         jobDataSource.addJobs(allJobs);
+        String pageName = getPageName();
         if (pageName != null) {
             pageDataSource.addPage(client.getUsername(), pageName, lists, timestamp);
         }

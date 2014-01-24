@@ -38,11 +38,15 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
     // ====================
     // Override Methods
     // ====================
-
     @Override
-    protected String setUp(Bundle savedInstanceState)
-            throws JbmnplsParsingException {
-        pageName = Description.class.getName();
+    public void onCreate(Bundle savedInstanceState) {
+        setContentView(R.layout.tabs_ads);
+        super.onCreate(savedInstanceState);
+        createTab(TABS.DESCRIPTION, JobDescription.newInstance());
+        createTab(TABS.DETAILS, JobDetails.newInstance());
+        setEmptyText(getString(R.string.description_no_data));
+        adview = ((AdView)findViewById(R.id.adView));
+
         in = getIntent();
         int id = Integer.parseInt(in.getStringExtra("jobId"));
         if (id == 0) {
@@ -54,8 +58,22 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
             throw new JbmnplsParsingException(
                     "This id does not have a job object");
         }
+    }
+
+    @Override
+    public String getPageName() {
+        return Description.class.getName();
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
         setActivityResult(job.hasDescriptionData());
-        return null; // Null means no values
+    }
+
+    @Override
+    public String getUrl() {
+        return null;
     }
 
     private void setActivityResult(boolean success) {
@@ -65,16 +83,6 @@ public class Description extends JbmnplsPageActivityBase implements OnTouchListe
         } else {
             getParent().setResult(result, in);
         }
-    }
-
-    @Override
-    protected void defineUI(Bundle savedInstanceState) {
-        setContentView(R.layout.tabs_ads);
-        super.defineUI(savedInstanceState);
-        createTab(TABS.DESCRIPTION, JobDescription.newInstance());
-        createTab(TABS.DETAILS, JobDetails.newInstance());
-        setEmptyText(getString(R.string.description_no_data));
-        adview = ((AdView)findViewById(R.id.adView));
     }
 
     @Override

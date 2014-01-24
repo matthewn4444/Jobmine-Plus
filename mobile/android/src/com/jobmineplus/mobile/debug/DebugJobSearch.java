@@ -10,8 +10,7 @@ import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
 public class DebugJobSearch extends JobSearch {
     @Override
-    protected String setUp(Bundle savedInstanceState) {
-        super.setUp(savedInstanceState);
+    public String getUrl() {
         return DebugHomeActivity.debugLocalhost ?
                 "http://10.0.2.2:1111/search/"
                 : JbmnplsHttpClient.GET_LINKS.SEARCH;
