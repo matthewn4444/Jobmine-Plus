@@ -82,7 +82,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             Editor ed = preferences.edit();
             ed.putLong(PREF_KEY_PROMOTION_PAID_DATE, now.getTimeInMillis());
             ed.commit();
-        } else if (showDate < now.getTimeInMillis()) {
+        } else if (showDate > 0 && showDate < now.getTimeInMillis()) {
             // Date has passed, now we can show the dialog and after this, never show it again
             Editor ed = preferences.edit();
             ed.putLong(PREF_KEY_PROMOTION_PAID_DATE, -1);
