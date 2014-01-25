@@ -110,7 +110,6 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
 
     @Override
     public void onBackPressed() {
-//        AppBrain.getAds().showInterstitial(this);
         finish();
     }
 

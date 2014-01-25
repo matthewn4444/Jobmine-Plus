@@ -95,7 +95,6 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
             public void finishedTask(Void result, Action action) {
             }
         }).executePut();
-//        AppBrain.getAds().maybeShowInterstitial(this);
         finish();
     }
 
