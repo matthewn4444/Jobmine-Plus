@@ -11,7 +11,6 @@ import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -21,8 +20,8 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
 import com.bugsense.trace.BugSenseHandler;
-import com.google.ads.AdRequest;
-import com.google.ads.AdView;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.JbmnplsHttpClient;
 
@@ -181,13 +180,8 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         // If adbanner exists, then show it
         final AdView adview = ((AdView)findViewById(R.id.adView));
         if (adview != null) {
-            (new Thread() {
-                @Override
-                public void run() {
-                    Looper.prepare();
-                    adview.loadAd(new AdRequest());
-                }
-            }).start();
+            AdRequest adRequest = new AdRequest.Builder().build();
+            adview.loadAd(adRequest);
         }
 
         // Register the network receiver

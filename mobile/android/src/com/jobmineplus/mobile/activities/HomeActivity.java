@@ -101,6 +101,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         return true;
     }
 
+    @Override
     public void onClick(View arg0) {
         String name = ((TextView)arg0.findViewWithTag("text")).getText().toString();
         if (name.equals("Settings")) {

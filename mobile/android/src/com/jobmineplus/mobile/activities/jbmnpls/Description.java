@@ -17,7 +17,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.google.ads.AdView;
+import com.google.android.gms.ads.AdView;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.Job;

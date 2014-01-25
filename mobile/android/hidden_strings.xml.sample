@@ -2,6 +2,6 @@
      Example: res/values/hidden_strings.xml
  -->
     <resources>
-        <string name="admob_id">ADMOB KEY</string>
-        <string name="bugsence_api_key">BUGSENCE KEY</string>
+        <string name="ad_unit_id">GOOGLE_MOBILE_AD_UNIT_ID</string>
+        <string name="bugsence_api_key">BUGSENCE_KEY</string>
     </resources>
