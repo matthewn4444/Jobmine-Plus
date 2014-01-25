@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item android:id="@+id/menuitem_no_ads" android:title="@string/menuitem_no_ads"/>
     <item android:id="@+id/menuitem_about" android:title="@string/menuitem_about"></item>
     <item android:id="@+id/menuitem_logout" android:title="@string/menuitem_logout"></item>
 </menu>

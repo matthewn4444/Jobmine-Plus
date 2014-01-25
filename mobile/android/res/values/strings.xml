@@ -43,6 +43,7 @@
     <string name="menuitem_localhost">Use localhost</string>
     <string name="menuitem_online">Use Online</string>
     <string name="menuitem_about">About</string>
+    <string name="menuitem_no_ads">Remove Ads</string>
 
     <string name="job_details_grades">Grades are required</string>
     <string name="job_details_loc_title">Location of Job</string>

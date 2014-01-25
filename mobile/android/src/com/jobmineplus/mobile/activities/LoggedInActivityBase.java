@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import com.actionbarsherlock.view.Menu;
@@ -118,7 +119,19 @@ public abstract class LoggedInActivityBase extends SimpleActivityBase {
             case R.id.menuitem_about:
                 aboutDialog.show();
                 break;
+            case R.id.menuitem_no_ads:
+                showJbmnplsmblProInMarket();
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    protected void showJbmnplsmblProInMarket() {
+        final String appPackageName = getString(R.string.promo_package_name);
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
     }
 }
