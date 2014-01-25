@@ -85,4 +85,11 @@
     <!-- About Dialog -->
     <string name="about_dialog_title">About</string>
     <string name="about_dialog_message">Jobmine Plus Mobile was created by Matthew Ng.\n\nJobMine rights are owned by the University of Waterloo and this application is not affiliated with them.</string>
+
+    <!-- Promotion ad dialog -->
+    <string name="promo_ad_dialog_title">Tired of Ads?</string>
+    <string name="promo_ad_dialog_message">Thanks for using the app I have developed!\n\nIf you appreciate my work or just hate ads then you can donate by purchasing the no ad version.</string>
+    <string name="promo_package_name">com.jobmineplus.mobilepro</string>
+    <string name="no_thank_you">No Thanks</string>
+    <string name="sure">Sure</string>
 </resources>

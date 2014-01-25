@@ -1,7 +1,12 @@
 package com.jobmineplus.mobile.activities;
 
+import java.util.Calendar;
+
 import android.app.AlertDialog.Builder;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
@@ -23,6 +28,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
 
     private static final int RESULT_FROM_SETTINGS = 1;
     public static final String INTENT_REASON = "reason";
+    private static final String PREF_KEY_PROMOTION_PAID_DATE = "promotion_paid_date";
 
     protected static final String PREFIX_PATH = "com.jobmineplus.mobile.";
     protected static final String PREFIX_ACTIVITY_PATH = "activities.jbmnpls.";
@@ -60,6 +66,45 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             } else {
                 setOnlineMode(false);
             }
+        }
+    }
+
+    @Override
+    public void onAttachedToWindow() {
+        super.onAttachedToWindow();
+
+        // Show the promotion dialog to tell users to get the paid donation version
+        long showDate = preferences.getLong(PREF_KEY_PROMOTION_PAID_DATE, 0);
+        Calendar now = Calendar.getInstance();
+        if (showDate == 0) {
+            // Since they have not seen it, we will show it in the next 3 days
+            now.add(Calendar.DATE, 3);
+            Editor ed = preferences.edit();
+            ed.putLong(PREF_KEY_PROMOTION_PAID_DATE, now.getTimeInMillis());
+            ed.commit();
+        } else if (showDate < now.getTimeInMillis()) {
+            // Date has passed, now we can show the dialog and after this, never show it again
+            Editor ed = preferences.edit();
+            ed.putLong(PREF_KEY_PROMOTION_PAID_DATE, -1);
+            ed.commit();
+
+            // Build and show the dialog
+            Builder b = new Builder(this);
+            b.setTitle(R.string.promo_ad_dialog_title);
+            b.setMessage(R.string.promo_ad_dialog_message);
+            b.setNegativeButton(R.string.no_thank_you, null);
+            b.setPositiveButton(R.string.sure, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    final String appPackageName = getString(R.string.promo_package_name);
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+                    } catch (android.content.ActivityNotFoundException anfe) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
+                    }
+                }
+            });
+            b.show();
         }
     }
 
