@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.SimpleActivityBase;
 import com.jobmineplus.mobile.activities.jbmnpls.Applications;
@@ -189,14 +188,12 @@ public class InterviewsNotifierService extends Service {
                 try {
                     result = checkApplications();
                 } catch (JbmnplsLoggedOutException e) {
-                    BugSenseHandler.sendException(e);
                     e.printStackTrace();
                     return false;
                 } catch (SSLException e) {      // Ignore sending this exception, it is not an error
                     e.printStackTrace();
                     return false;
                 } catch (IOException e) {
-                    BugSenseHandler.sendException(e);
                     e.printStackTrace();
                     return false;
                 }
@@ -306,14 +303,12 @@ public class InterviewsNotifierService extends Service {
            try {
                html = client.getJobmineHtml(JbmnplsHttpClient.GET_LINKS.INTERVIEWS);
            } catch (JbmnplsLoggedOutException e) {
-               BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
            } catch (SSLException e) {       // Ignore logging this, not an error
                e.printStackTrace();
                return false;
            } catch (IOException e) {
-               BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
            }
@@ -328,7 +323,6 @@ public class InterviewsNotifierService extends Service {
                parser.execute(Interviews.GROUPS_OUTLINE, html);
                parser.execute(Interviews.SPECIAL_OUTLINE, html);
            } catch (JbmnplsParsingException e) {
-               BugSenseHandler.sendException(e);
                e.printStackTrace();
                return false;
            }

@@ -10,7 +10,6 @@ import java.util.Queue;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.activities.jbmnpls.JbmnplsActivityBase;
 import com.jobmineplus.mobile.exceptions.JbmnplsCancelledException;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
@@ -204,22 +203,18 @@ public abstract class JbmnplsRequestQueue<TProgress> {
                 return CANCELLED;
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, response, e);
                 return LOGOUT_RESULT;
             } catch (JbmnplsLostStateException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, response, e);
                 return LOST_STATE_RESULT;
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, response, e);
                 return PARSING_ERROR;
             } catch (IOException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, response, e);
                 return PARSING_ERROR;
             }

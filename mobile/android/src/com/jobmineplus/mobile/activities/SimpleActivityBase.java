@@ -19,7 +19,6 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.bugsense.trace.BugSenseHandler;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.jobmineplus.mobile.R;
@@ -41,13 +40,6 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        if (!preferences.getBoolean("settingsEnableDataCrashReports", false)) {
-            BugSenseHandler.sendDataOverWiFiOnly();
-        }
-        if (!isDebug()) {
-            BugSenseHandler.initAndStartSession(SimpleActivityBase.this, getString(R.string.bugsence_api_key));
-        }
         super.onCreate(arg0);
     }
 

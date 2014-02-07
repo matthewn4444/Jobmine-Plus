@@ -1,8 +1,5 @@
 package com.jobmineplus.mobile.widgets;
 
-import com.bugsense.trace.BugSenseHandler;
-import com.jobmineplus.mobile.R;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -12,17 +9,19 @@ import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.jobmineplus.mobile.R;
+
 public class TutorialHelper implements OnClickListener{
-    private String prefKey;
+    private final String prefKey;
     private ViewGroup tutorialView;
-    private FrameLayout frameLayout;
-    private SharedPreferences pref;
+    private final FrameLayout frameLayout;
+    private final SharedPreferences pref;
     private TextView clickToCloseText;
 
     public TutorialHelper(Activity activity, int activityLayoutResId, int tutorialLayoutResId, int preferenceResId) {
@@ -61,7 +60,6 @@ public class TutorialHelper implements OnClickListener{
                 frameLayout.addView(clickToCloseText);
             } catch (Exception e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
             }
         }
     }

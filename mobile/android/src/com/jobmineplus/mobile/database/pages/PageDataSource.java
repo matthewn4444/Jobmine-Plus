@@ -9,13 +9,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Pair;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.database.DataSourceBase;
 import com.jobmineplus.mobile.widgets.Job;
 
 public final class PageDataSource extends DataSourceBase{
     // Database fields
-    private PageDatabaseHelper dbHelper;
+    private final PageDatabaseHelper dbHelper;
 
     public PageDataSource(Context context) {
         dbHelper = new PageDatabaseHelper(context);
@@ -173,7 +172,6 @@ public final class PageDataSource extends DataSourceBase{
                 ids.add(Integer.parseInt(idStrings[i]));
             } catch(NumberFormatException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendExceptionMessage("Weird parsing ", idStrings[i], e);
             }
         }
         cursor.close();

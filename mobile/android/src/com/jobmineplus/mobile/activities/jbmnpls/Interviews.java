@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.JbmnplsAdapterBase.Formatter;
@@ -258,7 +257,6 @@ public class Interviews extends JbmnplsPageListActivityBase implements TablePars
             timeDate = TIME_FORMAT.parse(timeString);
         } catch (ParseException e) {
             e.printStackTrace();
-            BugSenseHandler.sendExceptionMessage("Cannot convert string, given: ", timeString, e);
             return date;
         }
         retDate.setHours(timeDate.getHours());

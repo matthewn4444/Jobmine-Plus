@@ -18,7 +18,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Pair;
 
-import com.bugsense.trace.BugSenseHandler;
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.activities.HomeActivity;
 import com.jobmineplus.mobile.activities.LoggedInActivityBase;
@@ -398,22 +397,18 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 return NO_PROBLEM;
             } catch (InfiniteLoopException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, html, e);
                 return INFINITE_LOOP_ERROR;
             } catch (HiddenColumnsException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, html, e);
                 return HIDDEN_COLUMNS_ERROR;
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, html, e);
                 return PARSING_ERROR;
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, html, e);
                 return FORCED_LOGGEDOUT;
             } catch (SSLException e) {      // Ignore the SSL Error which comes from user losing network signal on get/post
@@ -421,7 +416,6 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
                 return NETWORK_ERROR;
             } catch (IOException e) {
                 e.printStackTrace();
-                BugSenseHandler.sendException(e);
                 JobminePlusMobileLog.sendException(activity, html, e);
                 return NETWORK_ERROR;
             }
