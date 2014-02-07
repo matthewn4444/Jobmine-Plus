@@ -203,19 +203,15 @@ public abstract class JbmnplsRequestQueue<TProgress> {
                 return CANCELLED;
             } catch (JbmnplsLoggedOutException e) {
                 e.printStackTrace();
-                JobminePlusMobileLog.sendException(activity, response, e);
                 return LOGOUT_RESULT;
             } catch (JbmnplsLostStateException e) {
                 e.printStackTrace();
-                JobminePlusMobileLog.sendException(activity, response, e);
                 return LOST_STATE_RESULT;
             } catch (JbmnplsParsingException e) {
                 e.printStackTrace();
-                JobminePlusMobileLog.sendException(activity, response, e);
                 return PARSING_ERROR;
             } catch (IOException e) {
                 e.printStackTrace();
-                JobminePlusMobileLog.sendException(activity, response, e);
                 return PARSING_ERROR;
             }
             return result;
