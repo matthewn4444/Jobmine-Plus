@@ -37,6 +37,7 @@ public abstract class SimpleActivityBase extends SherlockFragmentActivity {
 
     @Override
     protected void onCreate(Bundle arg0) {
+        JbmnplsHttpClient.init(this);
         connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

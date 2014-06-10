@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,15 +17,22 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.scheme.PlainSocketFactory;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
+import android.content.Context;
 import android.util.Log;
 
+import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
+import com.jobmineplus.mobile.widgets.ssl.AdditionalKeyStoresSSLSocketFactory;
 
 public final class JbmnplsHttpClient {
     //================
@@ -82,6 +90,33 @@ public final class JbmnplsHttpClient {
     private HttpRequestBase currentRequest;
     private boolean canAbort = true;
     private boolean pendingAbort = false;
+
+    private static KeyStore sTrustedStore = null;
+    private static final Object sTrustedLock = new Object();
+
+    //=========================
+    //  Static Initialization
+    //=========================
+    public static void init(Context ctx) {
+        if (sTrustedStore == null) {
+            synchronized (sTrustedLock) {
+                if (sTrustedStore == null) {
+                    try {
+                        KeyStore trusted = KeyStore.getInstance("BKS");
+                        InputStream in = ctx.getResources().openRawResource(R.raw.jobmine_certificate);
+                        try {
+                            trusted.load(in, ctx.getString(R.string.ssl_certificate_password).toCharArray());
+                        } finally {
+                            in.close();
+                        }
+                        sTrustedStore = trusted;
+                    } catch (Exception e) {
+                        throw new AssertionError(e);
+                    }
+                }
+            }
+        }
+    }
 
     //=========================
     //  Constructor
@@ -415,10 +450,24 @@ public final class JbmnplsHttpClient {
     //  Private Methods
     //===================
     private synchronized void reset() {
+        // Since JobMine's SSL implementation broke around Spring 2014, we need to implement
+        // a custom trust certificate. This is not ideal but hey, it's Waterloo.
+        // More info: http://stackoverflow.com/a/6378872/654628
+        AdditionalKeyStoresSSLSocketFactory fact = null;
+        try {
+            fact = new AdditionalKeyStoresSSLSocketFactory(sTrustedStore);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+
+        final SchemeRegistry schemeRegistry = new SchemeRegistry();
+        schemeRegistry.register(new Scheme("http", PlainSocketFactory.getSocketFactory(), 80));
+        schemeRegistry.register(new Scheme("https", fact, 443));
+
         HttpParams params = new BasicHttpParams();
         HttpProtocolParams.setVersion(params, HttpVersion.HTTP_1_1);
         HttpProtocolParams.setUserAgent(params, "Mozilla/5.0 (Windows NT 6.2; WOW64; rv:16.0) Gecko/20100101 Firefox/16.0");
-        client = new DefaultHttpClient(params);
+        client = new DefaultHttpClient(new ThreadSafeClientConnManager(params, schemeRegistry), params);
     }
 
     private LOGGED validateLoginJobmine(BufferedReader reader) throws IOException {

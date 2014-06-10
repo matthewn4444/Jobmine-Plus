@@ -93,4 +93,7 @@
     <string name="promo_package_name">com.jobmineplus.mobilepro</string>
     <string name="no_thank_you">No Thanks</string>
     <string name="sure">Sure</string>
+
+    <!-- SSL -->
+    <string name="ssl_certificate_password">jobmineplus</string>
 </resources>
