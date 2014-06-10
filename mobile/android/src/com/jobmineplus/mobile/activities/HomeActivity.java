@@ -13,6 +13,8 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
+import com.jobmineplus.mobile.widgets.InterstitialAdHelper;
+import com.jobmineplus.mobile.widgets.InterstitialAdHelper.AdListener;
 import com.jobmineplus.mobile.widgets.TutorialHelper;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
@@ -33,6 +35,9 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     protected static final String PREFIX_ACTIVITY_PATH = "activities.jbmnpls.";
 
     private Builder alert;
+
+    private InterstitialAdHelper interstitialHelper;
+    private String nextPage;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,6 +108,25 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        attachAds();
+    }
+
+    private void attachAds() {
+        interstitialHelper = new InterstitialAdHelper(this);
+        interstitialHelper.setAdListener(new AdListener(){
+            @Override
+            public void onAdDismiss() {
+                super.onAdDismiss();
+                if (nextPage != null) {
+                    goToActivity(nextPage);
+                }
+            }
+        });
+    }
+
+    @Override
     public void onBackPressed() {
         finish();
     }
@@ -146,7 +170,10 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             prevEnabledInterviewCheck = preferences.getBoolean("settingsEnableInterCheck", false);
             goToActivityForResult(name);
         } else {
-            goToActivity(name.replace(" ", ""));
+            nextPage = name.replace(" ", "");
+            if (interstitialHelper == null || !interstitialHelper.show()) {
+                goToActivity(nextPage);
+            }
         }
     }
 

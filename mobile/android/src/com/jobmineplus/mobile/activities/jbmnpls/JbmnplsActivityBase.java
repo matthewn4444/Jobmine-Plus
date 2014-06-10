@@ -32,6 +32,8 @@ import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 import com.jobmineplus.mobile.widgets.DatabaseTask;
 import com.jobmineplus.mobile.widgets.DatabaseTask.Action;
 import com.jobmineplus.mobile.widgets.DatabaseTask.IDatabaseTask;
+import com.jobmineplus.mobile.widgets.InterstitialAdHelper;
+import com.jobmineplus.mobile.widgets.InterstitialAdHelper.AdListener;
 import com.jobmineplus.mobile.widgets.Job;
 import com.jobmineplus.mobile.widgets.ProgressDialogAsyncTaskBase;
 import com.jobmineplus.mobile.widgets.StopWatch;
@@ -56,6 +58,7 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
     private DatabaseTask<Long> databaseTask;
     private Builder confirm;
     private Bundle savedInstance;
+    private InterstitialAdHelper interstitialHelper;
 
     // ====================
     // Abstract Methods
@@ -103,6 +106,8 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         pageName = getPageName();
 
         getSupportActionBar().setTitle(pageName.substring(pageName.lastIndexOf(".") + 1));
+
+        attachAds();
     }
 
     @Override
@@ -173,6 +178,33 @@ public abstract class JbmnplsActivityBase extends LoggedInActivityBase implement
         } else {
             return new Pair<String, String>(username, password);
         }
+    }
+
+    // ========================
+    // Ads Mathods
+    // ========================
+    private void attachAds() {
+        if (pageName != null && !pageName.equals(Description.class.getName())) {
+            interstitialHelper = new InterstitialAdHelper(this, 40);
+            interstitialHelper.setAdListener(new AdListener(){
+                @Override
+                public void onAdDismiss() {
+                    super.onAdDismiss();
+                    JbmnplsActivityBase.this.internalFinish();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void finish() {
+        if (interstitialHelper == null || !interstitialHelper.show()) {
+            super.finish();
+        }
+    }
+
+    private void internalFinish() {
+        super.finish();
     }
 
     // ======================
