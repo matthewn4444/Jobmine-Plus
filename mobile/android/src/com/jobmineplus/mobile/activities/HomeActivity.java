@@ -14,7 +14,6 @@ import android.widget.TextView;
 
 import com.jobmineplus.mobile.R;
 import com.jobmineplus.mobile.widgets.InterstitialAdHelper;
-import com.jobmineplus.mobile.widgets.InterstitialAdHelper.AdListener;
 import com.jobmineplus.mobile.widgets.TutorialHelper;
 
 public class HomeActivity extends LoggedInActivityBase implements OnClickListener{
@@ -71,6 +70,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
                 setOnlineMode(false);
             }
         }
+        attachAds();
     }
 
     @Override
@@ -107,23 +107,9 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        attachAds();
-    }
-
     private void attachAds() {
-        interstitialHelper = new InterstitialAdHelper(this);
-        interstitialHelper.setAdListener(new AdListener(){
-            @Override
-            public void onAdDismiss() {
-                super.onAdDismiss();
-                if (nextPage != null) {
-                    goToActivity(nextPage);
-                }
-            }
-        });
+        interstitialHelper = new InterstitialAdHelper(this, 100);
+        interstitialHelper.show();
     }
 
     @Override
@@ -171,9 +157,7 @@ public class HomeActivity extends LoggedInActivityBase implements OnClickListene
             goToActivityForResult(name);
         } else {
             nextPage = name.replace(" ", "");
-            if (interstitialHelper == null || !interstitialHelper.show()) {
-                goToActivity(nextPage);
-            }
+            goToActivity(nextPage);
         }
     }
 
