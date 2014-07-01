@@ -77,10 +77,29 @@ public class InterstitialAdHelper {
         mAct = a;
         mPrefs = PreferenceManager.getDefaultSharedPreferences(mAct);
         mShowIntermittantAd = flatPercent == 0;
-        double percentage = mShowIntermittantAd ? calculateIntermittentShowAd() : flatPercent;
-        if (shouldShowAd(percentage)) {
+        if (flatPercent >= 100) {
             buildAd();
+        } else {
+            double percentage = mShowIntermittantAd ? calculateIntermittentShowAd() : flatPercent;
+            if (shouldShowAd(percentage)) {
+                buildAd();
+            }
         }
+
+        // Detect ads, just cancel showing the interstitial; need to be threaded
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                if (Adblocker.check()) {
+                    mAct.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            handleAdLoadFail(AdRequest.ERROR_CODE_NETWORK_ERROR);
+                        }
+                    });
+                }
+            }
+        }).start();
     }
 
     /**
@@ -114,10 +133,15 @@ public class InterstitialAdHelper {
                         // Cancel after timeout error
                         mCancel = true;
                         removeOverlay();
-                        if (mListener != null) {
-                            mListener.onAdFailedToLoad(AdRequest.ERROR_CODE_NETWORK_ERROR);
-                            mListener.onAdDismiss();
-                        }
+                        mAct.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (mListener != null) {
+                                    mListener.onAdFailedToLoad(AdRequest.ERROR_CODE_NETWORK_ERROR);
+                                    mListener.onAdDismiss();
+                                }
+                            }
+                        });
                     }
                 }, TIMEOUT);
             } else {
@@ -235,6 +259,21 @@ public class InterstitialAdHelper {
         return percentLastSeen + percentMissedTimes;
     }
 
+    private void handleAdLoadFail(int errorCode) {
+        removeOverlay();
+        mCancel = true;
+        if (!mCancel && mCancelTimer != null) {
+            mCancelTimer.cancel();
+        }
+        if (mListener != null) {
+            mListener.onAdFailedToLoad(errorCode);
+            if (mOverlay != null) {
+                // Show when overlay is shown
+                mListener.onAdDismiss();
+            }
+        }
+    }
+
     private boolean shouldShowAd(double percentage) {
         // Now see if we randomly get into the percentage area
         int rPercent = getRandomPercentage();
@@ -264,18 +303,7 @@ public class InterstitialAdHelper {
             @Override
             public void onAdFailedToLoad(int errorCode) {
                 super.onAdFailedToLoad(errorCode);
-                removeOverlay();
-                mCancel = true;
-                if (!mCancel && mCancelTimer != null) {
-                    mCancelTimer.cancel();
-                }
-                if (mListener != null) {
-                    mListener.onAdFailedToLoad(errorCode);
-                    if (mOverlay != null) {
-                        // Show when overlay is shown
-                        mListener.onAdDismiss();
-                    }
-                }
+                handleAdLoadFail(errorCode);
             }
             @Override
             public void onAdLoaded() {
