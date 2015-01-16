@@ -2,15 +2,15 @@ package com.jobmineplus.mobile.widgets;
 
 import java.util.Locale;
 
-import com.jobmineplus.mobile.R;
-
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.TextView;
 
+import com.jobmineplus.mobile.R;
+
 public class TextViewPlus extends TextView {
-    private TypedArray styledAttrs;
+    private boolean isUpperCase;
     private CharSequence originalText;
 
     public TextViewPlus(Context context, AttributeSet attrs) {
@@ -20,14 +20,15 @@ public class TextViewPlus extends TextView {
         if (isInEditMode()) {
             return;
         }
-        styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TextViewPlus);
+        TypedArray styledAttrs = context.obtainStyledAttributes(attrs, R.styleable.TextViewPlus);
+        isUpperCase = (styledAttrs != null && styledAttrs.getBoolean(R.styleable.TextViewPlus_uppercase, false));
         styledAttrs.recycle();
         setText(getText());
     }
 
     @Override
     public void setText(CharSequence text, BufferType type) {
-        if (styledAttrs != null && styledAttrs.getBoolean(R.styleable.TextViewPlus_uppercase, false)) {
+        if (isUpperCase) {
             originalText = text;
             text = text.toString().toUpperCase(Locale.getDefault());
         }
