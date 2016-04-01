@@ -10,12 +10,11 @@ import java.util.Queue;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.jobmineplus.mobile.activities.jbmnpls.JbmnplsActivityBase;
-import com.jobmineplus.mobile.exceptions.JbmnplsCancelledException;
-import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
-import com.jobmineplus.mobile.exceptions.JbmnplsLostStateException;
-import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
-import com.jobmineplus.mobile.widgets.table.SimpleHtmlParser;
+import com.jobmineplus.mobilepro.activities.jbmnpls.JbmnplsActivityBase;
+import com.jobmineplus.mobilepro.exceptions.JbmnplsCancelledException;
+import com.jobmineplus.mobilepro.exceptions.JbmnplsLoggedOutException;
+import com.jobmineplus.mobilepro.exceptions.JbmnplsLostStateException;
+import com.jobmineplus.mobilepro.exceptions.JbmnplsParsingException;
 
 
 public abstract class JbmnplsRequestQueue<TProgress> {
@@ -40,7 +39,7 @@ public abstract class JbmnplsRequestQueue<TProgress> {
     private final JbmnplsRequestQueue<TProgress> self;
 
     // Post Request States
-    private String stateNum;
+    private int stateNum;
     private final String icsID;
 
     public JbmnplsRequestQueue(JbmnplsActivityBase a, JbmnplsHttpClient c, String postUrl, String stateNumber, String id) {
@@ -48,7 +47,7 @@ public abstract class JbmnplsRequestQueue<TProgress> {
         activity = a;
         self = this;
         client = c;
-        stateNum = stateNumber;
+        stateNum = stateNumber == null ? 0 : Integer.parseInt(stateNumber, 10);
         icsID = id;
     }
 
@@ -145,7 +144,7 @@ public abstract class JbmnplsRequestQueue<TProgress> {
         postData.add(new BasicNameValuePair("ICAction", icAction));
         postData.add(new BasicNameValuePair("ICElementNum", "0"));
         postData.add(new BasicNameValuePair("ICAJAX", "1"));
-        postData.add(new BasicNameValuePair("ICStateNum", stateNum));
+        postData.add(new BasicNameValuePair("ICStateNum", stateNum + ""));
         postData.add(new BasicNameValuePair("ICSID", icsID));
 
         // Do Post
@@ -159,15 +158,7 @@ public abstract class JbmnplsRequestQueue<TProgress> {
         } else if (response.contains(LOST_STATE_STRING)) {
             throw new JbmnplsLostStateException();
         }
-
-        // Find the new state number
-        SimpleHtmlParser parser = new SimpleHtmlParser(response);
-        int startIndex = parser.skipText("ICStateNum", "=");
-        int endIndex = response.indexOf(";", startIndex);
-        if (endIndex == -1) {
-            throw new JbmnplsParsingException("Cannot find state number");
-        }
-        stateNum = response.substring(startIndex, endIndex);
+        stateNum++;
         return response;
     }
 
