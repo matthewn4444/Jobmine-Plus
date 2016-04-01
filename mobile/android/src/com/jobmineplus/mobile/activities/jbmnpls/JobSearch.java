@@ -1066,7 +1066,7 @@ public class JobSearch extends JbmnplsPageListActivityBase implements
 
                 // Get the shortlist job index from html
                 parser = new SimpleHtmlParser(lastSearchedHtml);
-                parser.skipText(currentShortlistedJob.getId() + "", "id='UW_CO_SLIST_HL$");
+                parser.skipText(currentShortlistedJob.getId() + "", "name='UW_CO_SLIST_HL$");
                 name = parser.getAttributeInCurrentElement("id");
 
                 response = doPost(name);
