@@ -10,11 +10,11 @@ import java.util.Queue;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.jobmineplus.mobilepro.activities.jbmnpls.JbmnplsActivityBase;
-import com.jobmineplus.mobilepro.exceptions.JbmnplsCancelledException;
-import com.jobmineplus.mobilepro.exceptions.JbmnplsLoggedOutException;
-import com.jobmineplus.mobilepro.exceptions.JbmnplsLostStateException;
-import com.jobmineplus.mobilepro.exceptions.JbmnplsParsingException;
+import com.jobmineplus.mobile.activities.jbmnpls.JbmnplsActivityBase;
+import com.jobmineplus.mobile.exceptions.JbmnplsCancelledException;
+import com.jobmineplus.mobile.exceptions.JbmnplsLoggedOutException;
+import com.jobmineplus.mobile.exceptions.JbmnplsLostStateException;
+import com.jobmineplus.mobile.exceptions.JbmnplsParsingException;
 
 
 public abstract class JbmnplsRequestQueue<TProgress> {
