@@ -88,14 +88,16 @@ public class OpacityLinearLayout extends LinearLayout {
             child.setVisibility(View.INVISIBLE);
             child.setDrawingCacheEnabled(true);
             Bitmap bitmap = child.getDrawingCache(true);
-            bitmap = Bitmap.createBitmap(bitmap);
-            child.setDrawingCacheEnabled(false);
+            if (bitmap != null) {
+                bitmap = Bitmap.createBitmap(bitmap);
+                child.setDrawingCacheEnabled(false);
 
-            int x = getRelativeLeft(child);
-            int y = getRelativeTop(child);
+                int x = getRelativeLeft(child);
+                int y = getRelativeTop(child);
 
-            paint.setAlpha(alpha);
-            canvas.drawBitmap(bitmap, x, y, paint);
+                paint.setAlpha(alpha);
+                canvas.drawBitmap(bitmap, x, y, paint);
+            }
         }
     }
 }
